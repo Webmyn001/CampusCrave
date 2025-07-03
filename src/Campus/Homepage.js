@@ -105,23 +105,58 @@ const HomePage = () => {
   ];
 
   const faqs = [
-    { 
-      question: "How do I verify my student status?",
-      answer: "Use your official OAU email address during registration and upload a clear photo of your current student ID card."
-    },
-    { 
-      question: "Is there buyer protection?",
-      answer: "Yes! All transactions are protected through our campus escrow system. Funds are only released after successful delivery."
-    },
-    { 
-      question: "How fast are deliveries?",
-      answer: "Most deliveries within Fajuyi Hall happen within 2-4 hours. Off-campus deliveries vary by location."
-    },
-    { 
-      question: "Can I sell services?",
-      answer: "Absolutely! You can offer tutoring, laundry services, repairs, and other student-friendly services."
-    },
-  ];
+  {
+    question: "How does Campus Crave help with gender restrictions?",
+    answer:
+      "Campus Crave eliminates the need for students to physically market products across hostels, allowing all students to connect and transact regardless of gender-based restrictions in hostels."
+  },
+  {
+    question: "Is it safe to buy and sell on Campus Crave?",
+    answer:
+      "Yes. Campus Crave has a support system for reporting scams or fake products, ensuring a safe and reliable environment for all users."
+  },
+  {
+    question: "How do I report a scam or fake product?",
+    answer:
+      "You can use the built-in support system on the platform to report suspicious or fake products, or reach out to the Campus Crave support team."
+  },
+  {
+    question: "Who can use Campus Crave?",
+    answer:
+      "Campus Crave is designed for students of Obafemi Awolowo University who wish to buy or sell products and services within the campus."
+  },
+  {
+    question: "Does Campus Crave support only products, or can I sell services too?",
+    answer:
+      "Campus Crave supports both products and services, making it a centralized marketplace for all campus transactions."
+  },
+  {
+    question: "Why was Campus Crave created?",
+    answer:
+      "Campus Crave was created by Bello Muhyideen, a student at Obafemi Awolowo University, to solve the problem of students struggling to buy or sell products quickly on campus due to the absence of a dedicated online marketplace."
+  },
+  {
+    question: "What makes Campus Crave different from other marketplaces?",
+    answer:
+      "Campus Crave focuses specifically on the needs of the campus community, addressing unique challenges such as gender-based hostel restrictions and providing a safer environment for transactions within Obafemi Awolowo University."
+  },
+  {
+    question: "How does Campus Crave ensure the safety of its users?",
+    answer:
+      "Campus Crave features a reporting system for scams and fake products, actively working to maintain a safe and trustworthy platform for students."
+  },
+  {
+    question: "Can I use Campus Crave if I am not a student of OAU?",
+    answer:
+      "No, Campus Crave is exclusively for students of Obafemi Awolowo University to ensure trust and a close-knit marketplace experience."
+  },
+  {
+    question: "What should I do if I encounter a problem with a transaction?",
+    answer:
+      "If you experience any issues during a transaction, you should contact Campus Crave support immediately or use the platform's built-in reporting tools for assistance."
+  }
+];
+
 
   // Slider scroll functionality
   const scrollSlider = (ref, direction) => {
