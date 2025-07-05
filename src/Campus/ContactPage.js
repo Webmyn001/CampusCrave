@@ -18,7 +18,7 @@ const ContactPage = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/contact/', formData
+        'https://campus-plum.vercel.app/api/contact/', formData
       );
 
       if (response.status === 201) {

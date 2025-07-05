@@ -12,7 +12,7 @@ const VipServicesListings = () => {
   useEffect(() => {
     const fetchVipServices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/vip-listings');
+        const response = await axios.get('https://campus-plum.vercel.app/api/vip-listings');
         
        
         

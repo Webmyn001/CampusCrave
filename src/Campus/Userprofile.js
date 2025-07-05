@@ -1,143 +1,155 @@
-import { FiCheckCircle, FiEdit, FiLogOut, FiPackage, FiPlus, FiUser, FiMail, FiCalendar, FiBook, FiHome, FiTrash2, FiEye } from 'react-icons/fi';
+import { FiEdit, FiLogOut, FiPlus, FiMail, FiCalendar, FiBook, FiHome, FiEye, FiLoader, FiStar, FiAlertTriangle, FiShield } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 const UserProfile = () => {
   const navigate = useNavigate();
-  const [listings, setListings] = useState([
-    { 
-      id: 1, 
-      title: "MacBook Pro 2020 (16GB/512GB)", 
-      price: "₦280,000", 
-      status: "active",
-      image: "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      date: "2 days ago",
-      views: 142,
-      category: "Electronics"
-    },
-    { 
-      id: 2, 
-      title: "Calculus Textbook 3rd Edition", 
-      price: "₦7,500", 
-      status: "sold",
-      image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      date: "1 week ago",
-      views: 89,
-      category: "Books"
-    },
-    { 
-      id: 3, 
-      title: "Designer Winter Jacket", 
-      price: "₦15,000", 
-      status: "active",
-      image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      date: "3 days ago",
-      views: 67,
-      category: "Fashion"
-    },
-  ]);
-  
-  const [currentUser, setCurrentUser] = useState({
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    memberSince: "March 2022",
-    course: "Computer Science",
-    year: "4",
-    hostel: "Unity Hall, Room 405",
-    phone: "+234 812 345 6789"
-  });
-  
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('listings');
+  const [currentUser, setCurrentUser] = useState([]);
+  const [listings, setListings] = useState({
+    premium: [],
+    vip: [],
+    urgent: [],
+    loading: true
+  });
 
-  const handleAuth = () => {
+  // Fetch user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) {
+          navigate('/login');
+          return;
+        }
+        
+        const res = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`);
+        setCurrentUser({
+          ...res.data,
+          memberSince: new Date(res.data.createdAt).toLocaleDateString('en-US', { 
+            month: 'long', 
+            year: 'numeric' 
+          })
+        });
+        setLoading(false)
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    fetchUser();
+  }, [navigate]);
+
+  // Fetch listings
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const fetchListings = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        
+        // Fetch premium listings
+        const premiumRes = await axios.get('https://campus-plum.vercel.app/api/pro-listings/');
+        const premium = premiumRes.data.filter(item => item.sellerInfo._id === userId);
+        
+        // Fetch VIP listings
+        const vipRes = await axios.get('https://campus-plum.vercel.app/api/vip-listings/');
+        const vip = vipRes.data.filter(item => item.sellerInfo._id === userId);
+        
+        // Fetch normal listings and filter urgent ones
+        const normalRes = await axios.get('https://campus-plum.vercel.app/api/listings/');
+        const urgent = normalRes.data.filter(item => item.sellerInfo._id === userId);
+        
+        setListings({
+          premium,
+          vip,
+          urgent,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Error fetching listings:', error);
+        setListings(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    fetchListings();
+  }, [currentUser]);
+
+  const handleLogout = () => {
     localStorage.removeItem('Login');
     localStorage.removeItem('token');
     localStorage.removeItem('userEmail');
-    window.dispatchEvent(new Event('storage'));
+    localStorage.removeItem('userId');
     navigate('/');
   };
 
-  const toggleListingStatus = (listingId) => {
-    setListings(listings.map(listing => 
-      listing.id === listingId 
-        ? { ...listing, status: listing.status === 'active' ? 'sold' : 'active' }
-        : listing
-    ));
-  };
-
-  const deleteListing = (listingId) => {
-    setListings(listings.filter(listing => listing.id !== listingId));
-  };
+  if (loading || !currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <FiLoader className="animate-spin text-indigo-600 text-4xl" />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-8 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
-        {/* Profile Header with Actions */}
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">My Profile</h1>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex gap-3">
             <Link
               to="/publish"
-              className="flex items-center px-4 py-2 text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md"
+              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
             >
-              <FiPlus className="mr-2" /> 
-              <span className="hidden sm:inline">Publish New</span>
-              <span className="sm:hidden">New</span>
+              <FiPlus className="mr-2" /> New Listing
             </Link>
             <button 
-              onClick={handleAuth}
-              className="flex items-center px-4 py-2 text-white bg-gradient-to-r from-red-500 to-orange-500 rounded-xl hover:from-red-600 hover:to-orange-600 transition-all shadow-md"
+              onClick={handleLogout}
+              className="flex items-center px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors shadow-sm"
             >
-              <FiLogOut className="mr-2" />
-              <span className="hidden sm:inline">Logout</span>
+              <FiLogOut className="mr-2" /> Logout
             </button>
           </div>
         </div>
 
-        {/* Profile Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8"
-        >
-          <div className="relative h-32 bg-gradient-to-r from-indigo-600 to-purple-600">
-            <div className="absolute -bottom-16 left-6 sm:left-8">
+        {/* Profile Card - Modern Design */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+          <div className="relative h-40 bg-gradient-to-r from-indigo-500 to-purple-600">
+            <div className="absolute -bottom-16 left-10">
               <div className="relative">
                 <img 
-                  src={currentUser.avatar}
+                  src={currentUser.image || "https://i.pinimg.com/736x/3e/96/71/3e9671f23722767969d511dda257a888.jpg"}
                   alt="Profile"
-                  className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
+                  className="w-36 h-36 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg object-cover"
                 />
-                {true && (
-                  <div className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-                    <FiCheckCircle className="text-white text-sm" />
-                  </div>
-                )}
+                {/* Edit Profile Button */}
+                <Link
+                  to="/profilepage"
+                  className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 border border-gray-200"
+                >
+                  <FiEdit className="text-indigo-600" />
+                </Link>
               </div>
             </div>
           </div>
           
-          <div className="pt-20 pb-6 px-6 sm:px-8">
-            <div className="flex flex-col sm:flex-row justify-between gap-4">
+          <div className="pt-20 pb-6 px-6">
+            <div className="flex flex-col md:flex-row justify-between gap-4">
               <div>
-                <div className="flex flex-wrap items-center gap-3 mb-2">
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{currentUser.name}</h1>
-                  <span className={`px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
-                    true 
-                      ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white'
-                      : 'bg-blue-100 text-blue-600'
-                  }`}>
-                    PRO Member
-                  </span>
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-xl font-bold text-gray-800">{currentUser.name}</h1>
+                  {currentUser.isPro && (
+                    <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs rounded-full">
+                      PRO MEMBER
+                    </span>
+                  )}
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600 mt-4">
-                  <div className="flex items-start gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                  <div className="flex items-center gap-3">
                     <div className="bg-indigo-100 p-2 rounded-lg">
                       <FiMail className="text-indigo-600" />
                     </div>
@@ -147,7 +159,7 @@ const UserProfile = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="bg-indigo-100 p-2 rounded-lg">
                       <FiCalendar className="text-indigo-600" />
                     </div>
@@ -157,219 +169,232 @@ const UserProfile = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="bg-indigo-100 p-2 rounded-lg">
                       <FiBook className="text-indigo-600" />
                     </div>
                     <div>
                       <p className="text-xs text-gray-500">Department</p>
-                      <p className="font-medium">{currentUser.course}, Part {currentUser.year}</p>
+                      <p className="font-medium">{currentUser.course || 'Not specified'}</p>
                     </div>
                   </div>
                   
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-center gap-3">
                     <div className="bg-indigo-100 p-2 rounded-lg">
                       <FiHome className="text-indigo-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Address</p>
-                      <p className="font-medium">{currentUser.hostel}</p>
+                      <p className="text-xs text-gray-500">Hostel</p>
+                      <p className="font-medium">{currentUser.hostel || 'Not specified'}</p>
                     </div>
                   </div>
                 </div>
               </div>
-              
-              <Link 
-                to="/profilepage"
-                className="self-start flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 rounded-xl transition-colors h-fit"
-              >
-                <FiEdit />
-                <span>Edit Profile</span>
-              </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Tabs for Listings and Stats */}
+        {/* Tabs */}
         <div className="flex border-b border-gray-200 mb-6">
           <button
-            className={`px-4 py-3 font-medium text-sm sm:text-base ${
+            className={`px-4 py-3 font-medium flex items-center gap-2 ${
               activeTab === 'listings' 
                 ? 'text-indigo-600 border-b-2 border-indigo-600' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('listings')}
           >
-            <div className="flex items-center gap-2">
-              <FiPackage />
-              My Listings ({listings.length})
-            </div>
+            <FiShield className="text-lg" />
+            My Listings
           </button>
           <button
-            className={`px-4 py-3 font-medium text-sm sm:text-base ${
+            className={`px-4 py-3 font-medium flex items-center gap-2 ${
               activeTab === 'stats' 
                 ? 'text-indigo-600 border-b-2 border-indigo-600' 
                 : 'text-gray-500 hover:text-gray-700'
             }`}
             onClick={() => setActiveTab('stats')}
           >
-            <div className="flex items-center gap-2">
-              <FiUser />
-              Account Stats
-            </div>
+            <FiStar className="text-lg" />
+            Account Stats
           </button>
         </div>
 
-        {/* Listings Section */}
+        {/* Listings Content */}
         {activeTab === 'listings' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {listings.map((listing) => (
-                <motion.div 
-                  key={listing.id}
-                  whileHover={{ y: -5 }}
-                  className="bg-white rounded-2xl shadow-md overflow-hidden"
-                >
-                  <div className="relative">
-                    <img 
-                      src={listing.image} 
-                      alt={listing.title} 
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-3 right-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        listing.status === 'active' 
-                          ? 'bg-green-100 text-green-600'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
-                        {listing.status}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-5">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="font-semibold text-gray-800 text-lg line-clamp-1">{listing.title}</h3>
-                      <p className="text-blue-600 font-bold text-lg">{listing.price}</p>
-                    </div>
-                    
-                    <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                      <span>{listing.category}</span>
-                      <span>{listing.date}</span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-1 text-sm text-gray-500">
-                        <FiEye className="text-gray-400" />
-                        <span>{listing.views} views</span>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={() => toggleListingStatus(listing.id)}
-                          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-lg transition-colors"
-                        >
-                          {listing.status === 'active' ? 'Mark Sold' : 'Reactivate'}
-                        </button>
-                        <button 
-                          onClick={() => deleteListing(listing.id)}
-                          className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                        >
-                          <FiTrash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+          <div className="space-y-10">
+            {/* Premium Listings */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <FiShield className="text-purple-600 text-xl" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">Premium Listings</h2>
+              </div>
+              
+              {listings.loading ? (
+                <div className="flex justify-center py-8">
+                  <FiLoader className="animate-spin text-purple-600 text-2xl" />
+                </div>
+              ) : listings.premium.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings.premium.map(item => (
+                    <ListingCard key={item._id} item={item} category="premium" />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-xl p-8 text-center border border-gray-200">
+                  <p className="text-gray-600">You don't have any premium listings</p>
+                </div>
+              )}
             </div>
             
-            {listings.length === 0 && (
-              <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
-                <FiPackage className="mx-auto text-gray-400 text-4xl mb-4" />
-                <h3 className="text-xl font-medium text-gray-700 mb-2">No listings yet</h3>
-                <p className="text-gray-500 mb-6">You haven't published any items for sale.</p>
-                <Link
-                  to="/publish"
-                  className="inline-flex items-center px-4 py-2 text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-colors"
-                >
-                  <FiPlus className="mr-2" /> 
-                  Create First Listing
-                </Link>
+            {/* VIP Listings */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-yellow-100 p-2 rounded-lg">
+                  <FiStar className="text-yellow-600 text-xl" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">VIP Listings</h2>
               </div>
-            )}
-          </motion.div>
+              
+              {listings.loading ? (
+                <div className="flex justify-center py-8">
+                  <FiLoader className="animate-spin text-yellow-600 text-2xl" />
+                </div>
+              ) : listings.vip.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings.vip.map(item => (
+                    <ListingCard key={item._id} item={item} category="vip" />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-xl p-8 text-center border border-gray-200">
+                  <p className="text-gray-600">You don't have any VIP listings</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Urgent Listings */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-red-100 p-2 rounded-lg">
+                  <FiAlertTriangle className="text-red-600 text-xl" />
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">Urgent Listings</h2>
+              </div>
+              
+              {listings.loading ? (
+                <div className="flex justify-center py-8">
+                  <FiLoader className="animate-spin text-red-600 text-2xl" />
+                </div>
+              ) : listings.urgent.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {listings.urgent.map(item => (
+                    <ListingCard key={item._id} item={item} category="urgent" />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-50 rounded-xl p-8 text-center border border-gray-200">
+                  <p className="text-gray-600">You don't have any urgent listings</p>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
-        {/* Stats Section */}
+        {/* Stats Content */}
         {activeTab === 'stats' && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {/* Stats Cards */}
-            <div className="bg-white rounded-2xl shadow-md p-6">
-              <div className="text-3xl font-bold text-indigo-600 mb-2">42</div>
-              <div className="text-gray-700 font-medium">Total Listings</div>
-              <div className="text-sm text-gray-500 mt-1">Since joining</div>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow-md p-6">
-              <div className="text-3xl font-bold text-green-600 mb-2">38</div>
-              <div className="text-gray-700 font-medium">Items Sold</div>
-              <div className="text-sm text-gray-500 mt-1">Successful transactions</div>
-            </div>
-            
-            <div className="bg-white rounded-2xl shadow-md p-6">
-              <div className="text-3xl font-bold text-blue-600 mb-2">4.9</div>
-              <div className="text-gray-700 font-medium">Seller Rating</div>
-              <div className="text-sm text-gray-500 mt-1">Based on 24 reviews</div>
-            </div>
-            
-            {/* Activity Section */}
-            <div className="md:col-span-3 bg-white rounded-2xl shadow-md p-6 mt-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
-              
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <div className="bg-green-100 rounded-full p-2">
-                    <FiCheckCircle className="text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Item sold: Calculus Textbook</p>
-                    <p className="text-sm text-gray-500">Yesterday at 2:45 PM</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="bg-blue-100 rounded-full p-2">
-                    <FiPlus className="text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">New listing: Designer Winter Jacket</p>
-                    <p className="text-sm text-gray-500">3 days ago</p>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <div className="bg-indigo-100 rounded-full p-2">
-                    <FiUser className="text-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Profile information updated</p>
-                    <p className="text-sm text-gray-500">1 week ago</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <StatCard 
+              title="Total Listings" 
+              value={listings.premium.length + listings.vip.length + listings.urgent.length}
+              icon={<FiShield />}
+              color="indigo"
+            />
+            <StatCard 
+              title="Premium Listings" 
+              value={listings.premium.length}
+              icon={<FiShield />}
+              color="purple"
+            />
+            <StatCard 
+              title="VIP Listings" 
+              value={listings.vip.length}
+              icon={<FiStar />}
+              color="yellow"
+            />
+          </div>
         )}
+      </div>
+    </div>
+  );
+};
+
+// Listing Card Component
+const ListingCard = ({ item, category }) => {
+  const getCategoryColor = () => {
+    switch(category) {
+      case 'premium': return 'from-purple-500 to-indigo-500';
+      case 'vip': return 'from-yellow-400 to-amber-500';
+      case 'urgent': return 'from-red-500 to-orange-500';
+      default: return 'from-gray-500 to-gray-700';
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all">
+      <div className="relative h-48">
+        <img 
+          src={item.image || "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} 
+          alt={item.title} 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent to-black/70"></div>
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+          <h3 className="font-bold text-lg truncate">{item.title}</h3>
+          <p className="text-xl font-bold">₦{item.price}</p>
+        </div>
+        <span className={`absolute top-3 right-3 bg-gradient-to-r ${getCategoryColor()} text-white px-3 py-1 rounded-full text-xs`}>
+          {category.toUpperCase()}
+        </span>
+      </div>
+      
+      <div className="p-4">
+        <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
+          <span>{item.category || 'General'}</span>
+          <span>{new Date(item.formattedPostedAt).toLocaleDateString()}</span>
+        </div>
+        
+        <div className="flex items-center text-sm text-gray-500">
+          <FiEye className="mr-1" /> {item.views || 0} views
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Stat Card Component
+const StatCard = ({ title, value, icon, color }) => {
+  const bgColor = () => {
+    switch(color) {
+      case 'indigo': return 'bg-indigo-50 border-indigo-200 text-indigo-600';
+      case 'purple': return 'bg-purple-50 border-purple-200 text-purple-600';
+      case 'yellow': return 'bg-yellow-50 border-yellow-200 text-yellow-600';
+      default: return 'bg-gray-50 border-gray-200 text-gray-600';
+    }
+  };
+
+  return (
+    <div className={`rounded-xl border p-6 ${bgColor()}`}>
+      <div className="flex justify-between items-start">
+        <div>
+          <div className="text-3xl font-bold mb-1">{value}</div>
+          <div className="text-gray-600">{title}</div>
+        </div>
+        <div className="p-3 rounded-lg bg-white shadow-sm">
+          {icon}
+        </div>
       </div>
     </div>
   );

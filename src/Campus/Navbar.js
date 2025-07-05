@@ -9,11 +9,6 @@ const Navbar = () => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const categories = [
-    'Academic', 'Fashion', 'Housing', 'Services', 
-    'Food', 'Electronics', 'Furniture', 'Books', 'Sports', 'Other'
-  ];
-
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = localStorage.getItem('token');
@@ -26,48 +21,28 @@ const Navbar = () => {
     return () => window.removeEventListener('storage', checkLoginStatus);
   }, []);
 
+  // Function to close mobile menu
+  const closeMobileMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to="/" className="text-2xl font-bold text-indigo-600 hover:text-indigo-700">
+            <Link 
+              to="/" 
+              className="text-2xl font-bold text-indigo-600 hover:text-indigo-700"
+              onClick={closeMobileMenu} // Added close on click
+            >
               CampusCrave
             </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-6">
-            {/* Categories Dropdown */}
-            <div className="relative">
-              <button 
-                onMouseEnter={() => setIsCategoriesOpen(true)}
-                onMouseLeave={() => setIsCategoriesOpen(false)}
-                className="flex items-center px-3 py-2 text-gray-700 hover:text-indigo-600 transition-colors"
-              >
-                Categories <FiChevronDown className="ml-1" />
-              </button>
-
-              {isCategoriesOpen && (
-                <div 
-                  className="absolute top-full left-0 w-48 bg-white shadow-lg py-2 rounded-lg"
-                  onMouseEnter={() => setIsCategoriesOpen(true)}
-                  onMouseLeave={() => setIsCategoriesOpen(false)}
-                >
-                  {categories.map((category) => (
-                    <Link
-                      key={category}
-                      to={`/category/${category.toLowerCase()}`}
-                      className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                    >
-                      {category}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* More Dropdown */}
             <div className="relative">
               <button 
@@ -84,13 +59,22 @@ const Navbar = () => {
                   onMouseEnter={() => setIsMoreOpen(true)}
                   onMouseLeave={() => setIsMoreOpen(false)}
                 >
-                  <Link to="/about" className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  <Link 
+                    to="/about" 
+                    className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  >
                     About
                   </Link>
-                  <Link to="/contact" className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  <Link 
+                    to="/contact" 
+                    className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  >
                     Contact
                   </Link>
-                  <Link to="/legal" className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  <Link 
+                    to="/legal" 
+                    className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  >
                     Legal
                   </Link>
                 </div>
@@ -139,36 +123,26 @@ const Navbar = () => {
         {isMenuOpen && (
           <div className="lg:hidden pb-4">
             <div className="px-2 pt-2 space-y-1">
-              {/* Categories Mobile */}
-              <button 
-                className="w-full flex justify-between items-center px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-              >
-                Categories <FiChevronDown className={`transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isCategoriesOpen && (
-                <div className="ml-4 space-y-2">
-                  {categories.map((category) => (
-                    <Link
-                      key={category}
-                      to={`/category/${category.toLowerCase()}`}
-                      className="block px-3 py-2 text-gray-600 hover:bg-gray-50 rounded"
-                    >
-                      {category}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
               {/* Static Links */}
-              <Link to="/about" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <Link 
+                to="/about" 
+                className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                onClick={closeMobileMenu} // Added close on click
+              >
                 About
               </Link>
-              <Link to="/contact" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <Link 
+                to="/contact" 
+                className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                onClick={closeMobileMenu} // Added close on click
+              >
                 Contact
               </Link>
-              <Link to="/legal" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+              <Link 
+                to="/legal" 
+                className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                onClick={closeMobileMenu} // Added close on click
+              >
                 Legal
               </Link>
 
@@ -177,16 +151,25 @@ const Navbar = () => {
                 <Link 
                   to="/profile" 
                   className="flex items-center px-3 py-2 text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                  onClick={closeMobileMenu} // Added close on click
                 >
                   <FiUser className="mr-2" />
                   My Profile
                 </Link>
               ) : (
                 <>
-                  <Link to="/login" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                  <Link 
+                    to="/login" 
+                    className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={closeMobileMenu} // Added close on click
+                  >
                     Login
                   </Link>
-                  <Link to="/signup" className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
+                  <Link 
+                    to="/signup" 
+                    className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={closeMobileMenu} // Added close on click
+                  >
                     Sign Up
                   </Link>
                 </>

@@ -11,13 +11,15 @@ import {
   FiUsers, 
   FiChevronLeft, 
   FiChevronRight, 
-  FiEdit
+  FiEdit,
+  FiLoader
 } from 'react-icons/fi';
 import { MdWorkspacePremium } from 'react-icons/md';
 import AdvertisementBanner from './Advertisment';
 import ReportButton from './ReportButton';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import LandingPageSection from './LandingPageSection';
 
 // Animation constants
 const containerVariants = {
@@ -58,7 +60,91 @@ const HomePage = () => {
   const urgentSliderRef = useRef(null);
   const servicesSliderRef = useRef(null);
 
-  // Sample data
+  // State for API data
+  const [vipListings, setVipListings] = useState([]);
+  const [proListings, setProListings] = useState([]);
+  const [normalListings, setNormalListings] = useState([]);
+  const [loading, setLoading] = useState({
+    vip: true,
+    pro: true,
+    normal: true
+  });
+  const [error, setError] = useState({
+    vip: null,
+    pro: null,
+    normal: null
+  });
+
+  // Fetch data from APIs
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch VIP listings
+        const vipResponse = await axios.get('https://campus-plum.vercel.app/api/vip-listings/');
+        setVipListings(vipResponse.data);
+        setLoading(prev => ({ ...prev, vip: false }));
+        
+        // Fetch Pro listings
+        const proResponse = await axios.get('https://campus-plum.vercel.app/api/pro-listings/');
+        setProListings(proResponse.data);
+        setLoading(prev => ({ ...prev, pro: false }));
+        
+        // Fetch Normal listings
+        const normalResponse = await axios.get('https://campus-plum.vercel.app/api/listings/');
+        setNormalListings(normalResponse.data);
+        setLoading(prev => ({ ...prev, normal: false }));
+        
+      } catch (err) {
+        setError({
+          vip: 'Failed to load VIP listings',
+          pro: 'Failed to load Pro listings',
+          normal: 'Failed to load Normal listings'
+        });
+        setLoading({ vip: false, pro: false, normal: false });
+        console.error('API Error:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Generate urgent listings from normal listings
+  const urgentListings = normalListings
+   
+
+  // Slider scroll functionality
+  const scrollSlider = (ref, direction) => {
+    if (ref.current) {
+      const scrollAmount = ref.current.offsetWidth * 0.8;
+      ref.current.scrollBy({
+        left: direction === 'next' ? scrollAmount : -scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Reviews state management
+  const [reviews, setReviews] = useState([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+  const [reviewsError, setReviewsError] = useState(null);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get('https://campus-plum.vercel.app/api/reviews/');
+        setReviews(response.data);
+        setReviewsError(null);
+      } catch (err) {
+        setReviewsError(err.message || 'Failed to fetch reviews');
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  // Food items data
   const foodItems = [
     { id: 1, name: "Premium Rice", price: "500/cup", image: "https://picsum.photos/536/354" },
     { id: 2, name: "Brown Beans", price: "700/cup", image: "https://picsum.photos/536/354" },
@@ -66,45 +152,7 @@ const HomePage = () => {
     { id: 4, name: "Golden Spaghetti", price: "400/pack", image: "https://picsum.photos/536/354" },
   ];
 
-  const urgentListings = [
-    { id: 1, title: "Calculus Textbook", price: "5,000", urgency: "12h left", image: "https://picsum.photos/536/354" },
-    { id: 2, title: "Gaming Laptop", price: "120,000", urgency: "6h left", image: "https://picsum.photos/536/354" },
-    { id: 3, title: "Designer Handbag", price: "25,000", urgency: "18h left", image: "https://picsum.photos/536/354" },
-    { id: 4, title: "Bicycle", price: "45,000", urgency: "24h left", image: "https://picsum.photos/536/354" },
-  ];
-
-  const recurringServices = [
-    { 
-      id: 1, 
-      title: "Hostel Laundry Service", 
-      price: "500/week", 
-      image: "https://picsum.photos/536/354",
-      description: "Professional washing & ironing with 24h turnaround"
-    },
-    { 
-      id: 2, 
-      title: "Campus Grocery Delivery", 
-      price: "3,500/week", 
-      image: "https://picsum.photos/536/354",
-      description: "Weekly essential food items from campus vendors"
-    },
-    { 
-      id: 3, 
-      title: "Lecture Notes Printing", 
-      price: "50/set", 
-      image: "https://picsum.photos/536/354",
-      description: "Quality printed notes with binding and delivery"
-    },
-    { 
-      id: 4, 
-      title: "Drinking Water Supply", 
-      price: "1,200/month", 
-      image: "https://picsum.photos/536/354",
-      description: "Daily 20L water dispenser delivery"
-    },
-  ];
-
-  const faqs = [
+   const faqs = [
   {
     question: "How does Campus Crave help with gender restrictions?",
     answer:
@@ -157,72 +205,28 @@ const HomePage = () => {
   }
 ];
 
-
-  // Slider scroll functionality
-  const scrollSlider = (ref, direction) => {
-    if (ref.current) {
-      const scrollAmount = ref.current.offsetWidth * 0.8;
-      ref.current.scrollBy({
-        left: direction === 'next' ? scrollAmount : -scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+  // Loading skeleton for cards
+  const renderLoadingSkeleton = (count = 4) => {
+    return Array.from({ length: count }).map((_, index) => (
+      <motion.div 
+        key={index}
+        variants={itemVariants}
+        className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg"
+      >
+        <div className="animate-pulse">
+          <div className="bg-gray-200 rounded-xl aspect-square mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded-lg"></div>
+        </div>
+      </motion.div>
+    ));
   };
-
-  // Reviews state management
-  const [reviews, setReviews] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/reviews/');
-        setReviews(response.data);
-        setError(null);
-      } catch (err) {
-        setError(err.message || 'Failed to fetch reviews');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, []);
-
-  //if (isLoading) return <div className="text-center py-4">Loading reviews...</div>;
-  //if (error) return <div className="text-center py-4 text-red-500">Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-indigo-700 to-purple-600 text-white py-16 px-4">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-6xl mx-auto text-center space-y-6"
-        >
-        
-          <motion.h2 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-amber-300 to-amber-400 bg-clip-text text-transparent"
-          >
-            Campus<span className="text-white">Crave</span> Marketplace
-          </motion.h2>
-          <p className="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto leading-relaxed">
-            Safe . Reliable . Student-Focused Training
-          </p>
-          <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }}>
-            <h2 
-              
-              className="inline-flex items-center bg-white/90 backdrop-blur-sm text-indigo-700 px-8 py-4 rounded-full font-semibold hover:bg-white transition-all text-lg shadow-lg hover:shadow-xl"
-            >
-              Crave for it and Get it Quickly.
-            </h2>
-          </motion.div>
-        </motion.div>
-      </section>
+      <LandingPageSection/>
 
       <AdvertisementBanner />
 
@@ -258,37 +262,46 @@ const HomePage = () => {
           initial="hidden"
           animate="show"
         >
-          {urgentListings.map((item) => (
-            <motion.div 
-              key={item.id}
-              variants={itemVariants}
-              whileHover="hover"
-              className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
-            >
-              <motion.div 
-                className="relative aspect-square rounded-xl overflow-hidden mb-4"
-                variants={cardHoverVariants}
-              >
-                <img 
-                  alt={item.title} 
-                  src={item.image} 
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                />
-                <span className="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1 rounded-full text-sm shadow-sm">
-                  Premium
-                </span>
-              </motion.div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{item.title}</h3>
-              <p className="text-xl font-bold text-purple-600 mb-4">{item.price}</p>
-              <Link
-                to="/details"
-                state={item}
-                className="block w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
-              >
-                View Details
-              </Link>
-            </motion.div>
-          ))}
+          {loading.vip ? renderLoadingSkeleton() : (
+            <>
+              {error.vip ? (
+                <div className="text-center w-full py-8 text-red-500">
+                  Failed to load premium listings. Please try again later.
+                </div>
+              ) : (
+                vipListings.map((item) => (
+                  <motion.div 
+                    key={item._id}
+                    variants={itemVariants}
+                    whileHover="hover"
+                    className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
+                  >
+                    <motion.div 
+                      className="relative aspect-square rounded-xl overflow-hidden mb-4"
+                      variants={cardHoverVariants}
+                    >
+                      <img 
+                        alt={item.title} 
+                        src={item.image || "https://picsum.photos/536/354"} 
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <span className="absolute top-3 left-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-3 py-1 rounded-full text-sm shadow-sm">
+                        Premium
+                      </span>
+                    </motion.div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">{item.title}</h3>
+                    <p className="text-xl font-bold text-purple-600 mb-4">₦{item.price}</p>
+                    <Link
+                      to={`/listing/${item._id}`}
+                      className="block w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
+                    >
+                      View Details
+                    </Link>
+                  </motion.div>
+                ))
+              )}
+            </>
+          )}
         </motion.div>
 
         <div className="text-center mt-8">
@@ -333,37 +346,46 @@ const HomePage = () => {
           initial="hidden"
           animate="show"
         >
-          {urgentListings.map((item) => (
-            <motion.div 
-              key={item.id}
-              variants={itemVariants}
-              whileHover="hover"
-              className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
-            >
-              <motion.div 
-                className="relative aspect-square rounded-xl overflow-hidden mb-4"
-                variants={cardHoverVariants}
-              >
-                <img 
-                  alt={item.title} 
-                  src={item.image} 
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                />
-                <span className="absolute top-3 left-3 bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 shadow-sm">
-                  <FiAlertTriangle className="w-4 h-4" /> {item.urgency}
-                </span>
-              </motion.div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{item.title}</h3>
-              <p className="text-xl font-bold text-red-600 mb-4">{item.price}</p>
-              <Link
-                to="/details"
-                state={item}
-                className="block w-full bg-gradient-to-r from-red-500 to-orange-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
-              >
-                Buy Now
-              </Link>
-            </motion.div>
-          ))}
+          {loading.normal ? renderLoadingSkeleton() : (
+            <>
+              {error.normal ? (
+                <div className="text-center w-full py-8 text-red-500">
+                  Failed to load urgent listings. Please try again later.
+                </div>
+              ) : (
+                urgentListings.map((item) => (
+                  <motion.div 
+                    key={item._id}
+                    variants={itemVariants}
+                    whileHover="hover"
+                    className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
+                  >
+                    <motion.div 
+                      className="relative aspect-square rounded-xl overflow-hidden mb-4"
+                      variants={cardHoverVariants}
+                    >
+                      <img 
+                        alt={item.title} 
+                        src={item.image || "https://picsum.photos/536/354"} 
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <span className="absolute top-3 left-3 bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm flex items-center gap-1 shadow-sm">
+                        <FiAlertTriangle className="w-4 h-4" /> {item.urgency}
+                      </span>
+                    </motion.div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">{item.title}</h3>
+                    <p className="text-xl font-bold text-red-600 mb-4">₦{item.price}</p>
+                    <Link
+                      to={`/listing/${item._id}`}
+                      className="block w-full bg-gradient-to-r from-red-500 to-orange-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
+                    >
+                      View Details
+                    </Link>
+                  </motion.div>
+                ))
+              )}
+            </>
+          )}
         </motion.div>
 
         <div className="text-center mt-8">
@@ -411,43 +433,54 @@ const HomePage = () => {
           initial="hidden"
           animate="show"
         >
-          {recurringServices.map((service) => (
-            <motion.div 
-              key={service.id}
-              variants={itemVariants}
-              whileHover="hover"
-              className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
-            >
-              <motion.div 
-                className="relative aspect-square rounded-xl overflow-hidden mb-4"
-                variants={cardHoverVariants}
-              >
-                <img 
-                  alt={service.title} 
-                  src={service.image} 
-                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                />
-                <span className="absolute top-3 left-3 bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-sm shadow-sm">
-                  Recurring
-                </span>
-              </motion.div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">{service.title}</h3>
-              <p className="text-xl font-bold text-amber-600 mb-2">{service.price}</p>
-              <p className="text-gray-600 text-sm mb-4 line-clamp-2">{service.description}</p>
-              <Link
-                to="/details"
-                state={{ service }}
-                className="block w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
-              >
-                Subscribe Now
-              </Link>
-            </motion.div>
-          ))}
+          {loading.pro ? renderLoadingSkeleton() : (
+            <>
+              {error.pro ? (
+                <div className="text-center w-full py-8 text-red-500">
+                  Failed to load services. Please try again later.
+                </div>
+              ) : (
+                proListings.map((service) => (
+                  <motion.div 
+                    key={service._id}
+                    variants={itemVariants}
+                    whileHover="hover"
+                    className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group"
+                  >
+                    <motion.div 
+                      className="relative aspect-square rounded-xl overflow-hidden mb-4"
+                      variants={cardHoverVariants}
+                    >
+                      <img 
+                        alt={service.title} 
+                        src={service.image || "https://picsum.photos/536/354"} 
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <span className="absolute top-3 left-3 bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-sm shadow-sm">
+                        Recurring
+                      </span>
+                    </motion.div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">{service.title}</h3>
+                    <p className="text-xl font-bold text-amber-600 mb-2">₦{service.price}</p>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      {service.description || 'Service description not available'}
+                    </p>
+                    <Link
+                      to={`/listing/${service._id}`}
+                      className="block w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
+                    >
+                      Subscribe Now
+                    </Link>
+                  </motion.div>
+                ))
+              )}
+            </>
+          )}
         </motion.div>
 
         <div className="text-center mt-8">
           <Link 
-            to="/recurringservices" 
+            to="/viplistings" 
             className="inline-block bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-8 py-3 rounded-full font-medium shadow-md hover:shadow-lg transition-shadow"
           >
             Browse Services →
@@ -455,7 +488,7 @@ const HomePage = () => {
         </div>
       </section>
 
-         {/* Food Items Section */}
+      {/* Food Items Section */}
          <section className="max-w-6xl mx-auto py-12 px-4">
         <motion.div 
           className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-[2.5rem] shadow-xl p-8 md:p-12 transition-all hover:shadow-2xl"
@@ -556,55 +589,66 @@ const HomePage = () => {
         </motion.div>
       </section>
 
-          {/* Report Button  */}
+
+      {/* Report Button */}
       <ReportButton />
 
-           {/* Reviews Section */}
-<section className="max-w-6xl mx-auto py-8 md:py-12 px-4">
-  <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-3">
-        <FiUsers className="text-2xl md:text-3xl text-indigo-600" />
-        <h2 className="text-xl md:text-2xl font-bold">Student Experiences</h2>
-      </div>
+      {/* Reviews Section */}
+      <section className="max-w-6xl mx-auto py-8 md:py-12 px-4">
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <FiUsers className="text-2xl md:text-3xl text-indigo-600" />
+              <h2 className="text-xl md:text-2xl font-bold">Student Experiences</h2>
+            </div>
 
-      <Link to="/reviewpage">
-      <button 
-        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
-      >
-        <FiEdit />
-        Share Your Experience
-      </button>
-      </Link>
-    </div>
+            <Link to="/reviewpage">
+              <button 
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm"
+              >
+                <FiEdit />
+                Share Your Experience
+              </button>
+            </Link>
+          </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {reviews.map((review) => (
-        <div key={review._id} className="bg-gray-50 p-4 rounded-xl">
-          <div className="mb-4">
-            <p className="font-bold">{review.name}</p>
-            <p className="text-sm text-gray-500">
-              {review.course} ({review.level})
-            </p>
-          </div>
-          <div className="flex gap-1 mb-3">
-            {[...Array(review.ratings)].map((_, i) => (
-              <FiStar key={i} className="text-yellow-400 w-4 h-4" />
-            ))}
-          </div>
-          <p className="text-gray-700 mb-2">"{review.review}"</p>
-          <p className="text-sm text-gray-400">
-            {new Date(review.createdAt).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
-          </p>
+          {isLoadingReviews ? (
+            <div className="flex justify-center py-8">
+              <FiLoader className="animate-spin text-indigo-600 text-3xl" />
+            </div>
+          ) : reviewsError ? (
+            <div className="text-center py-8 text-red-500">
+              Failed to load reviews: {reviewsError}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.map((review) => (
+                <div key={review._id} className="bg-gray-50 p-4 rounded-xl">
+                  <div className="mb-4">
+                    <p className="font-bold">{review.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {review.course} ({review.level})
+                    </p>
+                  </div>
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(review.ratings)].map((_, i) => (
+                      <FiStar key={i} className="text-yellow-400 w-4 h-4" />
+                    ))}
+                  </div>
+                  <p className="text-gray-700 mb-2">"{review.review}"</p>
+                  <p className="text-sm text-gray-400">
+                    {new Date(review.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      ))}
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* FAQ Section */}
       <section className="max-w-6xl mx-auto py-8 md:py-12 px-4">

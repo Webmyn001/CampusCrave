@@ -19,7 +19,7 @@ const ProfileUpdateForm = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/users/${userId}`, {
+        const response = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`
           }
@@ -50,7 +50,7 @@ const ProfileUpdateForm = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/users/${userId}`,
+        `https://campus-plum.vercel.app/api/auth/${userId}`,
         userData,
         {
           headers: {

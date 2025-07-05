@@ -12,7 +12,7 @@ const UrgentListings = () => {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/listings');
+        const response = await axios.get('https://campus-plum.vercel.app/api/listings');
         setListings(response.data);
       } catch (err) {
         setError(err.message || 'Failed to load urgent listings');

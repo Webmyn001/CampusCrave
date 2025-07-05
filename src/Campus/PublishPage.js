@@ -16,7 +16,7 @@ const tiers = [
     link: "/publish/starter"
   },
   {
-    title: 'Pro Tier',
+    title: 'Basic Tier',
     price: '₦1,500/month',
     features: [
       'All Starter features',
@@ -30,10 +30,10 @@ const tiers = [
     link : "/publish/pro"
   },
   {
-    title: 'VIP Tier',
+    title: 'Premium Tier',
     price: '₦2,500/month',
     features: [
-      'All Pro features',
+      'All basic features',
       'Exclusive VIP badge',
       'Recurring listings',
       'Listings expire after 72 hours',

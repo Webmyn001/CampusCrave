@@ -43,7 +43,7 @@ const ReviewForm = () => {
 
     setIsSubmitting(true);
     try {
-      await axios.post('http://localhost:5000/api/reviews/', formData);
+      await axios.post('https://campus-plum.vercel.app/api/reviews/', formData);
       
       setShowThankYou(true);
       setFormData({

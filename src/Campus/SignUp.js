@@ -24,7 +24,7 @@ const SignupPage = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/auth/signup',
+        'https://campus-plum.vercel.app/api/auth/signup',
         { email, password, name},
         {
           headers: {
@@ -51,7 +51,7 @@ const SignupPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 sm:p-10 transition-all duration-300 hover:shadow-2xl">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-indigo-600 mb-2">Join CampusCrave</h1>
+          <h1 className="text-4xl font-bold text-indigo-600 mb-2">Join CampusCrave Now</h1>
           <p className="text-gray-600">Create your free account in 30 seconds</p>
         </div>
 
@@ -83,7 +83,7 @@ const SignupPage = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              University Email
+               Email Address
             </label>
             <div className="relative group">
               <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
@@ -92,7 +92,7 @@ const SignupPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-                placeholder="student@university.edu"
+                placeholder="johndoe@gmail.com"
                 required
                 disabled={isLoading}
               />

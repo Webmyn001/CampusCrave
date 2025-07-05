@@ -1,74 +1,132 @@
 import { Link } from 'react-router-dom';
-import { FiArrowLeft, FiAlertTriangle } from 'react-icons/fi';
+import { FiArrowLeft, FiAlertTriangle, FiMail, FiHome } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 const NotFoundPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute -top-32 -left-32 w-64 h-64 bg-indigo-100 rounded-full opacity-20 animate-blob"></div>
-      <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-blue-100 rounded-full opacity-20 animate-blob animation-delay-2000"></div>
+      {/* Subtle background elements */}
+      <div className="absolute top-1/4 -left-24 w-72 h-72 bg-indigo-100 rounded-full opacity-10 blur-2xl"></div>
+      <div className="absolute bottom-1/4 -right-24 w-72 h-72 bg-blue-100 rounded-full opacity-10 blur-2xl"></div>
+      
+      {/* Floating campus icons */}
+      <motion.div 
+        className="absolute top-20 left-10 text-4xl opacity-5"
+        animate={{ y: [0, -15, 0] }}
+        transition={{ duration: 4, repeat: Infinity }}
+      >
+        📚
+      </motion.div>
+      <motion.div 
+        className="absolute bottom-20 right-10 text-4xl opacity-5"
+        animate={{ y: [0, 15, 0] }}
+        transition={{ duration: 5, repeat: Infinity, delay: 1 }}
+      >
+        🚲
+      </motion.div>
 
-      <div className="max-w-2xl text-center relative z-10">
-        {/* 404 Display */}
-        <div className="mb-8 relative">
-          <div className="text-[8rem] sm:text-[12rem] font-bold text-indigo-600/10 bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">
-            404
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <FiAlertTriangle className="text-red-400 text-6xl sm:text-8xl animate-pulse" />
-          </div>
-        </div>
-
+      <div className="max-w-lg w-full text-center relative z-10">
         {/* Content Card */}
-        <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-shadow duration-300">
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-4">
-            Lost in the Digital Space?
-          </h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto leading-relaxed">
-            Oops! The page you're looking for seems to have taken a wrong turn at 
-            the campus quad. Let's get you back to the marketplace!
-          </p>
+        <motion.div 
+          className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-indigo-100"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* 404 Display */}
+          <div className="relative mb-6">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="absolute -top-4 -right-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"
+            >
+              <FiAlertTriangle className="text-red-500 text-2xl animate-pulse" />
+            </motion.div>
+            
+            <motion.h1 
+              className="text-8xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              404
+            </motion.h1>
+          </div>
+
+          <motion.h2 
+            className="text-2xl font-bold text-gray-800 mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            Page Not Found
+          </motion.h2>
+          
+          <motion.p 
+            className="text-gray-600 mb-8 leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Looks like you've wandered off campus! The page you're looking for doesn't exist or has been moved.
+          </motion.p>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             <Link
               to="/"
-              className="w-full sm:w-auto bg-gradient-to-br from-indigo-600 to-blue-500 text-white px-6 py-3.5 rounded-xl font-semibold
-              hover:from-indigo-700 hover:to-blue-600 transition-all flex items-center gap-2 group justify-center
-              shadow-md hover:shadow-indigo-200/50 active:scale-95"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-lg font-medium
+                         hover:from-indigo-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg"
             >
-              <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-              Return to Homepage
+              <FiHome className="flex-shrink-0" />
+              Go to Homepage
             </Link>
-            <span className="text-gray-400 hidden sm:block">·</span>
+            
             <a
-              href="mailto:support@campusmart.com"
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl font-medium transition-all
-              text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 flex items-center justify-center gap-2
-              active:scale-95"
+              href="mailto:support@campuscrave.com"
+              className="flex items-center justify-center gap-2 px-6 py-3 text-indigo-600 border border-indigo-200 rounded-lg font-medium
+                         hover:bg-indigo-50 transition-colors"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm9.06 8.683L5.648 6.238 4.353 7.762l7.72 6.555 7.581-6.56-1.308-1.513-6.285 5.439z"/>
-              </svg>
-              Report Missing Page
+              <FiMail className="flex-shrink-0" />
+              Report Issue
             </a>
-          </div>
+          </motion.div>
 
-          {/* Animated Emojis */}
-          <div className="mt-8 flex justify-center space-x-4 opacity-75">
-            <span className="inline-block animate-float">📚</span>
-            <span className="inline-block animate-float animation-delay-200">💻</span>
-            <span className="inline-block animate-float animation-delay-300">🛒</span>
-          </div>
-        </div>
+          {/* Campus illustration */}
+          <motion.div 
+            className="mt-8 flex justify-center gap-4 opacity-80"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+          >
+            <span className="inline-block text-3xl">🏛️</span>
+            <span className="inline-block text-3xl">📦</span>
+            <span className="inline-block text-3xl">📱</span>
+          </motion.div>
+        </motion.div>
 
-        {/* Subtle Campus Illustration */}
-        <div className="mt-12 hidden md:flex justify-center space-x-6 opacity-25">
-          <span className="inline-block text-3xl">🏛️</span>
-          <span className="inline-block text-3xl animate-wiggle">🌳</span>
-          <span className="inline-block text-3xl animate-wiggle animation-delay-1000">🚲</span>
-          <span className="inline-block text-3xl">☕</span>
-        </div>
+        {/* Back to previous page */}
+        <motion.div 
+          className="mt-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <Link
+            to="#"
+            onClick={() => window.history.back()}
+            className="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 gap-1"
+          >
+            <FiArrowLeft className="flex-shrink-0" />
+            Or go back to previous page
+          </Link>
+        </motion.div>
       </div>
     </div>
   );

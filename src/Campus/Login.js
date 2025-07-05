@@ -19,7 +19,7 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/auth/login',
+        'https://campus-plum.vercel.app/api/auth/login',
         { email, password },
         {
           headers: {
@@ -54,7 +54,7 @@ const LoginPage = () => {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 sm:p-10 transition-all duration-300 hover:shadow-2xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-indigo-600 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your CampusMart account</p>
+          <p className="text-gray-600">Sign in to your CampusCrave account</p>
         </div>
 
         {error && (

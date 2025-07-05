@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiUpload, FiClock, FiLoader, FiShield } from 'react-icons/fi';
+import { FiAlertCircle, FiCheckCircle, FiChevronDown, FiClock, FiLoader, FiShield } from 'react-icons/fi';
 
 const ReportScamPage = () => {
   const [isExpanded, setIsExpanded] = useState(null);
@@ -9,17 +9,44 @@ const ReportScamPage = () => {
     scamType: '',
     description: '',
     contactInfo: '',
-    files: null
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [scamReports, setScamReports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Helper function to safely format dates
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date)) throw new Error('Invalid date');
+      
+      return {
+        dateOnly: date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }),
+        dateTime: date.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      };
+    } catch (e) {
+      return {
+        dateOnly: 'Date unavailable',
+        dateTime: 'Date unavailable'
+      };
+    }
+  };
+
   const fetchReports = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://api.yourservice.com/reports');
+      const response = await axios.get('https://campus-plum.vercel.app/api/report');
       setScamReports(response.data);
       setError('');
     } catch (err) {
@@ -33,15 +60,15 @@ const ReportScamPage = () => {
 
   const submitReport = async (formData) => {
     try {
-      const formPayload = new FormData();
-      formPayload.append('scamType', formData.scamType);
-      formPayload.append('description', formData.description);
-      formPayload.append('contactInfo', formData.contactInfo);
-      if (formData.files) {
-        Array.from(formData.files).forEach(file => formPayload.append('files', file));
-      }
-
-      await axios.post('https://api.yourservice.com/reports', formPayload);
+      await axios.post('https://campus-plum.vercel.app/api/report', {
+        scamType: formData.scamType,
+        description: formData.description,
+        contactInfo: formData.contactInfo
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
       await fetchReports();
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
@@ -54,7 +81,7 @@ const ReportScamPage = () => {
     e.preventDefault();
     setError('');
     await submitReport(formData);
-    setFormData({ scamType: '', description: '', contactInfo: '', files: null });
+    setFormData({ scamType: '', description: '', contactInfo: '' });
   };
 
   return (
@@ -142,26 +169,6 @@ const ReportScamPage = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Upload Evidence</label>
-                <label className="flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 border-dashed border-gray-300 hover:border-indigo-400 transition-colors cursor-pointer bg-white/50">
-                  <FiUpload className="w-6 h-6 text-indigo-600" />
-                  <span className="text-indigo-600 font-medium">Choose files or drag here</span>
-                  <span className="text-sm text-gray-500">
-                    {formData.files?.length > 0 ? 
-                      `${formData.files.length} file${formData.files.length > 1 ? 's' : ''} selected` : 
-                      'Max 5 files (PNG, JPG, PDF)'}
-                  </span>
-                  <input
-                    type="file"
-                    multiple
-                    onChange={(e) => setFormData({ ...formData, files: e.target.files })}
-                    className="hidden"
-                    accept=".png,.jpg,.jpeg,.pdf"
-                  />
-                </label>
-              </div>
-
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -197,67 +204,71 @@ const ReportScamPage = () => {
             ) : (
               <div className="space-y-4">
                 <AnimatePresence>
-                  {scamReports.map((report) => (
-                    <motion.div
-                      key={report.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-                    >
-                      <div 
-                        className="p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
-                        onClick={() => setIsExpanded(isExpanded === report.id ? null : report.id)}
-                      >
-                        <div className="flex justify-between items-center gap-4">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-3 mb-2">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                report.status === 'Active' ? 'bg-red-100 text-red-800' :
-                                report.status === 'Resolved' ? 'bg-green-100 text-green-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {report.status}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {new Date(report.date).toLocaleDateString()}
-                              </span>
-                            </div>
-                            <h3 className="font-semibold text-gray-900 truncate">{report.title}</h3>
-                          </div>
-                          <motion.div
-                            animate={{ rotate: isExpanded === report.id ? 180 : 0 }}
-                          >
-                            <FiChevronDown className="w-5 h-5 text-gray-500" />
-                          </motion.div>
-                        </div>
-                      </div>
-
+                  {scamReports.map((report) => {
+                    const formattedDate = formatDate(report.createdAt);
+                    
+                    return (
                       <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ height: isExpanded === report.id ? 'auto' : 0, opacity: 1 }}
-                        className="overflow-hidden"
+                        key={report.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100 overflow-hidden"
                       >
-                        <div className="px-4 pb-4 border-t border-gray-100">
-                          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                            <div className="flex items-center gap-2 text-sm">
-                              <FiAlertCircle className="w-4 h-4 text-indigo-600" />
-                              <span className="font-medium">Type:</span>
-                              <span>{report.type}</span>
+                        <div 
+                          className="p-4 cursor-pointer hover:bg-gray-50/50 transition-colors"
+                          onClick={() => setIsExpanded(isExpanded === report.id ? null : report.id)}
+                        >
+                          <div className="flex justify-between items-center gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-3 mb-2">
+                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                  report.status === 'Active' ? 'bg-red-100 text-red-800' :
+                                  report.status === 'Resolved' ? 'bg-green-100 text-green-800' :
+                                  'bg-yellow-100 text-yellow-800'
+                                }`}>
+                                  {report.status}
+                                </span>
+                                <span className="text-sm text-gray-500">
+                                  {formattedDate.dateOnly}
+                                </span>
+                              </div>
+                              <h3 className="font-semibold text-gray-900 truncate">{report.title}</h3>
                             </div>
-                            <div className="flex items-center gap-2 text-sm">
-                              <FiClock className="w-4 h-4 text-indigo-600" />
-                              <span className="font-medium">Reported:</span>
-                              <span>{new Date(report.date).toLocaleString()}</span>
-                            </div>
+                            <motion.div
+                              animate={{ rotate: isExpanded === report.id ? 180 : 0 }}
+                            >
+                              <FiChevronDown className="w-5 h-5 text-gray-500" />
+                            </motion.div>
                           </div>
-                          <p className="mt-4 text-gray-600 text-sm leading-relaxed">
-                            {report.description}
-                          </p>
                         </div>
+
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ height: isExpanded === report.id ? 'auto' : 0, opacity: 1 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-4 pb-4 border-t border-gray-100">
+                            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                              <div className="flex items-center gap-2 text-sm">
+                                <FiAlertCircle className="w-4 h-4 text-indigo-600" />
+                                <span className="font-medium">Type:</span>
+                                <span>{report.scamType}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <FiClock className="w-4 h-4 text-indigo-600" />
+                                <span className="font-medium">Reported:</span>
+                                <span>{formattedDate.dateTime}</span>
+                              </div>
+                            </div>
+                            <p className="mt-4 text-gray-600 text-sm leading-relaxed">
+                              {report.description}
+                            </p>
+                          </div>
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  ))}
+                    );
+                  })}
                 </AnimatePresence>
               </div>
             )}

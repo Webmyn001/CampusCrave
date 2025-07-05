@@ -12,7 +12,7 @@ const PremiumListings = () => {
   useEffect(() => {
     const fetchPremiumListings = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/pro-listings');
+        const response = await axios.get('https://campus-plum.vercel.app/api/pro-listings');
         
         setListings(response.data);
       } catch (err) {
