@@ -54,8 +54,8 @@ const LandingPage = () => {
             },
             {
               icon: <FiShield className="w-8 h-8 md:w-10 md:h-10 text-indigo-600" />,
-              title: "Secure Transactions",
-              description: "Verified student accounts and secure payment options"
+              title: "Safe Transaction Environment",
+              description: "Built-in scam reporting system with quick response"
             },
             {
               icon: <FiUsers className="w-8 h-8 md:w-10 md:h-10 text-indigo-600" />,

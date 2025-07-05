@@ -87,15 +87,15 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-start gap-2">
                 <FiMapPin className="text-indigo-400 w-4 h-4 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-400 text-sm">Fajuyi Hall, OAU</p>
+                <p className="text-gray-400 text-sm">Block 2, Room 308, Fajuyi Hall, OAU</p>
               </div>
               <div className="flex items-center gap-2">
                 <FiPhone className="text-indigo-400 w-4 h-4 flex-shrink-0" />
-                <p className="text-gray-400 text-sm">+234 914 028 709</p>
+                <p className="text-gray-400 text-sm">+234 9164 028 709</p>
               </div>
               <div className="flex items-center gap-2">
                 <FiMail className="text-indigo-400 w-4 h-4 flex-shrink-0" />
-                <p className="text-gray-400 text-sm">support@campuscrave.com</p>
+                <p className="text-gray-400 text-sm">bellomuhyideen0001@gmail.com</p>
               </div>
             </div>
           </motion.div>
