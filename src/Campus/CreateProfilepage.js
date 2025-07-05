@@ -27,7 +27,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/auth/${userId}`, {
+        const response = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -65,7 +65,7 @@ const ProfilePage = () => {
     e.preventDefault();
     try {
       await axios.put(
-        `http://localhost:5000/api/auth/${userId}`,
+        `https://campus-plum.vercel.app/api/auth/${userId}`,
         userData,
         {
           headers: {
