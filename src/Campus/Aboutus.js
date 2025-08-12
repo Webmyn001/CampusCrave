@@ -36,7 +36,7 @@ const AboutPage = () => {
                 </p>
               </div>
               <p className="text-gray-700 italic border-l-4 border-amber-400 pl-4 py-2">
-                "I created CampusCrave to empower student entrepreneurs and simplify campus trading."
+                "CampusCrave is a dedicated marketplace built for students to buy, sell, and connect with ease — offering a safe, fast, and hassle-free way to trade within campus."
               </p>
             </div>
             <div className="flex-1 order-1 lg:order-2 w-full">
@@ -145,8 +145,7 @@ const AboutPage = () => {
         <div className="bg-gradient-to-r from-indigo-50 to-blue-100 rounded-2xl p-8 text-center">
           <FiBook className="text-4xl text-indigo-600 mx-auto mb-4" />
           <blockquote className="text-xl italic text-gray-700 max-w-3xl mx-auto mb-4">
-            "CampusCrave was built to unlock the entrepreneurial spirit on campus. We're creating 
-            opportunities for students to turn their ideas into thriving businesses right here at OAU."
+            "Empowering students to trade smarter — fast, safe, and right on campus."
           </blockquote>
           <p className="font-semibold text-indigo-700">- Bello Muhyideen, Founder</p>
         </div>

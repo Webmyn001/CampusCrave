@@ -117,10 +117,10 @@ const LandingPage = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 1.2 }}
-          className="text-center bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl py-12 px-6 shadow-2xl mb-8"
+          className="text-center bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl py-10 px-6 shadow-2xl mb-4"
         >
           <h3 className="text-3xl font-bold text-white mb-4">Ready to join the campus marketplace?</h3>
-          <p className="text-indigo-100 text-xl max-w-2xl mx-auto mb-8">
+          <p className="text-indigo-100 text-xl max-w-2xl mx-auto mb-4">
             Join thousands of students buying and selling safely on campus
           </p>
           
@@ -136,14 +136,6 @@ const LandingPage = () => {
               </motion.button>
             </Link>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-full font-bold text-lg bg-transparent text-white border-2 border-white shadow-lg hover:bg-white/10 transition-all duration-300"
-            >
-              <FiHeart className="mr-2 w-5 h-5" />
-              <span>Learn More</span>
-            </motion.button>
           </div>
         </motion.div>
         
@@ -155,14 +147,14 @@ const LandingPage = () => {
           className="text-center text-gray-600 mt-12"
         >
           <div className="flex flex-wrap justify-center gap-6 mb-6">
-            {['Secure Payments', 'Verified Students', '24/7 Support', 'Campus Only'].map((item, i) => (
+            {[ '24/7 Support', 'Campus Only'].map((item, i) => (
               <div key={i} className="flex items-center">
                 <FiCheck className="text-green-500 mr-2" />
                 <span>{item}</span>
               </div>
             ))}
           </div>
-          <p className="text-sm">© 2023 CampusCrave Marketplace. Connecting students across campuses.</p>
+          <p className="text-sm">© 2025 CampusCrave Marketplace. Connecting students across campuses.</p>
         </motion.div>
       </div>
     </div>

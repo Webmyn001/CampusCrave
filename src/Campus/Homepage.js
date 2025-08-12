@@ -152,58 +152,49 @@ const HomePage = () => {
     { id: 4, name: "Golden Spaghetti", price: "400/pack", image: "https://picsum.photos/536/354" },
   ];
 
-   const faqs = [
+  const faqs = [
   {
-    question: "How does Campus Crave help with gender restrictions?",
+    question: "What is Campus Crave?",
     answer:
-      "Campus Crave eliminates the need for students to physically market products across hostels, allowing all students to connect and transact regardless of gender-based restrictions in hostels."
-  },
-  {
-    question: "Is it safe to buy and sell on Campus Crave?",
-    answer:
-      "Yes. Campus Crave has a support system for reporting scams or fake products, ensuring a safe and reliable environment for all users."
-  },
-  {
-    question: "How do I report a scam or fake product?",
-    answer:
-      "You can use the built-in support system on the platform to report suspicious or fake products, or reach out to the Campus Crave support team."
+      "Campus Crave is an exclusive online marketplace for Obafemi Awolowo University students to buy and sell products and services easily within the campus."
   },
   {
     question: "Who can use Campus Crave?",
     answer:
-      "Campus Crave is designed for students of Obafemi Awolowo University who wish to buy or sell products and services within the campus."
+      "Only students of Obafemi Awolowo University can use the platform. Registration is done using a valid school email address to ensure security and trust."
   },
   {
-    question: "Does Campus Crave support only products, or can I sell services too?",
+    question: "How does Campus Crave keep transactions safe?",
     answer:
-      "Campus Crave supports both products and services, making it a centralized marketplace for all campus transactions."
+      "All users are verified through their school email, and the platform includes a built-in reporting system for scams or fake products. Reported cases are reviewed promptly by the support team."
+  },
+  {
+    question: "Can I sell services as well as products?",
+    answer:
+      "Yes. Campus Crave supports both product sales and service offerings, making it a one-stop shop for all campus transactions."
+  },
+  {
+    question: "How do I report a scam or suspicious activity?",
+    answer:
+      "Simply use the 'Report' option available on product or user profiles, or contact the Campus Crave support team directly. Your report will be reviewed quickly."
   },
   {
     question: "Why was Campus Crave created?",
     answer:
-      "Campus Crave was created by Bello Muhyideen, a student at Obafemi Awolowo University, to solve the problem of students struggling to buy or sell products quickly on campus due to the absence of a dedicated online marketplace."
+      "Campus Crave was built to solve the challenge of students struggling to buy or sell items on campus quickly, safely, and without gender or hostel restrictions."
   },
   {
-    question: "What makes Campus Crave different from other marketplaces?",
+    question: "Can non-students use Campus Crave?",
     answer:
-      "Campus Crave focuses specifically on the needs of the campus community, addressing unique challenges such as gender-based hostel restrictions and providing a safer environment for transactions within Obafemi Awolowo University."
+      "No. To keep the marketplace safe and trustworthy, only verified OAU students with a school email can access the platform."
   },
   {
-    question: "How does Campus Crave ensure the safety of its users?",
+    question: "What should I do if I have a problem with a transaction?",
     answer:
-      "Campus Crave features a reporting system for scams and fake products, actively working to maintain a safe and trustworthy platform for students."
-  },
-  {
-    question: "Can I use Campus Crave if I am not a student of OAU?",
-    answer:
-      "No, Campus Crave is exclusively for students of Obafemi Awolowo University to ensure trust and a close-knit marketplace experience."
-  },
-  {
-    question: "What should I do if I encounter a problem with a transaction?",
-    answer:
-      "If you experience any issues during a transaction, you should contact Campus Crave support immediately or use the platform's built-in reporting tools for assistance."
+      "Contact the Campus Crave support team through the help center or submit a report directly from the platform for assistance."
   }
 ];
+
 
   // Loading skeleton for cards
   const renderLoadingSkeleton = (count = 4) => {
