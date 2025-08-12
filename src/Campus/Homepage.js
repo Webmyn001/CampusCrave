@@ -488,7 +488,8 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Food Items Section */}
+      {/* 
+      // Food Items Section
          <section className="max-w-6xl mx-auto py-12 px-4">
         <motion.div 
           className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-[2.5rem] shadow-xl p-8 md:p-12 transition-all hover:shadow-2xl"
@@ -587,11 +588,11 @@ const HomePage = () => {
             </Link>
           </motion.div>
         </motion.div>
-      </section>
+      </section> */}
 
 
       {/* Report Button */}
-      <ReportButton />
+      {/* <ReportButton /> */}
 
       {/* Reviews Section */}
       <section className="max-w-6xl mx-auto py-8 md:py-12 px-4">
