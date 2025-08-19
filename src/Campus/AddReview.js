@@ -26,8 +26,8 @@ const ReviewForm = () => {
     if (!formData.level.trim()) {
       newErrors.level = 'Please enter your skill level';
     }
-    if (formData.review.length < 10 || formData.review.length > 500) {
-      newErrors.review = 'Review must be between 10-500 characters';
+    if (formData.review.length < 10 || formData.review.length > 150) {
+      newErrors.review = 'Review must be between 10-150 characters';
     }
     if (formData.ratings < 1 || formData.ratings > 5) {
       newErrors.ratings = 'Please select a rating between 1-5 stars';
@@ -197,7 +197,7 @@ const ReviewForm = () => {
               placeholder="Share your review about this site."
             />
             <div className="flex justify-between text-sm text-gray-500 mt-2">
-              <span>{formData.review.length}/500</span>
+              <span>{formData.review.length}/150</span>
               {errors.review && <span className="text-red-500">{errors.review}</span>}
             </div>
           </div>

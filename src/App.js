@@ -30,6 +30,7 @@ import RatingsReviews from './Campus/Review';
 import AddReview from './Campus/AddReview';
 import ReportScamPage from './Campus/Alertpage';
 import NotFoundPage from './Campus/404';
+import Marketplace from './Campus/Marketplace';
 
 function App() {
   return (
@@ -42,6 +43,9 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/legal" element={<LegalPage />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+
+
           
           {/* Authentication */}
           <Route path="/login" element={<Login />} />

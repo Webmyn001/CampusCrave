@@ -207,7 +207,6 @@ const AdvertisementBanner = () => {
                 e.target.src = 'https://picsum.photos/536/354/?commerce';
               }}
             />
-            
             <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-6 z-20">
               <div className="flex items-center gap-2 mb-2">
                 <FiZap className="text-amber-300 w-5 h-5 flex-shrink-0" />

@@ -1,54 +1,119 @@
 import { Link } from 'react-router-dom';
-import { FiUsers, FiTarget, FiAward, FiBook, FiUser, FiShoppingBag, FiTrendingUp } from 'react-icons/fi';
+import { FiUsers, FiTarget, FiAward, FiBook, FiUser, FiShoppingBag, FiTrendingUp, FiArrowRight } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 const AboutPage = () => {
+  // Animation variants
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+
+  const staggerChildren = {
+    visible: { transition: { staggerChildren: 0.1 } }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-50 relative overflow-hidden">
-      {/* Background elements */}
-      <div className="absolute top-20 left-10 w-48 h-48 bg-indigo-100 rounded-full opacity-10" />
-      <div className="absolute bottom-20 right-10 w-48 h-48 bg-blue-100 rounded-full opacity-10" />
+      {/* Subtle background elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-200/30 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-20 right-10 w-72 h-72 bg-blue-200/30 rounded-full blur-3xl"></div>
+      
+      {/* Floating icons */}
+      <motion.div 
+        className="absolute top-1/4 left-1/4 text-4xl text-indigo-200"
+        animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <FiShoppingBag />
+      </motion.div>
+      
+      <motion.div 
+        className="absolute bottom-1/3 right-1/4 text-4xl text-blue-200"
+        animate={{ y: [0, 15, 0], rotate: [0, -5, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      >
+        <FiTrendingUp />
+      </motion.div>
 
       <div className="max-w-6xl mx-auto px-4 py-16 relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-4">
+        <motion.div 
+          className="text-center mb-16"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          <motion.h1 
+            className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-4"
+            variants={fadeIn}
+          >
             About CampusCrave
-          </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          </motion.h1>
+          <motion.p 
+            className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            variants={fadeIn}
+          >
             Empowering student entrepreneurs with seamless campus trading
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Founder Spotlight */}
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl shadow-lg ring-1 ring-amber-100 p-8 mb-16">
+        <motion.div 
+          className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl shadow-xl border border-amber-100 p-8 mb-16"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+          whileHover={{ y: -5 }}
+          transition={{ duration: 0.3 }}
+        >
           <div className="flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1 order-2 lg:order-1">
-              <div className="flex items-center gap-4 mb-4">
-                <FiUser className="text-3xl text-amber-600" />
+              <motion.div 
+                className="flex items-center gap-4 mb-4"
+                variants={fadeIn}
+              >
+                <div className="p-3 bg-amber-100 rounded-full">
+                  <FiUser className="text-2xl text-amber-600" />
+                </div>
                 <h3 className="text-2xl font-bold text-gray-800">Meet the Founder</h3>
-              </div>
-              <div className="mb-4">
+              </motion.div>
+              <motion.div 
+                className="mb-4"
+                variants={fadeIn}
+              >
                 <h4 className="text-xl font-semibold text-amber-700">Bello Muhyideen</h4>
                 <p className="text-gray-600">
-                  Part 4 Student, Faculty of Agriculture<br />
+                  Part 5 Student, Faculty of Agriculture<br />
                   Department of Soil Science and Land Resources Management<br />
-                  Obafemi Awolowo University
+                  Obafemi Awolowo University, Ile-Ife, Osun State, Nigeria.
                 </p>
-              </div>
-              <p className="text-gray-700 italic border-l-4 border-amber-400 pl-4 py-2">
+              </motion.div>
+              <motion.p 
+                className="text-gray-700 italic border-l-4 border-amber-400 pl-4 py-2"
+                variants={fadeIn}
+              >
                 "CampusCrave is a dedicated marketplace built for students to buy, sell, and connect with ease — offering a safe, fast, and hassle-free way to trade within campus."
-              </p>
+              </motion.p>
             </div>
-            <div className="flex-1 order-1 lg:order-2 w-full">
-              <div className="bg-gradient-to-br from-amber-100 to-orange-100 h-64 lg:h-80 rounded-xl flex items-center justify-center">
-                <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
+            <motion.div 
+              className="flex-1 order-1 lg:order-2 w-full"
+              variants={fadeIn}
+            >
+              <div className="bg-gradient-to-br from-amber-100 to-orange-100 h-64 lg:h-80 rounded-2xl flex items-center justify-center border border-amber-200">
+                <div className="bg-gray-200 border-2 border-dashed border-amber-300 rounded-xl w-20 h-20" />
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Values Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-16">
+        <motion.div 
+          className="grid md:grid-cols-3 gap-6 mb-16"
+          initial="hidden"
+          animate="visible"
+          variants={staggerChildren}
+        >
           {[
             { 
               icon: FiShoppingBag, 
@@ -66,89 +131,131 @@ const AboutPage = () => {
               text: "Secure platform with robust verification and reporting systems" 
             }
           ].map((item, index) => (
-            <div 
+            <motion.div 
               key={index}
-              className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-500 hover:-translate-y-2"
+              variants={fadeIn}
+              whileHover={{ scale: 1.02 }}
             >
-              <item.icon className="text-4xl bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-6" />
+              <div className="p-3 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full inline-block mb-6">
+                <item.icon className="text-2xl text-indigo-600" />
+              </div>
               <h3 className="text-xl font-semibold text-gray-800 mb-3">{item.title}</h3>
               <p className="text-gray-600 leading-relaxed">{item.text}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Story Section */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg ring-1 ring-black/5 p-8 mb-16 hover:shadow-xl transition-shadow duration-300">
+        <motion.div 
+          className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-8 mb-16 hover:shadow-xl transition-all duration-500"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
           <div className="flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1 order-2 lg:order-1">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-4">
+              <motion.h2 
+                className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-4"
+                variants={fadeIn}
+              >
                 Our Entrepreneurial Journey
-              </h2>
-              <p className="text-gray-600 mb-4 leading-relaxed">
+              </motion.h2>
+              <motion.p 
+                className="text-gray-600 mb-4 leading-relaxed"
+                variants={fadeIn}
+              >
                 CampusCrave was founded by Bello Muhyideen, a student entrepreneur at Obafemi Awolowo 
                 University. Recognizing the untapped potential of student businesses on campus, Bello 
                 created a platform to empower fellow student entrepreneurs.
-              </p>
-              <p className="text-gray-600 mb-4 leading-relaxed">
+              </motion.p>
+              <motion.p 
+                className="text-gray-600 mb-4 leading-relaxed"
+                variants={fadeIn}
+              >
                 Today's students are increasingly entrepreneurial - selling everything from textbooks 
                 to tech services, handmade crafts to digital solutions. But without a dedicated campus 
                 marketplace, these micro-businesses struggled to reach customers.
-              </p>
-              <p className="text-gray-600 mb-4 leading-relaxed">
+              </motion.p>
+              <motion.p 
+                className="text-gray-600 mb-4 leading-relaxed"
+                variants={fadeIn}
+              >
                 CampusCrave solves this by providing a centralized platform where student entrepreneurs 
                 can showcase their offerings, connect with buyers, and grow their businesses without 
                 leaving campus. Our verification system ensures trustworthy transactions, while our 
                 user-friendly interface makes buying and selling effortless.
-              </p>
-              <Link 
-                to="/signup" 
-                className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 group transition-all"
-              >
-                Join our entrepreneurial community
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
-              </Link>
+              </motion.p>
+              <motion.div variants={fadeIn}>
+                <Link 
+                  to="/signup" 
+                  className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 group transition-all duration-300"
+                >
+                  Join our entrepreneurial community
+                  <FiArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </motion.div>
             </div>
-            <div className="flex-1 order-1 lg:order-2 w-full">
-              <div className="bg-gradient-to-br from-indigo-100 to-blue-100 h-64 lg:h-80 rounded-xl flex items-center justify-center">
+            <motion.div 
+              className="flex-1 order-1 lg:order-2 w-full"
+              variants={fadeIn}
+            >
+              <div className="bg-gradient-to-br from-indigo-100 to-blue-100 h-64 lg:h-80 rounded-2xl flex items-center justify-center border border-indigo-200">
                 <div className="text-center p-4">
-                  <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto mb-4" />
+                  <div className="bg-gray-200 border-2 border-dashed border-indigo-300 rounded-xl w-16 h-16 mx-auto mb-4" />
                   <p className="font-semibold text-indigo-700">Obafemi Awolowo University</p>
                   <p className="text-gray-600">Home of student entrepreneurship</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Campus Impact */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center mb-16">
+        <motion.div 
+          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center mb-16"
+          initial="hidden"
+          animate="visible"
+          variants={staggerChildren}
+        >
           {[
             { icon: FiTrendingUp, number: "Boosts", label: "Student Businesses" },
             { icon: FiShoppingBag, number: "Simplifies", label: "Campus Transactions" },
             { icon: FiAward, number: "Ensures", label: "Trusted Exchanges" },
             { icon: FiUsers, number: "Connects", label: "Campus Community" }
           ].map((stat, index) => (
-            <div 
+            <motion.div 
               key={index}
-              className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg ring-1 ring-black/5 hover:shadow-xl transition-all duration-300"
+              className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-500"
+              variants={fadeIn}
+              whileHover={{ scale: 1.05 }}
             >
-              <stat.icon className="text-3xl mx-auto mb-3 text-indigo-600" />
-              <div className="text-2xl font-bold text-indigo-600 mb-2">
+              <div className="p-2 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full inline-block mb-3">
+                <stat.icon className="text-xl text-indigo-600 mx-auto" />
+              </div>
+              <div className="text-xl font-bold text-indigo-600 mb-2">
                 {stat.number}
               </div>
               <div className="text-gray-600 font-medium">{stat.label}</div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Founder's Vision */}
-        <div className="bg-gradient-to-r from-indigo-50 to-blue-100 rounded-2xl p-8 text-center">
-          <FiBook className="text-4xl text-indigo-600 mx-auto mb-4" />
+        <motion.div 
+          className="bg-gradient-to-r from-indigo-50 to-blue-100 rounded-2xl p-8 text-center border border-indigo-100"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          <div className="p-3 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full inline-block mb-4">
+            <FiBook className="text-2xl text-indigo-600" />
+          </div>
           <blockquote className="text-xl italic text-gray-700 max-w-3xl mx-auto mb-4">
             "Empowering students to trade smarter — fast, safe, and right on campus."
           </blockquote>
           <p className="font-semibold text-indigo-700">- Bello Muhyideen, Founder</p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
