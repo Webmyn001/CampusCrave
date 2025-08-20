@@ -115,6 +115,7 @@ const PremiumListingsSection = ({
                     <p className="text-xl font-bold text-purple-600 mb-4">₦{item.price}</p>
                     <Link
                       to={`/listing/${item._id}`}
+                       state={{ item }} 
                       className="block w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
                     >
                       View Details

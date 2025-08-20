@@ -114,6 +114,7 @@ const UrgentListingsSection = ({
                     <p className="text-xl font-bold text-red-600 mb-4">₦{item.price}</p>
                     <Link
                       to={`/listing/${item._id}`}
+                      state={{ item }} 
                       className="block w-full bg-gradient-to-r from-red-500 to-orange-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
                     >
                       View Details

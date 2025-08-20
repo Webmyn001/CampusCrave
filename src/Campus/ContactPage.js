@@ -202,7 +202,6 @@ const ContactPage = () => {
                     Obafemi Awolowo University, Ile-Ife, Osun State, Nigeria.
                   </p>
                   <div className="mt-4 flex gap-3">
-                   
                     <a href="#" className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                       <FiLinkedin className="text-gray-700" />
                     </a>

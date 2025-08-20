@@ -90,9 +90,9 @@ const RecurringServicesSection = ({
                   Failed to load services. Please try again later.
                 </div>
               ) : (
-                listings.map((service) => (
+                listings.map((item) => (
                   <motion.div 
-                    key={service._id}
+                    key={item._id}
                     variants={itemVariants}
                     whileHover="hover"
                     className="flex-shrink-0 w-72 bg-white rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow group border border-gray-100"
@@ -102,25 +102,26 @@ const RecurringServicesSection = ({
                       variants={cardHoverVariants}
                     >
                       <img 
-                        alt={service.title} 
-                        src={service.image || "https://picsum.photos/536/354"} 
+                        alt={item.title} 
+                        src={item.image || "https://picsum.photos/536/354"} 
                         className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                       />
                       <span className="absolute top-3 left-3 bg-amber-100 text-amber-600 px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
                         Recurring
                       </span>
                     </motion.div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">{service.title}</h3>
-                    <p className="text-xl font-bold text-amber-600 mb-2">₦{service.price}</p>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">{item.title}</h3>
+                    <p className="text-xl font-bold text-amber-600 mb-2">₦{item.price}</p>
                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                      {service.description || 'Service description not available'}
+                      {item.description || 'Service description not available'}
                     </p>
-                    <Link
-                      to={`/listing/${service._id}`}
-                      className="block w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
+                   <Link
+                    to={`/listing/${item._id}`}
+                     state={{ item }} // Pass entire service object as state
+                     className="block w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-white py-3 text-center rounded-lg hover:opacity-90 transition-opacity font-medium"
                     >
-                      Subscribe Now
-                    </Link>
+                    Subscribe Now
+                  </Link>
                   </motion.div>
                 ))
               )}
