@@ -276,6 +276,14 @@ const ProductForm = () => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.6 }}
           >
+
+            <input
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className=""
+                accept="image/*"
+              />
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-8 rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-[1.02] shadow-lg relative overflow-hidden group"
