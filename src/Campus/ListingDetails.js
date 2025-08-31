@@ -196,12 +196,15 @@ const ListingDetails = () => {
               </div>
               
               <div className="mt-6 text-center">
-                <Link to="/contactseller">
-                  <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-8 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 mx-auto">
-                    <FiMessageSquare className="w-5 h-5" />
-                    Contact Seller
-                  </button>
-                </Link>
+                <Link 
+  to="/contactseller" 
+  state={{ service: service }}  // Replace yourServiceObject with your actual service data
+>
+  <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium py-3 px-8 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 mx-auto">
+    <FiMessageSquare className="w-5 h-5" />
+    Contact Seller
+  </button>
+</Link>
               </div>
             </div>
 

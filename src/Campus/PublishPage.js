@@ -16,7 +16,7 @@ const tiers = [
     link: "/publish/starter"
   },
   {
-    title: 'Basic Tier',
+    title: 'Standard Tier',
     price: '₦1,500/month',
     features: [
       'All Starter features',

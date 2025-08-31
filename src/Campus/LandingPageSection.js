@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { FiShoppingBag, FiShield, FiUsers, FiArrowRight, FiHeart, FiCheck, FiTrendingUp } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import AdvertisementBanner from './Advertisment';
 
 const LandingPage = () => {
   return (
@@ -110,8 +111,10 @@ const LandingPage = () => {
           ))}
         </div>
         
+           {/* Advertisement */}
+        <AdvertisementBanner/>
 
-        
+
        {/* Call to action */}
 <motion.div
   initial={{ opacity: 0, scale: 0.9 }}

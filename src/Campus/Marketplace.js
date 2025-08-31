@@ -126,7 +126,7 @@ function Marketplace() {
         const normalResponse = await axios.get('https://campus-plum.vercel.app/api/listings/');
         setNormalListings(normalResponse.data);
         setLoading(prev => ({ ...prev, normal: false }));
-        
+        console.log(normalListings)
       } catch (err) {
         setError({
           vip: 'Failed to load VIP listings',

@@ -115,27 +115,30 @@ const UserProfile = () => {
           </div>
         </div>
 
-        {/* Profile Card - Modern Design */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border border-gray-100">
-          <div className="relative h-40 bg-gradient-to-r from-indigo-500 to-purple-600">
-            <div className="absolute -bottom-16 left-10">
-              <div className="relative">
-                <img 
-                  src={currentUser.image || "https://i.pinimg.com/736x/3e/96/71/3e9671f23722767969d511dda257a888.jpg"}
-                  alt="Profile"
-                  className="w-36 h-36 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg object-cover"
-                />
-                {/* Edit Profile Button */}
-                <Link
-                  to="/profilepage"
-                  className="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 border border-gray-200"
-                >
-                  <FiEdit className="text-indigo-600" />
-                </Link>
-              </div>
-            </div>
-          </div>
-          
+       <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border border-gray-100">
+  {/* Header Section with Gradient + Update Button */}
+  <div className="relative h-40 bg-gradient-to-r from-indigo-500 to-purple-600">
+    {/* Update Profile Button (top-right) */}
+    <Link
+      to="/profilepage"
+      className="absolute top-4 right-4 flex items-center gap-2 bg-white text-sm font-medium text-indigo-600 px-4 py-2 rounded-full shadow-md hover:bg-indigo-50 border border-gray-200 transition-all"
+    >
+      <FiEdit className="text-indigo-600" />
+      <span>Update Profile</span>
+    </Link>
+  </div>
+
+  {/* Profile Image */}
+  <div className="relative -mt-16 px-6">
+    <img 
+      src={currentUser.image || "https://i.pinimg.com/736x/3e/96/71/3e9671f23722767969d511dda257a888.jpg"}
+      alt="Profile"
+      className="w-36 h-36 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg object-cover"
+    />
+  </div>
+
+
+
           <div className="pt-20 pb-6 px-6">
             <div className="flex flex-col md:flex-row justify-between gap-4">
               <div>

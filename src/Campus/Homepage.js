@@ -95,15 +95,11 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
+
       <LandingPageSection/>
 
-      <AdvertisementBanner />
 
 
-      {/* Report Button */}
-      <ReportButton />
-
-     
 
       {/* 
       // Food Items Section
@@ -305,7 +301,8 @@ const HomePage = () => {
     )}
   </div>
 </section>
-
+      <ReportButton />
+ 
       {/* FAQ Section */}
       <section className="max-w-6xl mx-auto py-8 md:py-12 px-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
