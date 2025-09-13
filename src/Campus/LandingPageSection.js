@@ -120,7 +120,7 @@ const LandingPage = () => {
   initial={{ opacity: 0, scale: 0.9 }}
   animate={{ opacity: 1, scale: 1 }}
   transition={{ duration: 0.5, delay: 1.2 }}
-  className="text-center bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl py-12 px-6 shadow-2xl mb-4 relative overflow-hidden"
+  className="text-center bg-gradient-to-r from-indigo-600 font-Poppins to-purple-600 rounded-3xl py-5 px-6 shadow-2xl mb-4 relative overflow-hidden"
 >
   {/* Decorative elements */}
   <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
@@ -163,11 +163,11 @@ const LandingPage = () => {
     transition={{ delay: 1.5 }}
   >
     <div className="text-center">
-      <div className="text-2xl font-bold text-white">5K+</div>
+      <div className="text-2xl font-bold text-white">500+</div>
       <div>Active Users</div>
     </div>
     <div className="text-center">
-      <div className="text-2xl font-bold text-white">10K+</div>
+      <div className="text-2xl font-bold text-white">200+</div>
       <div>Listings</div>
     </div>
     <div className="text-center">

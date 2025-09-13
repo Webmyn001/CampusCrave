@@ -31,6 +31,7 @@ import AddReview from './Campus/AddReview';
 import ReportScamPage from './Campus/Alertpage';
 import NotFoundPage from './Campus/404';
 import Marketplace from './Campus/Marketplace';
+import BusinessDetails from './Campus/BusinessDetails';
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
           <Route path="/premiumlistings" element={<PremiumListings />} />
           <Route path="/viplistings" element={<VipServicesListings />} />
           
+          <Route path="/business/:id" element={<BusinessDetails />} />
           {/* Publishing */}
           <Route path="/publish" element={<PublishNewMarketPage />} />
           <Route path="/publish/starter" element={<CreateListing />} />

@@ -1,21 +1,45 @@
 // ListingsLayout.jsx
 import { Link } from 'react-router-dom';
-import { FiClock, FiShoppingBag, FiHeart } from 'react-icons/fi';
+import { FiClock, FiShoppingBag, FiHeart, FiSearch } from 'react-icons/fi';
+import { useState } from 'react';
 
-// Shared layout component
-const ListingsLayout = ({ children, category, accentColor }) => {
+const ListingsLayout = ({ children, category, accentColor, showSearch = false, onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    if (onSearch) onSearch(e.target.value);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
+        
         {/* Category Header */}
         <div className={`mb-6 p-5 rounded-xl bg-gradient-to-r ${accentColor} shadow-md`}>
-          <div className="flex items-center gap-3 text-white">
-            {category.icon}
-            <div>
+          <div className="flex flex-col gap-2 text-white">
+            <div className="flex items-center gap-3">
+              {category.icon}
               <h1 className="text-xl md:text-2xl font-bold">{category.title}</h1>
-              <p className="mt-1 text-sm text-white/90 max-w-2xl">{category.description}</p>
             </div>
+            <p className="text-sm text-white/90 max-w-2xl">{category.description}</p>
           </div>
+
+          {/* ✅ Search bar directly under title/description */}
+          {showSearch && (
+            <div className="mt-4 w-full flex justify-center">
+              <div className="flex items-center w-full max-w-2xl gap-3 bg-white rounded-xl shadow-md px-4 py-3 border border-gray-200">
+                <FiSearch className="text-gray-400 w-5 h-5 flex-shrink-0" />
+                <input
+                  type="text"
+                  placeholder={`Search ${category.title.toLowerCase()}...`}
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="flex-1 outline-none bg-transparent text-gray-700 placeholder-gray-400 text-sm md:text-base"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Listings Grid */}
@@ -27,9 +51,8 @@ const ListingsLayout = ({ children, category, accentColor }) => {
   );
 };
 
-// Listing Card Component - Medium size
+// Listing Card stays the same
 const ListingCard = ({ item, accentColor }) => {
-  // Extract gradient colors from accentColor for button hover effect
   const gradientColors = accentColor.replace('bg-gradient-to-r', '').trim();
   
   return (
@@ -45,15 +68,9 @@ const ListingCard = ({ item, accentColor }) => {
             e.target.src = "https://via.placeholder.com/400x300?text=Image+Not+Available";
           }}
         />
-        {/* Badge */}
         <span className={`absolute top-2 left-2 px-2 py-1 ${accentColor} text-white rounded text-xs font-medium shadow-sm`}>
           {item.category}
         </span>
-        
-        {/* Wishlist Button */}
-        <button className="absolute top-2 right-2 bg-white/80 hover:bg-white p-1.5 rounded-full shadow-sm transition-all">
-          <FiHeart className="w-3.5 h-3.5 text-rose-500" />
-        </button>
       </div>
 
       {/* Details Section */}
@@ -66,28 +83,22 @@ const ListingCard = ({ item, accentColor }) => {
             {item.price}
           </p>
         </div>
-
-        {/* Time Left / Status */}
-        {item.timeLeft && (
+        {item.secondsLeft && (
           <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1">
             <FiClock className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="font-medium">{item.timeLeft} left</span>
+            <span className="font-medium">{item.secondsLeft} left</span>
           </div>
         )}
-
-        {/* Seller Info */}
-        {item.seller && (
+        {item.sellerInfo.name && (
           <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
             <FiShoppingBag className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="line-clamp-1">{item.seller}</span>
+            <span className="line-clamp-1">{item.sellerInfo.name}</span>
           </div>
         )}
-
-        {/* Action Button */}
         <Link
           to={{
             pathname: `/listing/${item.id}`,
-            state: { item }  // Pass entire item object as state
+            state: { item }
           }}  
           className={`mt-2 w-full block text-center py-2 px-3 ${accentColor} text-white rounded-md font-medium transition-all
                      hover:shadow-sm hover:scale-[1.01] active:scale-[0.99] text-sm
