@@ -27,7 +27,7 @@ const ProductForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`);
+        const response = await axios.get(`http://localhost:5000/api/auth/${userId}`);
         setSellerInfo(response.data);
       } catch (error) {
         toast.error('🚨 Failed to load seller information', { icon: '❌' });
@@ -45,26 +45,44 @@ const ProductForm = () => {
   };
 
   const handleFileChange = async (e) => {
-    const files = Array.from(e.target.files);
-    setIsUploading(true);
+  const files = Array.from(e.target.files);
 
-    const imagePromises = files.map((file) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-      });
+  // Prevent adding more than 2 images
+  if (formData.images.length + files.length > 2) {
+    toast.error("🚨 You can only upload a maximum of 2 images", { icon: "⚠️" });
+    return;
+  }
+
+  setIsUploading(true);
+
+  const imagePromises = files.map((file) => {
+    return new Promise((resolve, reject) => {
+      // Check file size (<= 3MB)
+      if (file.size > 3 * 1024 * 1024) {
+        toast.error(`🚨 ${file.name} exceeds 3MB`, { icon: "📦" });
+        reject(new Error("File too large"));
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error("File reading failed"));
     });
+  });
 
+  try {
     const base64Images = await Promise.all(imagePromises);
-
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...base64Images]
+      images: [...prev.images, ...base64Images],
     }));
-    
+  } catch (err) {
+    console.error(err.message);
+  } finally {
     setIsUploading(false);
-  };
+  }
+};
 
   const removeImage = (index) => {
     setFormData(prev => ({
@@ -103,7 +121,7 @@ const ProductForm = () => {
         postedTime: new Date().toISOString()
       };
 
-      await axios.post('https://campus-plum.vercel.app/api/listings/', payload, {
+      await axios.post('http://localhost:5000/api/listings/', payload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -238,9 +256,9 @@ const ProductForm = () => {
               />
             </div>
 
-            {/* Upload Images */}
+            {/* Upload Images  Maimum of Two images*/} 
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700">Upload Images</label>
+              <label className="block text-sm font-medium text-gray-700">Upload Images (Maximum of two images)</label>
               <label className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer transition-all
                 ${isUploading ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300 hover:border-indigo-400 hover:bg-indigo-50'}`}>
                 <div className="flex flex-col items-center justify-center pt-5 pb-6 px-4">

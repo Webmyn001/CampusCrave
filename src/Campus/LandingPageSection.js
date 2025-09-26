@@ -100,7 +100,7 @@ const LandingPage = () => {
               }}
               className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 transition-all"
             >
-              <div className="flex items-center mb-6">
+              <div className="flex font-raleway items-center mb-6">
                 <div className="w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center mr-4">
                   {feature.icon}
                 </div>
@@ -120,7 +120,7 @@ const LandingPage = () => {
   initial={{ opacity: 0, scale: 0.9 }}
   animate={{ opacity: 1, scale: 1 }}
   transition={{ duration: 0.5, delay: 1.2 }}
-  className="text-center bg-gradient-to-r from-indigo-600 font-Poppins to-purple-600 rounded-3xl py-5 px-6 shadow-2xl mb-4 relative overflow-hidden"
+  className="text-center bg-gradient-to-r from-indigo-600 font-raleway to-purple-600 rounded-3xl py-5 px-6 shadow-2xl mb-4 relative overflow-hidden"
 >
   {/* Decorative elements */}
   <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>

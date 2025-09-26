@@ -160,7 +160,7 @@ const ReviewForm = () => {
           {/* Rating Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-               Rate This Website
+               Rate This Marketplace
               <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="flex gap-2">
@@ -194,7 +194,7 @@ const ReviewForm = () => {
               className={`w-full px-4 py-3 rounded-xl border ${
                 errors.review ? 'border-red-300 focus:ring-red-500' : 'border-gray-200 focus:ring-indigo-500'
               } focus:outline-none focus:ring-2 focus:border-transparent h-32`}
-              placeholder="Share your review about this site."
+              placeholder="Share your review about CampusCrave."
             />
             <div className="flex justify-between text-sm text-gray-500 mt-2">
               <span>{formData.review.length}/150</span>

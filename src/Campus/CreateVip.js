@@ -8,17 +8,17 @@ import 'react-toastify/dist/ReactToastify.css';
 const ProductForm = () => {
   const [sellerInfo, setSellerInfo] = useState(null);
   const [formData, setFormData] = useState({
-    title: '',
-    price: '',
-    description: '',
-    condition: '',
+    businessName: '',
+    address: '',
+    fullDescription: '',
+    workingHours: '',
+    businessEmail: '',
     contactMethod: '',
     images: []
   });
 
   const [isUploading, setIsUploading] = useState(false);
 
-  const conditions = ['New', 'Like New', 'Used - Good', 'Used - Fair'];
   const contactMethods = ['In-app Messaging', 'Email', 'Phone Call', 'WhatsApp'];
 
   const userId = localStorage.getItem('userId');
@@ -27,7 +27,7 @@ const ProductForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`);
+        const response = await axios.get(`http://localhost:5000/api/auth/${userId}`);
         setSellerInfo(response.data);
       } catch (error) {
         toast.error('🚨 Failed to load seller information', { icon: '❌' });
@@ -48,14 +48,11 @@ const ProductForm = () => {
     const files = Array.from(e.target.files);
     setIsUploading(true);
     
-    // Convert files to base64 strings
-    const imagePromises = files.map(file => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-      });
-    });
+    const imagePromises = files.map(file => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+    }));
 
     const base64Images = await Promise.all(imagePromises);
     
@@ -104,7 +101,7 @@ const ProductForm = () => {
         postedTime: new Date().toISOString()
       };
 
-      const response = await axios.post('https://campus-plum.vercel.app/api/vip-listings/', payload, {
+      const response = await axios.post('http://localhost:5000/api/vip-listings/', payload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -116,6 +113,11 @@ const ProductForm = () => {
       
       setFormData({
         title: '',
+        businessName: '',
+        address: '',
+        fullDescription: '',
+        workingHours: '',
+        businessEmail: '',
         price: '',
         description: '',
         condition: '',
@@ -158,126 +160,56 @@ const ProductForm = () => {
           </div>
           
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+
+            {/* Business Info Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                className="space-y-2"
-              >
-                <label className="block text-sm font-medium text-gray-700">Title *</label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
-                  placeholder="Enter item title"
-                  required
-                />
+              <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Business/Service Name *</label>
+                <input type="text" name="businessName" value={formData.businessName} onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition" required />
               </motion.div>
 
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="space-y-2"
-              >
-                <label className="block text-sm font-medium text-gray-700">Price (#) *</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-3 text-gray-500">#</span>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleInputChange}
-                    className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
-                    placeholder="0.00"
-                    required
-                  />
-                </div>
+              <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Address *</label>
+                <input type="text" name="address" value={formData.address} onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition" required />
               </motion.div>
 
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-2"
-              >
-                <label className="block text-sm font-medium text-gray-700">Condition *</label>
-                <div className="relative">
-                  <select
-                    name="condition"
-                    value={formData.condition}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition appearance-none bg-white"
-                    required
-                  >
-                    <option value="">Select Condition</option>
-                    {conditions.map((condition) => (
-                      <option key={condition} value={condition}>{condition}</option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+              <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Working Hours *</label>
+                <input type="text" name="workingHours" value={formData.workingHours} onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition" required />
               </motion.div>
 
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="space-y-2"
-              >
-                <label className="block text-sm font-medium text-gray-700">Contact Method *</label>
-                <div className="relative">
-                  <select
-                    name="contactMethod"
-                    value={formData.contactMethod}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition appearance-none bg-white"
-                    required
-                  >
-                    <option value="">Select Contact Method</option>
-                    {contactMethods.map((method) => (
-                      <option key={method} value={method}>{method}</option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
+              <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Business Email *</label>
+                <input type="email" name="businessEmail" value={formData.businessEmail} onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition" required />
               </motion.div>
             </div>
 
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="space-y-2"
-            >
-              <label className="block text-sm font-medium text-gray-700">Description *</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition resize-none"
-                rows="4"
-                placeholder="Describe your recurring listing in detail..."
-                required
-              />
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Full Description *</label>
+              <textarea name="fullDescription" value={formData.fullDescription} onChange={handleInputChange}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition resize-none"
+                rows="4" placeholder="Describe your business in detail..." required />
             </motion.div>
 
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="space-y-3"
-            >
+            {/* Original Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Contact Method *</label>
+                <select name="contactMethod" value={formData.contactMethod} onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 transition" required>
+                  <option value="">Select Contact Method</option>
+                  {contactMethods.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </motion.div>
+            </div>
+
+            {/* Images */}
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="space-y-3">
               <label className="block text-sm font-medium text-gray-700">Upload Images</label>
               <label className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer transition-all
                 ${isUploading ? 'border-amber-400 bg-amber-50' : 'border-gray-300 hover:border-amber-400 hover:bg-amber-50'}`}>
@@ -289,7 +221,7 @@ const ProductForm = () => {
                     </div>
                   ) : (
                     <>
-                      <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="w-10 h-10 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                       </svg>
                       <p className="text-sm text-gray-600 text-center">
@@ -299,33 +231,19 @@ const ProductForm = () => {
                     </>
                   )}
                 </div>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept="image/*"
-                />
+                <input type="file" multiple onChange={handleFileChange} className="hidden" accept="image/*" />
               </label>
 
-              {/* Thumbnails */}
               {formData.images.length > 0 && (
                 <div className="mt-4">
                   <p className="text-sm text-gray-600 mb-2">{formData.images.length} image{formData.images.length !== 1 ? 's' : ''} selected</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {formData.images.map((img, index) => (
                       <div key={index} className="relative group">
-                        <img
-                          src={img}
-                          alt="preview"
-                          className="w-full h-24 object-cover rounded-lg border shadow-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <img src={img} alt="preview" className="w-full h-24 object-cover rounded-lg border shadow-sm" />
+                        <button type="button" onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                           </svg>
                         </button>
@@ -336,27 +254,17 @@ const ProductForm = () => {
               )}
             </motion.div>
 
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="pt-4"
-            >
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-4 px-6 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center"
-                disabled={!sellerInfo}
-              >
+            {/* Submit Button */}
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="pt-4">
+              <button type="submit" className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white py-4 px-6 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center" disabled={!sellerInfo}>
                 {sellerInfo ? (
                   <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                     </svg>
                     Create Recurring Listing
                   </>
-                ) : (
-                  'Loading...'
-                )}
+                ) : 'Loading...'}
               </button>
             </motion.div>
           </form>
@@ -367,20 +275,9 @@ const ProductForm = () => {
         position="top-center"
         autoClose={3000}
         theme="colored"
-        toastStyle={{
-          borderRadius: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          fontSize: '0.9rem',
-          padding: '16px',
-        }}
-        progressStyle={{
-          height: '3px'
-        }}
-        bodyStyle={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}
+        toastStyle={{ borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', fontSize: '0.9rem', padding: '16px' }}
+        progressStyle={{ height: '3px' }}
+        bodyStyle={{ display: 'flex', alignItems: 'center', gap: '12px' }}
         closeButton={false}
       />
     </motion.div>

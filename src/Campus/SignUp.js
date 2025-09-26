@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { FiMail, FiLock, FiUser, FiArrowRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const SignupPage = () => {
@@ -23,24 +23,14 @@ const SignupPage = () => {
     setError('');
 
     try {
-      const response = await axios.post(
-        'https://campus-plum.vercel.app/api/auth/signup',
-        { email, password, name},
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
+      await axios.post(
+        "http://localhost:5000/api/auth/signup",
+        { email, password, name },
+        { headers: { 'Content-Type': 'application/json' } }
       );
-
-      // Handle successful signup
-      if (response.data.message) {
-        navigate('/login', { state: { successMessage: 'Registration successful! Please login.' } });
-      }
+      navigate('/verify-notice');
     } catch (err) {
-      const errorMessage = err.response?.data?.message 
-        || err.message 
-        || 'Registration failed. Please try again.';
+      const errorMessage = err.response?.data?.message || err.message || 'Registration failed.';
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -54,21 +44,13 @@ const SignupPage = () => {
           <h1 className="text-4xl font-bold text-indigo-600 mb-2">Join CampusCrave Now</h1>
           <p className="text-gray-600">Create your free account in 30 seconds</p>
         </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-
-        <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
             <div className="relative group">
-              <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="name"
                 value={name}
@@ -82,11 +64,9 @@ const SignupPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-               Email Address
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
             <div className="relative group">
-              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="email"
                 value={email}
@@ -99,14 +79,10 @@ const SignupPage = () => {
             </div>
           </div>
 
-         
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Create Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <div className="relative group">
-              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="password"
                 value={password}
@@ -120,11 +96,9 @@ const SignupPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Confirm Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
             <div className="relative group">
-              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="password"
                 value={confirmPassword}
@@ -140,24 +114,10 @@ const SignupPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 px-4 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 px-4 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {isLoading ? (
-              'Creating Account...'
-            ) : (
-              <>
-                Get Started
-                <FiArrowRight className="text-lg" />
-              </>
-            )}
+            {isLoading ? 'Creating Account...' : <>Get Started <FiArrowRight className="text-lg" /></>}
           </button>
-
-          <p className="text-center text-gray-600 mt-8">
-            Already have an account?{' '}
-            <Link to="/login" className="text-indigo-600 font-semibold hover:text-indigo-700">
-              Sign in here
-            </Link>
-          </p>
         </form>
       </div>
     </div>

@@ -77,6 +77,12 @@ const Navbar = () => {
                   >
                     Legal
                   </Link>
+                  <Link 
+                    to="/report" 
+                    className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  >
+                    Report
+                  </Link>
                 </div>
               )}
             </div>
@@ -144,6 +150,13 @@ const Navbar = () => {
                 onClick={closeMobileMenu} // Added close on click
               >
                 Legal
+              </Link>
+              <Link 
+                to="/report" 
+                className="block px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                onClick={closeMobileMenu} // Added close on click
+              >
+                Report
               </Link>
 
               {/* Auth Mobile */}

@@ -1,83 +1,84 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiUser, FiPhone, FiBook, FiHome, FiCamera, FiSave, FiShield, FiAlertTriangle, FiCheck, FiAward } from 'react-icons/fi';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { FiUser, FiPhone, FiBook, FiHome, FiCamera, FiSave, FiShield, FiAlertTriangle, FiCheck, FiAward } from "react-icons/fi";
+import axios from "axios";
 
 const ProfilePage = () => {
-  const navigate = useNavigate();
-  const [userData, setUserData] = useState({
-    name: '',
-    phone: '',
-    campusId: '',
-    profilePhoto: '',
-    course: '',
-    year: '',
-    hostel: '',
-    emergencyContact: '',
-  });
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [preview, setPreview] = useState(null);
+  const [newPhoto, setNewPhoto] = useState(null);
 
-  // Get user ID and token
-  const userId = localStorage.getItem('userId');
-  const token = localStorage.getItem('token');
+  // Get userId + token from localStorage
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
-  // Fetch existing user data
+  // Fetch user data
   useEffect(() => {
-    const fetchUserData = async () => {
+    const fetchUser = async () => {
       try {
-        const response = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+        const res = await axios.get(`http://localhost:5000/api/auth/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        setUserData(response.data);
+        setUserData(res.data);
       } catch (err) {
-        setError('Failed to load profile data');
+        setError("Failed to load profile data");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchUserData();
+    fetchUser();
   }, [userId, token]);
 
+  // Handle text inputs
   const handleInputChange = (e) => {
-    setUserData({
-      ...userData,
-      [e.target.name]: e.target.value
-    });
+    setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  const handleFileUpload = async (e) => {
+  // Handle file upload (base64)
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUserData(prev => ({ ...prev, profilePhoto: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Size check (3MB max)
+    if (file.size > 3 * 1024 * 1024) {
+      setError("🚨 Profile photo must be less than 3MB");
+      return;
     }
+
+    setPreview(URL.createObjectURL(file));
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => setNewPhoto(reader.result);
   };
 
+  // Submit update
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(
-        `https://campus-plum.vercel.app/api/auth/${userId}`,
-        userData,
+      const updates = { ...userData };
+      if (newPhoto) updates.profilePhoto = newPhoto; // base64
+
+      const res = await axios.put(
+        `http://localhost:5000/api/auth/${userId}`,
+        updates,
         {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      setSuccess('Profile updated successfully');
-      setTimeout(() => setSuccess(''), 3000);
+
+      setUserData(res.data.user);
+      setPreview(null);
+      setNewPhoto(null);
+      setSuccess("Profile updated successfully!");
+      setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Update failed');
+      setError(err.response?.data?.message || "Update failed");
     }
   };
 
@@ -106,6 +107,7 @@ const ProfilePage = () => {
 
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
           <div className="p-6 md:p-8">
+            {/* Error */}
             {error && (
               <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 animate-fadeIn">
                 <div className="bg-red-100 p-2 rounded-full">
@@ -118,6 +120,7 @@ const ProfilePage = () => {
               </div>
             )}
 
+            {/* Success */}
             {success && (
               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3 animate-fadeIn">
                 <div className="bg-green-100 p-2 rounded-full">
@@ -135,11 +138,11 @@ const ProfilePage = () => {
               <div className="flex flex-col items-center mb-8">
                 <div className="relative mb-4">
                   <div className="w-36 h-36 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 border-4 border-white shadow-lg overflow-hidden ring-4 ring-indigo-50">
-                    {userData.profilePhoto ? (
-                      <img 
-                        src={userData.profilePhoto} 
-                        alt="Profile" 
-                        className="w-full h-full object-cover" 
+                    {preview || userData?.profilePhoto?.url ? (
+                      <img
+                        src={preview || userData?.profilePhoto?.url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -149,11 +152,11 @@ const ProfilePage = () => {
                   </div>
                   <label className="absolute bottom-2 right-2 bg-white p-3 rounded-full shadow-md cursor-pointer hover:bg-indigo-50 transition-all duration-300 group border border-indigo-100">
                     <FiCamera className="text-indigo-600 group-hover:text-indigo-800 transition-colors w-5 h-5" />
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleFileUpload} 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="hidden"
                     />
                   </label>
                 </div>
@@ -164,173 +167,109 @@ const ProfilePage = () => {
               <div className="grid gap-8 md:grid-cols-2">
                 <div className="space-y-6">
                   {/* Full Name */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <div className="bg-indigo-100 p-2 rounded-lg">
-                        <FiUser className="text-indigo-600" />
-                      </div>
-                      Full Name
-                    </label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
                     <input
                       type="text"
                       name="name"
-                      value={userData.name}
+                      value={userData?.name || ""}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      placeholder="Your full name"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     />
                   </div>
 
-                  {/* Phone Number */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <div className="bg-indigo-100 p-2 rounded-lg">
-                        <FiPhone className="text-indigo-600" />
-                      </div>
-                      Whatsapp Number
-                    </label>
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Phone</label>
                     <input
                       type="tel"
                       name="phone"
-                      value={userData.phone}
+                      value={userData?.phone || ""}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      placeholder="Your phone number"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     />
                   </div>
 
-                  {/* Hostel Address*/}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <div className="bg-indigo-100 p-2 rounded-lg">
-                        <FiHome className="text-indigo-600" />
-                      </div>
-                      Hostel
-                    </label>
+                  {/* Hostel */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Hostel</label>
                     <input
                       type="text"
                       name="hostel"
-                      value={userData.hostel}
+                      value={userData?.hostel || ""}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      placeholder="Your hostel address"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-6">
                   {/* Course */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2">
-                      <div className="bg-indigo-100 p-2 rounded-lg">
-                        <FiBook className="text-indigo-600" />
-                      </div>
-                      Course
-                    </label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Course</label>
                     <input
                       type="text"
                       name="course"
-                      value={userData.course}
+                      value={userData?.course || ""}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                      placeholder="Your course of study"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl"
                     />
                   </div>
 
                   {/* Year */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Year of Study
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="year"
-                        value={userData.year}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all appearance-none"
-                      >
-                        <option value="">Select Year</option>
-                        {[1, 2, 3, 4, 5].map(year => (
-                          <option key={year} value={year}>Year {year}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Year</label>
+                    <select
+                      name="year"
+                      value={userData?.year || ""}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl"
+                    >
+                      <option value="">Select Year</option>
+                      {[1, 2, 3, 4, 5].map((year) => (
+                        <option key={year} value={year}>Year {year}</option>
+                      ))}
+                    </select>
                   </div>
-
                 </div>
               </div>
 
               {/* Emergency Contact */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Emergency Contact
-                </label>
-                <div className="flex items-center gap-3 bg-red-50 p-3 rounded-xl border border-red-100">
-                  <div className="bg-red-100 p-3 rounded-xl">
-                    <FiAlertTriangle className="text-red-600 w-5 h-5" />
-                  </div>
-                  <input
-                    type="tel"
-                    name="emergencyContact"
-                    value={userData.emergencyContact}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                    placeholder="Emergency contact number"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Emergency Contact</label>
+                <input
+                  type="tel"
+                  name="emergencyContact"
+                  value={userData?.emergencyContact || ""}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl"
+                />
               </div>
 
               {/* Security Note */}
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl border border-indigo-100">
-                <div className="flex items-center gap-4">
-                  <div className="bg-indigo-100 p-3 rounded-xl">
-                    <FiShield className="text-indigo-600 w-6 h-6" />
-                  </div>
-                  <div>
-                    <div>
-                       <h3 className="font-medium text-gray-900 mb-3 flex items-center gap-2">
-                      Important Note <FiAward className="text-amber-500" />
-                    </h3>
-                    </div>
-                  </div>
-                </div>
-
-                 <p className="text-gray-700 pt-2 text-sm">
-                      The information you provide must be accurate as it helps us protect the community against scams.
-                      If any false information is detected, your account may be flagged.
-                      Once your details are verified and confirmed as accurate, you will receive a 
-                      <span className="font-semibold text-indigo-700"> Verified Badge</span>, which increases your chances of selling quickly on the platform.
-                      Buyers are more likely to trust and prefer verified sellers to avoid being scammed.
-                    </p>
+              <div className="bg-indigo-50 p-6 rounded-2xl border border-indigo-100 mt-4">
+                <h3 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
+                  Important Note <FiAward className="text-amber-500" />
+                </h3>
+                <p className="text-gray-700 text-sm">
+                  The information you provide must be accurate as it helps us protect the community against scams.
+                  Once verified, you will receive a <span className="font-semibold text-indigo-700">Verified Badge</span>,
+                  which builds trust with buyers.
+                </p>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 px-8 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center gap-3 mt-6 group"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-8 rounded-xl font-semibold shadow-md mt-6"
               >
-                <FiSave className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <FiSave className="inline-block mr-2" />
                 Update Profile
               </button>
             </form>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

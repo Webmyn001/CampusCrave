@@ -19,30 +19,27 @@ const LoginPage = () => {
 
     try {
       const response = await axios.post(
-        'https://campus-plum.vercel.app/api/auth/login',
+        'http://localhost:5000/api/auth/login',
         { email, password },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
+        { headers: { 'Content-Type': 'application/json' } }
       );
 
-      // Handle successful login
+      // Successful login
       if (response.data) {
-      localStorage.setItem('token', response.data.token);
+        localStorage.setItem('token', response.data.token);
         localStorage.setItem('Login', JSON.stringify(response.data.Login));
         localStorage.setItem('userEmail', response.data.user.email); 
         localStorage.setItem('userId', response.data.user._id); 
 
-
+        window.location.assign('/profile');
       }
-            console.log(response.data.Login)
-            window.location.assign('/profile');
     } catch (err) {
-      const errorMessage = err.response?.data?.message 
-        || err.message 
-        || 'Login failed. Please try again.';
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please try again.';
+      // If email not verified, redirect to verify notice page
+      if (errorMessage === 'Please verify your email first.') {
+        navigate('/verify-notice', { state: { email } });
+        return;
+      }
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -65,11 +62,9 @@ const LoginPage = () => {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              University Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">University Email</label>
             <div className="relative group">
-              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="email"
                 value={email}
@@ -83,11 +78,9 @@ const LoginPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
             <div className="relative group">
-              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors" />
+              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="password"
                 value={password}
@@ -103,43 +96,22 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 px-4 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 px-4 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {isLoading ? (
-              'Signing In...'
-            ) : (
-              <>
-                Continue
-                <FiArrowRight className="text-lg" />
-              </>
-            )}
+            {isLoading ? 'Signing In...' : <>Continue <FiArrowRight className="text-lg" /></>}
           </button>
 
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2 text-gray-600 hover:text-gray-800 cursor-pointer">
-              <input 
-                type="checkbox" 
-                className="rounded border-gray-300" 
-                disabled={isLoading}
-              />
+              <input type="checkbox" className="rounded border-gray-300" disabled={isLoading} />
               Remember me
             </label>
-            <Link 
-              to="/forgot-password" 
-              className="text-indigo-600 hover:text-indigo-700"
-            >
-              Forgot password?
-            </Link>
+            <Link to="/forgot-password" className="text-indigo-600 hover:text-indigo-700">Forgot password?</Link>
           </div>
 
           <p className="text-center text-gray-600 mt-8">
             New to CampusMart?{' '}
-            <Link 
-              to="/signup" 
-              className="text-indigo-600 font-semibold hover:text-indigo-700"
-            >
-              Create account
-            </Link>
+            <Link to="/signup" className="text-indigo-600 font-semibold hover:text-indigo-700">Create account</Link>
           </p>
         </form>
       </div>

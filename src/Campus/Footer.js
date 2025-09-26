@@ -28,7 +28,7 @@ const Footer = () => {
             <p className="text-gray-400 text-sm">
               Secure campus marketplace for OAU students
             </p>
-            <div className="flex space-x-3 mt-2">
+            {/* <div className="flex space-x-3 mt-2">
               {[FiFacebook, FiTwitter, FiInstagram].map((Icon, idx) => (
                 <motion.a
                   key={idx}
@@ -40,7 +40,7 @@ const Footer = () => {
                   <Icon className="w-4 h-4 text-white" />
                 </motion.a>
               ))}
-            </div>
+            </div> */}
           </motion.div>
 
           {/* Essential Links */}

@@ -201,14 +201,16 @@ const ContactPage = () => {
                     Dept. of Soil Science & Land Resources Management<br/>
                     Obafemi Awolowo University, Ile-Ife, Osun State, Nigeria.
                   </p>
-                  <div className="mt-4 flex gap-3">
+                  
+                  {/* will be implemented later, when i open facebook and twitter account for campus crave */}
+                  {/* <div className="mt-4 flex gap-3">
                     <a href="#" className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                       <FiLinkedin className="text-gray-700" />
                     </a>
                     <a href="#" className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
                       <FiTwitter className="text-gray-700" />
                     </a>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </motion.div>

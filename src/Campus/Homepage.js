@@ -13,6 +13,7 @@ import AdvertisementBanner from './Advertisment';
 import ReportButton from './ReportButton';
 import axios from 'axios';
 import LandingPageSection from './LandingPageSection';
+import WebsiteGuide from './WebsiteGuide';
 
 
 
@@ -207,6 +208,8 @@ const HomePage = () => {
       {/* Report Button */}
       {/* <ReportButton /> */}
 
+      <WebsiteGuide />
+
       {/* Reviews Section */}
       <section className="max-w-6xl mx-auto py-8 md:py-12 px-4">
   <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100">
@@ -301,8 +304,6 @@ const HomePage = () => {
     )}
   </div>
 </section>
-      <ReportButton />
- 
       {/* FAQ Section */}
       <section className="max-w-6xl mx-auto py-8 md:py-12 px-4">
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">

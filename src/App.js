@@ -11,11 +11,10 @@ import ContactPage from './Campus/ContactPage';
 import LegalPage from './Campus/LegalPage';
 import Login from './Campus/Login';
 import Signup from './Campus/SignUp';
-import ForgotPasswordPage from './Campus/ForgetPwd';
+// import ForgotPasswordPage from './Campus/ForgetPwd';
 import UserProfile from './Campus/Userprofile';
 import CreateProfilePage from './Campus/CreateProfilepage';
-import ProfileUpdateForm from './Campus/UpdateUser';
-import BrowseListings from './Campus/Browselistings';
+// import ProfileUpdateForm from './Campus/UpdateUser';
 import ListingDetails from './Campus/ListingDetails';
 import UrgentListings from './Campus/UrgentListing';
 import PremiumListings from './Campus/PremiumListings';
@@ -32,6 +31,10 @@ import ReportScamPage from './Campus/Alertpage';
 import NotFoundPage from './Campus/404';
 import Marketplace from './Campus/Marketplace';
 import BusinessDetails from './Campus/BusinessDetails';
+import VerifyNotice from './Campus/VerifyNotice';
+import VerifyEmail from './Campus/VerifyEmail';
+import ResetPassword from './Campus/ResetPassword';
+import ForgotPassword from './Campus/ForgotPassword';
 
 function App() {
   return (
@@ -51,15 +54,19 @@ function App() {
           {/* Authentication */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/forgotpwd" element={<ForgotPasswordPage />} />
+          <Route path="/verify-notice" element={<VerifyNotice />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+
           
           {/* User Profile */}
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/profilepage" element={<CreateProfilePage />} />
-          <Route path="/update" element={<ProfileUpdateForm />} />
+           {/* <Route path="/update" element={<ProfileUpdateForm />} />                    */}
           
           {/* Listings */}
-          <Route path="/listings" element={<BrowseListings />} />
           <Route path="/listing/:id" element={<ListingDetails />} />
           <Route path="/urgentlistings" element={<UrgentListings />} />
           <Route path="/premiumlistings" element={<PremiumListings />} />

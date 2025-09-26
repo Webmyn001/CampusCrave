@@ -46,25 +46,42 @@ const ProductForm = () => {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
+  
+    // Prevent adding more than 2 images
+    if (formData.images.length + files.length > 2) {
+      toast.error("🚨 You can only upload a maximum of 2 images", { icon: "⚠️" });
+      return;
+    }
+  
     setIsUploading(true);
-    
-    // Convert files to base64 strings
-    const imagePromises = files.map(file => {
-      return new Promise((resolve) => {
+  
+    const imagePromises = files.map((file) => {
+      return new Promise((resolve, reject) => {
+        // Check file size (<= 3MB)
+        if (file.size > 3 * 1024 * 1024) {
+          toast.error(`🚨 ${file.name} exceeds 3MB`, { icon: "📦" });
+          reject(new Error("File too large"));
+          return;
+        }
+  
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("File reading failed"));
       });
     });
-
-    const base64Images = await Promise.all(imagePromises);
-    
-    setFormData(prev => ({
-      ...prev,
-      images: [...prev.images, ...base64Images]
-    }));
-    
-    setIsUploading(false);
+  
+    try {
+      const base64Images = await Promise.all(imagePromises);
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, ...base64Images],
+      }));
+    } catch (err) {
+      console.error(err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const removeImage = (index) => {
