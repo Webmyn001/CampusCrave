@@ -7,7 +7,7 @@ import axios from "axios";
 const API_URL = "http://localhost:5000/api";
 
 // Replace with real userId from auth
-const userId = "64f9e8d8e5f3a6b1c2d4a7f1";
+const userId = localStorage.getItem("userId");
 
 const tiers = [
   {
@@ -73,9 +73,9 @@ export default function PublishNewMarketPage() {
         const res = await axios.get(`${API_URL}/status?id=${userId}`);
         if (mounted) {
           const data = {};
-          if (res.data.status === "active") {
-            data[res.data.plan] = true;
-          }
+          res.data.activePlans?.forEach((plan) => {
+            data[plan.plan] = plan.status; // backend already gives "subscribed" | "expired"
+          });
           setSubscriptionStatus(data);
         }
       } catch (err) {
@@ -101,7 +101,7 @@ export default function PublishNewMarketPage() {
     currency: tier.currency,
     payment_options: "card,ussd,banktransfer",
     customer: {
-      email: `${userId}@example.com`, // 👈 encodes userId for webhook if needed
+      email: `${userId}@example.com`,
       phonenumber: "+2348012345678",
       name: "User",
     },
@@ -113,7 +113,6 @@ export default function PublishNewMarketPage() {
       closePaymentModal();
       console.log("Flutterwave response:", response);
 
-      // Flutterwave always sends transaction_id
       const transaction_id =
         response?.transaction_id ||
         response?.tx_ref ||
@@ -127,13 +126,10 @@ export default function PublishNewMarketPage() {
           userId,
         });
 
-        setSubscriptionStatus((prev) => ({ ...prev, [tier.id]: true }));
+        setSubscriptionStatus((prev) => ({ ...prev, [tier.id]: "subscribed" }));
         alert(verifyRes.data.message || "Subscription successful");
       } catch (err) {
-        console.error(
-          "Verification failed:",
-          err.response?.data || err.message
-        );
+        console.error("Verification failed:", err.response?.data || err.message);
         alert("Payment verification failed");
       }
     },
@@ -141,21 +137,21 @@ export default function PublishNewMarketPage() {
   });
 
   // Handle free plan without Flutterwave
-  const handleFreePlan = async (tier) => {
-    try {
-      const res = await axios.post(`${API_URL}/verify-payment`, {
-        transaction_id: "FREE_PLAN",
-        plan: tier.id,
-        userId,
-      });
+  // const handleFreePlan = async (tier) => {
+  //   try {
+  //     const res = await axios.post(`${API_URL}/verify-payment`, {
+  //       transaction_id: "FREE_PLAN",
+  //       plan: tier.id,
+  //       userId,
+  //     });
 
-      setSubscriptionStatus((prev) => ({ ...prev, [tier.id]: true }));
-      alert(res.data.message || "Free plan activated");
-    } catch (err) {
-      console.error("Free plan error:", err.response?.data || err.message);
-      alert("Failed to activate free plan");
-    }
-  };
+  //     setSubscriptionStatus((prev) => ({ ...prev, [tier.id]: "subscribed" }));
+  //     alert(res.data.message || "Free plan activated");
+  //   } catch (err) {
+  //     console.error("Free plan error:", err.response?.data || err.message);
+  //     alert("Failed to activate free plan");
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -171,7 +167,7 @@ export default function PublishNewMarketPage() {
 
         <div className="grid gap-8 grid-cols-1 md:grid-cols-3">
           {tiers.map((tier) => {
-            const isSubscribed = !!subscriptionStatus[tier.id];
+            const tierStatus = subscriptionStatus[tier.id];
 
             return (
               <div
@@ -191,15 +187,19 @@ export default function PublishNewMarketPage() {
                     className={`absolute top-0 left-0 mt-2 ml-2 px-3 py-1 rounded-br-2xl rounded-tr-lg text-sm font-semibold ${
                       loading
                         ? "bg-gray-400 text-white"
-                        : isSubscribed
+                        : tierStatus === "subscribed"
                         ? "bg-green-500 text-white"
+                        : tierStatus === "expired"
+                        ? "bg-yellow-500 text-white"
                         : "bg-red-500 text-white"
                     }`}
                   >
                     {loading
                       ? "Checking..."
-                      : isSubscribed
+                      : tierStatus === "subscribed"
                       ? "Subscribed"
+                      : tierStatus === "expired"
+                      ? "Expired"
                       : "Not Subscribed"}
                   </div>
                 )}
@@ -228,14 +228,15 @@ export default function PublishNewMarketPage() {
 
                   <div className="mt-8">
                     {tier.free ? (
+                      <Link to={tier.link}>
                       <button
-                        onClick={() => handleFreePlan(tier)}
                         className="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center"
                       >
                         Get Started{" "}
                         <FiZap className="ml-2 inline w-5 h-5" />
                       </button>
-                    ) : isSubscribed ? (
+                      </Link>
+                    ) : tierStatus === "subscribed" ? (
                       <Link
                         to={tier.link}
                         className="w-full block py-3 px-6 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-center"

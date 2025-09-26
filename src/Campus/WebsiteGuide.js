@@ -48,7 +48,7 @@ export default function WebsiteGuide() {
         className="max-w-5xl mx-auto text-center mb-12"
       >
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-          Welcome to <span className="text-emerald-600">Campus Market</span> 👋
+          Welcome to <span className="text-emerald-600">Campus Crave</span> 👋
         </h1>
         <p className="mt-3 text-gray-600 text-lg">
           Whether you’re selling, buying, or keeping our community safe,
