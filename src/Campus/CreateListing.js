@@ -17,6 +17,8 @@ const ProductForm = () => {
   });
 
   const [isUploading, setIsUploading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+  
 
   const conditions = ['New', 'Like New', 'Used - Good', 'Used - Fair'];
   const contactMethods = ['Email', 'Phone Call', 'WhatsApp'];
@@ -57,9 +59,9 @@ const ProductForm = () => {
 
   const imagePromises = files.map((file) => {
     return new Promise((resolve, reject) => {
-      // Check file size (<= 3MB)
-      if (file.size > 3 * 1024 * 1024) {
-        toast.error(`🚨 ${file.name} exceeds 3MB`, { icon: "📦" });
+      // Check file size (<= 6MB)
+      if (file.size > 6 * 1024 * 1024) {
+        toast.error(`🚨 File too large, Your Upload exceeds 6MB`, { icon: "📦" });
         reject(new Error("File too large"));
         return;
       }
@@ -102,6 +104,7 @@ const ProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  setIsSubmitting(true);
 
     if (!sellerInfo) {
       toast.error('🚨 Seller information not loaded yet', { icon: '⏳' });
@@ -139,12 +142,16 @@ const ProductForm = () => {
         contactMethod: '',
         images: []
       });
+  setIsSubmitting(false);
+
     } catch (error) {
       console.error('Submission error:', error);
       toast.error(`🚨 Error: ${error.response?.data?.message || 'Submission failed'}`, {
         icon: '😢'
       });
     }
+  setIsSubmitting(false);
+
   };
 
   return (
@@ -162,7 +169,7 @@ const ProductForm = () => {
         >
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
             <h1 className="text-2xl md:text-3xl font-bold text-center">
-              Create Your Listing
+              Get Your Items Seen & Sold Quickly!
             </h1>
             <p className="text-center text-indigo-100 mt-2">
               Fill in the details below to publish your item
@@ -312,22 +319,14 @@ const ProductForm = () => {
 
             {/* Submit Button */}
             <motion.div whileTap={{ scale: 0.97 }} className="pt-4">
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-semibold shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex items-center justify-center"
-                disabled={!sellerInfo}
-              >
-                {sellerInfo ? (
-                  <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                    Publish Listing
-                  </>
-                ) : (
-                  'Loading...'
-                )}
-              </button>
+             <button
+  type="submit"
+  onClick={handleSubmit}
+  disabled={!sellerInfo || isSubmitting}
+  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl font-semibold shadow-md transition-all duration-300 flex items-center justify-center"
+>
+  {!sellerInfo ? "Loading..." : isSubmitting ? "Uploading..." : "Create Listing"}
+</button>
             </motion.div>
           </form>
         </motion.div>

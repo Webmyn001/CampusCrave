@@ -90,148 +90,151 @@ const HomePage = () => {
       {/* Website Guide - Moved to be more prominent */}
       <WebsiteGuide />
 
-      {/* Reviews Section */}
-      <section className="py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-2xl p-8 md:p-12 border border-white/20">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-12">
-              <div className="flex items-center gap-4 mb-6 lg:mb-0">
-                <div className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
-                  <FiUsers className="text-3xl text-white" />
-                </div>
-                <div>
-                  <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                    Student Experiences
-                  </h2>
-                  <p className="text-gray-600 mt-2">See what your fellow students are saying</p>
-                </div>
-              </div>
-
-              <Link to="/reviewpage">
-                <button className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 font-semibold">
-                  <FiEdit className="flex-shrink-0" />
-                  Share Your Story
-                </button>
-              </Link>
-            </div>
-
-            {isLoadingReviews ? (
-              <div className="flex justify-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-              </div>
-            ) : reviewsError ? (
-              <div className="text-center py-12 bg-red-50 rounded-2xl">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                  <FiAlertCircle className="text-red-600 text-2xl" />
-                </div>
-                <p className="text-red-600 font-medium text-lg">Failed to load reviews</p>
-                <p className="text-red-500 text-sm mt-2">{reviewsError}</p>
-              </div>
-            ) : (
-              <div className="relative">
-                <div className="flex overflow-x-auto pb-8 -mx-4 px-4 scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-transparent">
-                  <div className="flex space-x-6 min-w-max">
-                    {reviews.map((review) => (
-                      <div 
-                        key={review._id} 
-                        className="flex-shrink-0 w-80 bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2"
-                      >
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <p className="font-bold text-gray-900 text-lg">{review.name}</p>
-                            <p className="text-sm text-gray-500 mt-1">
-                              {review.course} • Level {review.level}
-                            </p>
-                          </div>
-                          <div className="flex gap-1">
-                            {[...Array(5)].map((_, i) => (
-                              <FiStar 
-                                key={i} 
-                                className={`w-4 h-4 ${i < review.ratings ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="relative mb-4">
-                          <div className="absolute top-0 left-0 text-4xl text-indigo-500 opacity-10 leading-none">"</div>
-                          <p className="text-gray-700 pl-6 relative z-10 leading-relaxed">"{review.review}"</p>
-                        </div>
-                        
-                        <div className="flex items-center justify-between text-sm text-gray-400 border-t border-gray-100 pt-4">
-                          <span>
-                            {new Date(review.createdAt).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </span>
-                          <div className="flex items-center">
-                            <FiHeart className="text-gray-400 mr-1" />
-                            <span>Helpful</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="text-center mt-6">
-                  <div className="inline-flex items-center gap-2 text-indigo-600 font-medium">
-                    <FiChevronLeft className="animate-bounce" />
-                    <span>Swipe to see more reviews</span>
-                    <FiChevronRight className="animate-bounce" />
-                  </div>
-                </div>
-              </div>
-            )}
+{/* Reviews Section */}
+<section className="py-6 px-4">
+  <div className="max-w-6xl mx-auto">
+    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl p-6 md:p-8 border border-white/20">
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-8">
+        <div className="flex items-center gap-3 mb-4 lg:mb-0">
+          <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-md">
+            <FiUsers className="text-2xl text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Student Experiences
+            </h2>
+            <p className="text-gray-600 mt-1 text-sm">See what your fellow students are saying</p>
           </div>
         </div>
-      </section>
 
-      {/* Enhanced FAQ Section with All Questions */}
-      <section className="py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent mb-4">
-              Frequently Asked Questions
-            </h2>
-            <p className="text-xl text-gray-600">Everything you need to know about Campus Crave</p>
+        <Link to="/reviewpage">
+          <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-md hover:shadow-lg text-sm font-semibold transform hover:scale-105">
+            <FiEdit className="flex-shrink-0 w-4 h-4" />
+            Share Your Story
+          </button>
+        </Link>
+      </div>
+
+      {/* Loading / Error */}
+      {isLoadingReviews ? (
+        <div className="flex justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
+        </div>
+      ) : reviewsError ? (
+        <div className="text-center py-8 bg-red-50 rounded-xl">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-red-100 rounded-full mb-3">
+            <FiAlertCircle className="text-red-600 text-xl" />
           </div>
-
-          <div className="bg-white rounded-3xl shadow-2xl p-8 border border-white/20">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {faqs.map((faq, index) => (
-                <div 
-                  key={index}
-                  className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300 border border-indigo-100 group hover:transform hover:-translate-y-1"
+          <p className="text-red-600 font-medium text-base">Failed to load reviews</p>
+          <p className="text-red-500 text-xs mt-1">{reviewsError}</p>
+        </div>
+      ) : (
+        <div className="relative">
+          <div className="flex overflow-x-auto pb-6 -mx-2 px-2 scrollbar-thin scrollbar-thumb-indigo-300 scrollbar-track-transparent">
+            <div className="flex space-x-4 min-w-max">
+              {reviews.map((review) => (
+                <div
+                  key={review._id}
+                  className="flex-shrink-0 w-64 bg-white rounded-2xl p-4 shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                 >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mt-1">
-                      <FiCheck className="w-3 h-3 text-white" />
+                  {/* Review Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="font-bold text-gray-900 text-sm md:text-base">{review.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {review.course} • Level {review.level}
+                      </p>
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg leading-tight">
-                      {faq.question}
-                    </h3>
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <FiStar
+                          key={i}
+                          className={`w-3 h-3 ${i < review.ratings ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                        />
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-gray-700 leading-relaxed text-sm">{faq.answer}</p>
+
+                  {/* Review Text */}
+                  <div className="relative mb-3">
+                    <div className="absolute top-0 left-0 text-3xl text-indigo-500 opacity-10 leading-none">"</div>
+                    <p className="text-gray-700 pl-4 relative z-10 text-sm leading-relaxed">"{review.review}"</p>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between text-xs text-gray-400 border-t border-gray-100 pt-2">
+                    <span>
+                      {new Date(review.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <FiHeart className="text-gray-400 w-3 h-3" />
+                      <span>Helpful</span>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div className="text-center mt-12 pt-8 border-t border-gray-100">
-              <Link 
-                to="/contact" 
-                className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
-              >
-                <FiHelpCircle className="flex-shrink-0" />
-                Need More Help? Contact Support
-                <FiChevronRight className="flex-shrink-0" />
-              </Link>
+          <div className="text-center mt-4">
+            <div className="inline-flex items-center gap-1 text-indigo-600 font-medium text-xs">
+              <FiChevronLeft className="animate-bounce w-3 h-3" />
+              <span>Swipe to see more reviews</span>
+              <FiChevronRight className="animate-bounce w-3 h-3" />
             </div>
           </div>
         </div>
-      </section>
+      )}
+    </div>
+  </div>
+</section>
+
+
+      {/* Enhanced FAQ Section with All Questions */}
+    <section className="py-12 px-4">
+  <div className="max-w-4xl mx-auto">
+    <div className="text-center mb-5">
+      <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent mb-1">
+        Frequently Asked Questions
+      </h2>
+      <p className="text-md text-gray-600">Everything you need to know about Campus Crave</p>
+    </div>
+
+    <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-white/20">
+      {faqs.map((faq, index) => (
+        <div key={index} className="border-b last:border-b-0">
+          <button
+            type="button"
+            className="w-full flex justify-between items-center py-3 text-left text-gray-900 font-medium hover:text-indigo-600 focus:outline-none"
+            onClick={() => {
+              const el = document.getElementById(`faq-answer-${index}`);
+              if (el) el.classList.toggle("hidden");
+            }}
+          >
+            <span>{faq.question}</span>
+            <svg
+              className="w-4 h-4 transition-transform duration-200"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div id={`faq-answer-${index}`} className="hidden text-gray-700 text-sm pl-2 pb-3">
+            {faq.answer}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
     </div>
   );
 };

@@ -110,7 +110,7 @@ const UrgentListingsSection = ({
                 >
                   <img
                     alt={item.title}
-                    src={item.image || 'https://picsum.photos/536/354'}
+                    src={item.images[0].url || 'https://picsum.photos/536/354'}
                     className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                   />
                   

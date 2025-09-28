@@ -115,7 +115,7 @@ const RecurringServicesSection = ({
                 >
                   <img
                     alt={item.title}
-                    src={item.image || 'https://picsum.photos/536/354'}
+                    src={item.images[0].url || 'https://picsum.photos/536/354'}
                     className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
                   />
                   <span className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-yellow-400 text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg">

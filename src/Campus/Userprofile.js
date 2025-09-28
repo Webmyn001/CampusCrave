@@ -1,4 +1,4 @@
-import { FiEdit, FiLogOut, FiPlus, FiMail, FiCalendar, FiBook, FiHome, FiEye, FiLoader, FiStar, FiAlertTriangle, FiShield, FiTrash2 } from 'react-icons/fi';
+import { FiEdit, FiLogOut, FiPlus, FiMail, FiCalendar, FiBook, FiHome, FiEye, FiLoader, FiStar, FiAlertTriangle, FiShield, FiTrash2, FiTrendingUp } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -72,6 +72,9 @@ const UserProfile = () => {
     fetchUser();
   }, [navigate]);
 
+
+  
+
   // Fetch listings
   useEffect(() => {
     if (!currentUser) return;
@@ -107,45 +110,53 @@ const UserProfile = () => {
     fetchListings();
   }, [currentUser]);
 
-  // Delete listing function
-  const handleDeleteListing = async (listingId, category) => {
-    if (!window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
-      return;
+  
+
+const handleDeleteListing = async (listingId, category) => {
+  if (!window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
+    return;
+  }
+
+  setDeletingId(listingId);
+
+  try {
+    const token = localStorage.getItem('token'); // get your token from localStorage
+    let endpoint = '';
+
+    switch (category) {
+      case 'premium':
+        endpoint = `https://campus-plum.vercel.app/api/pro-listings/${listingId}`;
+        break;
+      case 'vip':
+        endpoint = `https://campus-plum.vercel.app/api/vip-listings/${listingId}`;
+        break;
+      case 'urgent':
+        endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
+        break;
+      default:
+        throw new Error('Invalid listing category');
     }
 
-    setDeletingId(listingId);
-    
-    try {
-      let endpoint = '';
-      switch (category) {
-        case 'premium':
-          endpoint = `https://campus-plum.vercel.app/api/pro-listing/${listingId}`;
-          break;
-        case 'vip':
-          endpoint = `https://campus-plum.vercel.app/api/vip-listings/${listingId}`;
-          break;
-        case 'urgent':
-          endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
-          break;
-        default:
-          throw new Error('Invalid listing category');
-      }
+    await axios.delete(endpoint, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // <-- Authorization added here
+      },
+    });
 
-      await axios.delete(endpoint);
-      
-      // Remove the listing from state
-      setListings(prev => ({
-        ...prev,
-        [category]: prev[category].filter(item => item._id !== listingId)
-      }));
-      
-    } catch (error) {
-      console.error('Error deleting listing:', error);
-      alert('Failed to delete listing. Please try again.');
-    } finally {
-      setDeletingId(null);
-    }
-  };
+    // Remove the listing from state
+    setListings(prev => ({
+      ...prev,
+      [category]: prev[category].filter(item => item._id !== listingId)
+    }));
+
+  } catch (error) {
+    console.error('Error deleting listing:', error);
+    alert('Failed to delete listing. Please try again.');
+  } finally {
+    setDeletingId(null);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem('Login');
@@ -154,7 +165,6 @@ const UserProfile = () => {
     localStorage.removeItem('userId');
     navigate('/');
   };
-
   if (loading || !currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
@@ -207,6 +217,9 @@ const UserProfile = () => {
                 <FiPlus className="mr-2" /> New Listing
               </Link>
             </motion.div>
+
+
+
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <button 
                 onClick={handleLogout}
@@ -237,26 +250,25 @@ const UserProfile = () => {
                 </Link>
               </motion.div>
             </div>
-
             {/* Profile Content */}
             <div className="relative px-8 pb-8">
               {/* Profile Image */}
               <div className="relative -mt-20 mb-6">
-                {currentUser.image ? (
+                {currentUser.profilePhoto.url ? (
                   <motion.img
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200 }}
-                    src={currentUser.image}
+                    src={currentUser.profilePhoto.url}
                     alt="Profile"
-                    className="w-32 h-32 rounded-2xl border-4 border-white shadow-2xl object-cover"
+                    className="w-32 h-32 rounded-full border-4 border-white shadow-2xl object-cover"
                   />
                 ) : (
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200 }}
-                    className="w-32 h-32 flex items-center justify-center rounded-2xl border-4 border-white shadow-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-4xl font-bold"
+                    className="w-32 h-32 flex items-center justify-center rounded-full border-4 border-white shadow-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-4xl font-bold"
                   >
                     {currentUser.name
                       ? currentUser.name
@@ -403,7 +415,8 @@ const UserProfile = () => {
             </p>
           </div>
         </div>
-        
+         
+
         {/* Status Badge */}
         <motion.div
           whileHover={{ scale: 1.05 }}
@@ -415,6 +428,16 @@ const UserProfile = () => {
         >
           {currentUser.isVerified ? 'VERIFIED SELLER' : 'PENDING VERIFICATION'}
         </motion.div>
+
+         {/* Start Trading Button */}
+  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+    <Link to="/marketplace">
+      <button className="flex items-center gap-2 px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all duration-200 shadow-sm">
+        Enter Marketplace
+        <FiTrendingUp className="w-4 h-4" />
+      </button>
+    </Link>
+  </motion.div>
       </div>
       
       {/* Progress/Status Bar for Unverified */}
@@ -463,7 +486,7 @@ const UserProfile = () => {
                 />
                 
                 <ListingSection
-                  title="VIP Listings"
+                  title="Business/Service Listings"
                   icon={<FiStar />}
                   listings={listings.vip}
                   loading={listings.loading}
@@ -473,7 +496,7 @@ const UserProfile = () => {
                 />
                 
                 <ListingSection
-                  title="Urgent Listings"
+                  title="Quick Sales"
                   icon={<FiAlertTriangle />}
                   listings={listings.urgent}
                   loading={listings.loading}
@@ -603,16 +626,18 @@ const ListingSection = ({ title, icon, listings, loading, category, color, onDel
           </motion.div>
         </div>
       ) : listings.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {listings.map((item, index) => (
-            <ListingCard 
-              key={item._id} 
-              item={item} 
-              category={category} 
-              index={index}
-              onDelete={onDelete}
-            />
-          ))}
+        <div className="overflow-x-auto pb-4">
+          <div className="flex space-x-6 min-w-max">
+            {listings.map((item, index) => (
+              <ListingCard 
+                key={item._id} 
+                item={item} 
+                category={category} 
+                index={index}
+                onDelete={onDelete}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <motion.div 
@@ -631,9 +656,10 @@ const ListingSection = ({ title, icon, listings, loading, category, color, onDel
   );
 };
 
-// Updated Listing Card Component with Delete Functionality
+// Updated Listing Card Component without link wrappers
 const ListingCard = ({ item, category, index, onDelete }) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  
   const getCategoryColor = () => {
     switch(category) {
       case 'premium': return 'from-purple-500 to-indigo-500';
@@ -643,11 +669,38 @@ const ListingCard = ({ item, category, index, onDelete }) => {
     }
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+    
+    // Split date and time
+    const [datePart] = dateStr.split(" "); // "28/09/2025"
+    const parts = datePart.split("/");
+
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // JS months are 0-based
+      const year = parseInt(parts[2], 10);
+
+      const formatted = new Date(year, month, day);
+      if (!isNaN(formatted)) {
+        return formatted.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      }
+    }
+
+    return dateStr; // fallback
+  };
+
   const handleDeleteClick = async () => {
     setIsDeleting(true);
     await onDelete(item._id, category);
     setIsDeleting(false);
   };
+console.log(item)
+  const isVip = category === 'vip';
 
   return (
     <motion.div
@@ -659,14 +712,14 @@ const ListingCard = ({ item, category, index, onDelete }) => {
       animate="visible"
       transition={{ duration: 0.5, delay: index * 0.1 }}
       whileHover="hover"
-      className="group relative"
+      className="group relative flex-shrink-0 w-64"
     >
       <motion.div
         variants={{
           rest: { scale: 1 },
           hover: { scale: 1.02 }
         }}
-        className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden hover:shadow-xl transition-all duration-300"
+        className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden hover:shadow-xl transition-all duration-300 h-full"
       >
         {/* Delete Button */}
         <motion.button
@@ -684,30 +737,47 @@ const ListingCard = ({ item, category, index, onDelete }) => {
           )}
         </motion.button>
 
-        <div className="relative h-48 overflow-hidden">
-          <img 
-            src={item.image || "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} 
-            alt={item.title} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-            <h3 className="font-bold text-lg truncate">{item.title}</h3>
-            <p className="text-xl font-bold">₦{item.price}</p>
-          </div>
-          <span className={`absolute top-3 right-3 bg-gradient-to-r ${getCategoryColor()} text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg`}>
-            {category.toUpperCase()}
-          </span>
-        </div>
-        
-        <div className="p-4">
-          <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
-            <span className="bg-gray-100 px-2 py-1 rounded-md">{item.category || 'General'}</span>
-            <span>{new Date(item.formattedPostedAt).toLocaleDateString()}</span>
+        {/* Card content without link wrapper */}
+        <div className="h-full">
+          <div className="relative h-48 overflow-hidden">
+            <img 
+              src={item.images?.[0]?.url || "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} 
+              alt={item.title} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            
+            {/* Conditional content based on VIP status */}
+            {isVip ? (
+              // VIP: Show business name only
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <h3 className="font-bold text-lg truncate text-center">
+                  {item.businessName || item.title}
+                </h3>
+              </div>
+            ) : (
+              // Premium/Urgent: Show price and title
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                <p className="text-xl font-bold text-center">₦{item.price}</p>
+                <h3 className="font-semibold text-sm truncate text-center mt-1">
+                  {item.title}
+                </h3>
+              </div>
+            )}
           </div>
           
-          <div className="flex items-center text-sm text-gray-500">
-            <FiEye className="mr-2" /> {item.views || 0} views
+          {/* Additional info and note for all listings */}
+          <div className="p-4">
+            <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
+              <span>{formatDate(item.formattedPostedAt || item.createdAt)}</span>
+            </div>
+            
+            {/* Note about viewing in marketplace */}
+            <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded-lg border border-blue-100">
+              <p className="text-center">
+                View this listing in marketplace to see details
+              </p>
+            </div>
           </div>
         </div>
       </motion.div>

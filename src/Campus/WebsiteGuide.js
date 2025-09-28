@@ -40,7 +40,7 @@ const steps = [
 
 export default function WebsiteGuide() {
   return (
-    <div className="min-h-screen flex flex-col font-raleway justify-center bg-gradient-to-br from-gray-50 to-white pt-12 pb-8 px-6 lg:px-16">
+    <div className="min-h-screen flex flex-col font-raleway justify-center bg-gradient-to-br from-gray-50 to-white pt-6 pb-8 px-6 lg:px-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

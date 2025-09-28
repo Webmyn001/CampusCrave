@@ -83,7 +83,10 @@ export default function PublishNewMarketPage() {
           res.data.activePlans?.forEach((plan) => {
             data[plan.plan] = plan.status;
           });
+        localStorage.setItem("subscriptionStatus", JSON.stringify(data)); 
           setSubscriptionStatus(data);
+          console.log(subscriptionStatus)
+
         }
       } catch (err) {
         console.error("Error fetching subscription status:", err);

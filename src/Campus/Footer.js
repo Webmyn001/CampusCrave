@@ -4,14 +4,14 @@ import { FiFacebook, FiTwitter, FiInstagram, FiMail,
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-black text-gray-300 pt-12 pb-8 px-4 sm:px-6 lg:px-8">
+    <footer className="bg-gradient-to-b from-gray-900 to-black text-gray-300 pt-6 pb-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, staggerChildren: 0.1 }}
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10"
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-5"
         >
           {/* Brand Info */}
           <motion.div
@@ -115,7 +115,7 @@ const Footer = () => {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="border-t border-gray-800 pt-6 text-center"
+          className="border-t border-gray-800 pt-3 text-center"
         >
           <div className="flex flex-col items-center gap-2 text-sm">
             <div className="flex items-center text-gray-500">
