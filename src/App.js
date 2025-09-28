@@ -24,8 +24,6 @@ import CreateListing from './Campus/CreateListing';
 import CreatePro from './Campus/CreatePro';
 import CreateVip from './Campus/CreateVip';
 import ContactSeller from './Campus/ContactSeller';
-import TransactionPage from './Campus/Transaction';
-import RatingsReviews from './Campus/Review';
 import AddReview from './Campus/AddReview';
 import ReportScamPage from './Campus/Alertpage';
 import NotFoundPage from './Campus/404';
@@ -81,10 +79,8 @@ function App() {
           
           {/* Transactions */}
           <Route path="/contactseller" element={<ContactSeller />} />
-          <Route path="/transactions/:itemId" element={<TransactionPage />} />
           
           {/* Reviews */}
-          <Route path="/review" element={<RatingsReviews />} />
           <Route path="/reviewpage" element={<AddReview />} />
           
           {/* Support */}

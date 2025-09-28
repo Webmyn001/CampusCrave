@@ -32,13 +32,16 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link 
-              to="/" 
-              className="text-2xl font-bold text-indigo-600 hover:text-indigo-700"
-              onClick={closeMobileMenu} // Added close on click
-            >
-              CampusCrave
-            </Link>
+           <Link
+  to="/"
+  onClick={closeMobileMenu} // close menu on click
+  className="flex items-center text-2xl font-bold hover:opacity-90 transition"
+>
+  <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+    Campus
+  </span>
+  <span className="text-gray-800 font-light">Crave</span>
+</Link>
           </div>
 
           {/* Desktop Navigation */}

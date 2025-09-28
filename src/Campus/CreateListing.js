@@ -27,7 +27,7 @@ const ProductForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/auth/${userId}`);
+        const response = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`);
         setSellerInfo(response.data);
       } catch (error) {
         toast.error('🚨 Failed to load seller information', { icon: '❌' });
@@ -121,7 +121,7 @@ const ProductForm = () => {
         postedTime: new Date().toISOString()
       };
 
-      await axios.post('http://localhost:5000/api/listings/', payload, {
+      await axios.post('https://campus-plum.vercel.app/api/listings/', payload, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
