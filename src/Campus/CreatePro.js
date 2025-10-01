@@ -176,7 +176,7 @@ const savedStatus = JSON.parse(localStorage.getItem("subscriptionStatus"));
         }
       );
 
-      toast.success("🎉 Listing created successfully!", { icon: "🌟" });
+      toast.success("🎉Your premium listing is live!", { icon: "🌟" });
       triggerConfetti();
 
       setFormData({

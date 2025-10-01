@@ -275,16 +275,16 @@ export default function PublishNewMarketPage() {
         </div>
 
         {/* Footer Features */}
-        <div className="mt-20 text-center">
+        <div className="mt-10 text-center">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-white/20 shadow-lg">
-              <FiRepeat className="w-12 h-12 text-green-600 mx-auto mb-4" />
+            <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white/20 shadow-lg">
+              <FiRepeat className="w-12 h-12 text-green-600 mx-auto mb-2" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">30-Day Guarantee</h3>
               <p className="text-gray-600">Not satisfied? Get a full refund within 30 days</p>
             </div>
             
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl border border-white/20 shadow-lg">
-              <FiStar className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
+            <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white/20 shadow-lg">
+              <FiStar className="w-12 h-12 text-yellow-600 mx-auto mb-2" />
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Payments</h3>
               <p className="text-gray-600">Bank-level security with Flutterwave</p>
             </div>

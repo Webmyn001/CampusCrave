@@ -149,7 +149,7 @@ const VipListingForm = () => {
         },
       });
 
-      toast.success("🎉 Recurring Listing created successfully!", { icon: "🌟" });
+      toast.success("🎉 Your business profile is now live!", { icon: "🌟" });
       triggerConfetti();
 
       setFormData({

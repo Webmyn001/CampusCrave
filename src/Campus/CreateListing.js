@@ -131,7 +131,7 @@ const ProductForm = () => {
         }
       });
 
-      toast.success('🎉 Listing created successfully!', { icon: '🌟' });
+      toast.success('🎉 Your item is live!', { icon: '🌟' });
       triggerConfetti();
 
       setFormData({
