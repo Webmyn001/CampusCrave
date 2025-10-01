@@ -228,11 +228,11 @@ const SignupPage = () => {
             </div>
             <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
               I agree to the{' '}
-              <Link to="/terms" className="text-indigo-600 hover:text-indigo-700 font-medium underline">
+              <Link to="/legal" className="text-indigo-600 hover:text-indigo-700 font-medium underline">
                 Terms and Conditions
               </Link>{' '}
               and{' '}
-              <Link to="/privacy" className="text-indigo-600 hover:text-indigo-700 font-medium underline">
+              <Link to="/legal" className="text-indigo-600 hover:text-indigo-700 font-medium underline">
                 Privacy Policy
               </Link>
             </label>
