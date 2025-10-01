@@ -184,7 +184,7 @@ const HomePage = () => {
           <div className="text-center mt-4">
             <div className="inline-flex items-center gap-1 text-indigo-600 font-medium text-xs">
               <FiChevronLeft className="animate-bounce w-3 h-3" />
-              <span>Swipe to see more reviews</span>
+              <span>Swipe to see more stories</span>
               <FiChevronRight className="animate-bounce w-3 h-3" />
             </div>
           </div>

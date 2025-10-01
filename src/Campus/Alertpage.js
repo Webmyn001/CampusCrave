@@ -136,7 +136,7 @@ const ReportScamPage = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-5xl sm:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-6 leading-tight"
+            className="text-3xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent mb-6 leading-tight"
           >
             Protect Our Community
           </motion.h1>
@@ -172,7 +172,7 @@ const ReportScamPage = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Total Reports</p>
-                <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.total}</h3>
+                <h3 className="text-xl font-bold text-gray-800 mt-1">{stats.total}</h3>
                 <p className="text-xs text-gray-400 mt-2">Community vigilance</p>
               </div>
             </div>
@@ -189,7 +189,7 @@ const ReportScamPage = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Resolved Cases</p>
-                <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.resolved}</h3>
+                <h3 className="text-xl font-bold text-gray-800 mt-1">{stats.resolved}</h3>
                 <p className="text-xs text-gray-400 mt-2">Successful interventions</p>
               </div>
             </div>
@@ -206,7 +206,7 @@ const ReportScamPage = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">Active Cases</p>
-                <h3 className="text-3xl font-bold text-gray-800 mt-1">{stats.active}</h3>
+                <h3 className="text-xl font-bold text-gray-800 mt-1">{stats.active}</h3>
                 <p className="text-xs text-gray-400 mt-2">Under investigation</p>
               </div>
             </div>
@@ -252,10 +252,10 @@ const ReportScamPage = () => {
                 <FiFileText className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   Report Incident
                 </h2>
-                <p className="text-gray-500 mt-1">Help us keep campus safe</p>
+                <p className="text-gray-500 text-sm mt-1">Help us keep campus safe</p>
               </div>
             </div>
 
@@ -271,15 +271,15 @@ const ReportScamPage = () => {
       <FiCheckCircle className="w-6 h-6 text-amber-600" />
     </div>
     <div className="flex-1">
-      <h4 className="font-bold text-amber-800 text-lg mb-2">
+      <h4 className="font-bold text-amber-800 text-sm mb-2">
         🛡️ Safety First: Verified Users Only
       </h4>
-      <p className="text-amber-700 mb-3 leading-relaxed">
+      <p className="text-amber-700 text-sm mb-3 leading-relaxed">
         <strong>Important:</strong> We can only effectively track and take action against <span className="font-semibold text-amber-800">verified users</span>. 
         Reports involving unverified accounts are significantly harder to resolve.
       </p>
       <div className="bg-white/80 p-4 rounded-xl border border-amber-200">
-        <p className="text-amber-800 font-semibold text-sm">
+        <p className="text-amber-800 font-semibold text-[12px] sm:text-sm">
           💡 <span className="underline">Protect Yourself:</span> Always check for verification badges before transacting. 
           Verified users = Better protection for everyone.
         </p>
@@ -364,7 +364,7 @@ const ReportScamPage = () => {
                     transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                   />
                 )}
-                <span className="relative z-10 flex items-center gap-3">
+                <span className="relative z-10  text-sm flex items-center gap-3">
                   {loading ? (
                     <>
                       <motion.div
@@ -411,7 +411,7 @@ const ReportScamPage = () => {
                 <FiEye className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
                   Recent Alerts
                 </h2>
                 <p className="text-gray-500 mt-1">Latest security updates</p>
@@ -440,8 +440,8 @@ const ReportScamPage = () => {
                       <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <FiCheckCircle className="w-10 h-10 text-green-500" />
                       </div>
-                      <h3 className="text-2xl font-bold text-gray-800 mb-3">No Active Reports</h3>
-                      <p className="text-gray-600 text-lg">Campus security is currently up to date with all reports.</p>
+                      <h3 className="text-xl font-bold text-gray-800 mb-3">No Active Reports</h3>
+                      <p className="text-gray-600 text-sm">Campus security is currently up to date with all reports.</p>
                     </motion.div>
                   ) : (
                     scamReports.map((report) => {
@@ -473,7 +473,7 @@ const ReportScamPage = () => {
                                     {formattedDate.dateOnly}
                                   </span>
                                 </div>
-                                <h3 className="font-bold text-gray-900 text-lg mb-2">{report.scamType}</h3>
+                                <h3 className="font-bold text-gray-900 text-sm mb-2">{report.scamType}</h3>
                                 <p className="text-gray-600 line-clamp-2 leading-relaxed">{report.description}</p>
                               </div>
                               <motion.div

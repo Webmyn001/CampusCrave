@@ -333,7 +333,7 @@ const handleDeleteListing = async (listingId, category) => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-200 flex-1 justify-center ${
+              className={`flex items-center gap-2 px-4 text-sm py-3 rounded-xl font-semibold transition-all duration-200 flex-1 justify-center ${
                 activeTab === tab.id 
                   ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg' 
                   : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100/50'

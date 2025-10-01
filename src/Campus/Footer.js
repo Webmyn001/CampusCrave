@@ -66,8 +66,6 @@ const Footer = () => {
                 { text: 'About', to: '/about' },
                 { text: 'Contact', to: '/contact' },
                 { text: 'Legal', to: '/legal' },
-                { text: 'Safety', to: '/safety' },
-                { text: 'FAQ', to: '/faq' },
                 { text: 'Report', to: '/report' }
               ].map((link) => (
                 <motion.a

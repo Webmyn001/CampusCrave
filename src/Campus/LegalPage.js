@@ -44,7 +44,6 @@ const LegalPage = () => {
             <h3 className="text-xl font-semibold mt-4">What We Collect</h3>
             <ul className="list-disc pl-6 space-y-2">
               <li>Basic account information (Email, Phone number, Hostel Address.)</li>
-              <li>Transaction history for safety monitoring</li>
               <li>Device and login information for fraud prevention</li>
             </ul>
           </div>

@@ -48,7 +48,10 @@ export default function WebsiteGuide() {
         className="max-w-5xl mx-auto text-center mb-12"
       >
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-          Welcome to <span className="text-emerald-600">Campus Crave</span> 👋
+          Welcome to <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+    Campus
+  </span>
+  <span className="text-gray-800 font-light">Crave</span> 👋
         </h1>
         <p className="mt-3 text-gray-600 text-lg">
           Whether you’re selling, buying, or keeping our community safe,

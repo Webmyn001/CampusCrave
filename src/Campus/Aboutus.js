@@ -48,7 +48,12 @@ const AboutPage = () => {
             className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-blue-500 bg-clip-text text-transparent mb-4"
             variants={fadeIn}
           >
-            About CampusCrave
+             <h1 className="text-4xl md:text-5xl font-bold mb-4"> About{" "}
+  <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+    Campus
+  </span>
+  <span className="text-gray-800 font-light">Crave</span>
+</h1>
           </motion.h1>
           <motion.p 
             className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"

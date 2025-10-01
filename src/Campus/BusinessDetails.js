@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiMail, FiUser, FiCalendar, FiMapPin, FiClock, FiPhone, FiCheckCircle, FiStar, FiShare2, FiHeart } from 'react-icons/fi';
+import { FiMail, FiUser, FiCalendar, FiMapPin, FiClock, FiPhone, FiCheckCircle, FiStar } from 'react-icons/fi';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 const BusinessDetails = () => {
@@ -8,10 +9,8 @@ const BusinessDetails = () => {
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isLiked, setIsLiked] = useState(false);
-  const [hoveredField, setHoveredField] = useState(null);
+  const [activeImage, setActiveImage] = useState(0);
 
-  // Format date from "DD/MM/YYYY HH:mm" to "MMM DD, YYYY"
   const formatDate = (dateStr) => {
     if (!dateStr) return 'N/A';
     const [day, month, year] = dateStr.split(' ')[0].split('/');
@@ -19,12 +18,6 @@ const BusinessDetails = () => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-  // Truncate text function
-  const truncateText = (text, maxLength = 25) => {
-  if (!text || text === 'N/A') return 'N/A';
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
-};
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
@@ -43,108 +36,142 @@ const BusinessDetails = () => {
   }, [id]);
 
   if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+    >
       <div className="text-center">
-        <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-700 text-lg font-medium">Loading business details...</p>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"
+        ></motion.div>
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-gray-700 text-lg font-medium"
+        >
+          Loading business details...
+        </motion.p>
       </div>
-    </div>
+    </motion.div>
   );
   
   if (error) return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-      <div className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20"
+      >
         <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <FiStar className="w-8 h-8 text-red-600" />
         </div>
         <p className="text-red-500 text-xl font-semibold">{error}</p>
-        <Link to="/" className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+        <Link to="/" className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
           Back to Home
         </Link>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
   
   if (!business) return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center">
-      <div className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20"
+      >
         <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <FiUser className="w-8 h-8 text-gray-600" />
         </div>
         <p className="text-gray-700 text-xl font-semibold">Business not found</p>
-        <Link to="/" className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-colors">
+        <Link to="/" className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
           Browse Other Businesses
         </Link>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Breadcrumb */}
-        <nav className="mb-8">
-          <Link 
-            to="/" 
-            className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-sm border border-white/20"
-          >
-            ← Back to listings
-          </Link>
-        </nav>
-
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-4 sm:py-8"
+    >
+      <div className="max-w-7xl mx-auto px-3 sm:px-4">
+        
         {/* Business Card */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-white/20"
+        >
           {/* Main Header Image */}
           <div className="relative">
-            <img
-              src={business.images?.[0]?.url || 'https://picsum.photos/1200/600?commerce'}
-              alt={business.businessName}
-              className="w-full h-80 md:h-96 lg:h-[500px] object-cover"
-              onError={(e) => { e.target.onerror = null; e.target.src = 'https://picsum.photos/1200/600?commerce'; }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-10">
-              <div className="flex items-start justify-between">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={activeImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                src={business.images?.[activeImage]?.url || 'https://picsum.photos/1200/600?commerce'}
+                alt={business.businessName}
+                className="w-full h-54 sm:h-64 md:h-80 lg:h-96 xl:h-[500px] object-cover"
+                onError={(e) => { e.target.onerror = null; e.target.src = 'https://picsum.photos/1200/600?commerce'; }}
+              />
+            </AnimatePresence>
+            
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-10">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-2xl">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2"
+                  >
+                    <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-2xl break-words">
                       {business.businessName}
                     </h1>
-                    {/* Verified Badge */}
-                    {business.sellerInfo?.verified && (
-                      <div className="flex items-center gap-1 bg-green-500/20 backdrop-blur-sm px-3 py-1 rounded-full border border-green-400/30">
-                        <FiCheckCircle className="w-4 h-4 text-green-400" />
-                        <span className="text-green-300 text-sm font-medium">Verified</span>
-                      </div>
+                    {business.sellerInfo?.isVerified && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.7, type: "spring" }}
+                        className="flex items-center gap-1 bg-green-500/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full border border-green-400/30 w-fit"
+                      >
+                        <FiCheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
+                        <span className="text-green-300 text-xs sm:text-sm font-medium">Verified</span>
+                      </motion.div>
                     )}
-                  </div>
-                  <div className="flex items-center gap-4 text-white/90 text-sm md:text-base drop-shadow">
-                    <span className="flex items-center gap-1">
-                      <FiCalendar className="w-4 h-4" />
-                      Member since: {formatDate(business.sellerInfo?.formattedMemberSince)}
-                    </span>
-                    {/* Rating Badge */}
-                    <span className="flex items-center gap-1 bg-yellow-500/20 backdrop-blur-sm px-2 py-1 rounded-full">
-                      <FiStar className="w-3 h-3 text-yellow-400" />
-                      <span>4.8</span>
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setIsLiked(!isLiked)}
-                    className={`p-3 rounded-xl backdrop-blur-sm border transition-all ${
-                      isLiked 
-                        ? 'bg-red-500/20 border-red-400/30 text-red-400' 
-                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-                    }`}
+                  </motion.div>
+                  
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="flex flex-col sm:flex-row gap-2 sm:gap-4 text-white/90 text-xs sm:text-sm md:text-base drop-shadow"
                   >
-                    <FiHeart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                  </button>
-                  <button className="p-3 rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all">
-                    <FiShare2 className="w-5 h-5" />
-                  </button>
+                    <span className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full w-fit">
+                      <FiCalendar className="w-3 h-3 sm:w-4 sm:h-4" />
+                      Since: {formatDate(business.sellerInfo?.formattedMemberSince)}
+                    </span>
+                    
+                  </motion.div>
                 </div>
               </div>
             </div>
@@ -152,254 +179,242 @@ const BusinessDetails = () => {
 
           {/* Image Gallery */}
           {business.images && business.images.length > 1 && (
-            <div className="py-8 md:py-12 px-6 md:px-12 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="py-6 sm:py-8 md:py-12 px-4 sm:px-6 md:px-12 border-b border-gray-100"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-2">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   Gallery
                 </h2>
-                <span className="text-gray-500 text-sm">
+                <span className="text-gray-500 text-sm sm:text-lg font-medium">
                   {business.images.length} photos
                 </span>
               </div>
-              <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-hide">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
                 {business.images.map((img, index) => (
-                  <div key={index} className="relative group flex-shrink-0">
+                  <motion.div
+                    key={index}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`relative group cursor-pointer rounded-xl sm:rounded-2xl overflow-hidden ${
+                      index === activeImage ? 'ring-2 sm:ring-4 ring-indigo-500 ring-opacity-50' : ''
+                    }`}
+                    onClick={() => setActiveImage(index)}
+                  >
                     <img
                       src={img.url || 'https://picsum.photos/300/200'}
                       alt={`Business ${index + 1}`}
-                      className="w-64 h-40 object-cover rounded-2xl shadow-lg group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-24 sm:h-32 md:h-40 object-cover transition-all duration-300"
                       onError={(e) => { e.target.onerror = null; e.target.src = 'https://picsum.photos/300/200'; }}
                     />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-2xl transition-all duration-300"></div>
-                  </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Business Info */}
-          <div className="p-6 md:p-12 space-y-8">
+          <div className="p-4 sm:p-6 md:p-12 space-y-8 sm:space-y-12">
             {/* About Section */}
-            <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 About the Business
               </h2>
-              <p className="text-gray-700 text-lg leading-relaxed bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
+              <p className="text-gray-700 text-base sm:text-lg leading-relaxed bg-gray-50/50 p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl md:rounded-3xl border border-gray-100 text-justify">
                 {business.fullDescription || 'No description available.'}
               </p>
-            </div>
+            </motion.div>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Email */}
-<div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-2xl p-6 shadow-sm border border-indigo-100 group hover:shadow-md transition-all">
-  <div className="flex items-center gap-4">
-    <div className="p-3 bg-indigo-100 rounded-xl group-hover:scale-110 transition-transform">
-      <FiMail className="text-indigo-600 w-6 h-6" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-gray-600 text-sm font-medium">Email</p>
-      <div 
-        className="relative"
-        onMouseEnter={() => setHoveredField('email')}
-        onMouseLeave={() => setHoveredField(null)}
-      >
-        <p className={`text-gray-800 font-semibold ${business.businessEmail && business.businessEmail.length > 22 ? 'truncate' : ''}`}>
-          {business.businessEmail || 'N/A'}
-        </p>
-        {/* Tooltip */}
-        {hoveredField === 'email' && business.businessEmail && business.businessEmail.length > 22 && (
-          <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 whitespace-nowrap">
-            {business.businessEmail}
-            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-
-{/* Contact Method */}
-<div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 shadow-sm border border-green-100 group hover:shadow-md transition-all">
-  <div className="flex items-center gap-4">
-    <div className="p-3 bg-green-100 rounded-xl group-hover:scale-110 transition-transform">
-      <FiPhone className="text-green-600 w-6 h-6" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-gray-600 text-sm font-medium">Contact Method</p>
-      <div 
-        className="relative"
-        onMouseEnter={() => setHoveredField('contactMethod')}
-        onMouseLeave={() => setHoveredField(null)}
-      >
-        <p className={`text-gray-800 font-semibold ${business.contactMethod && business.contactMethod.length > 22 ? 'truncate' : ''}`}>
-          {business.contactMethod || 'N/A'}
-        </p>
-        {/* Tooltip */}
-        {hoveredField === 'contactMethod' && business.contactMethod && business.contactMethod.length > 22 && (
-          <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 whitespace-nowrap">
-            {business.contactMethod}
-            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-
-{/* Working Hours */}
-<div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-2xl p-6 shadow-sm border border-amber-100 group hover:shadow-md transition-all">
-  <div className="flex items-center gap-4">
-    <div className="p-3 bg-amber-100 rounded-xl group-hover:scale-110 transition-transform">
-      <FiClock className="text-amber-600 w-6 h-6" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-gray-600 text-sm font-medium">Working Hours</p>
-      <div 
-        className="relative"
-        onMouseEnter={() => setHoveredField('workingHours')}
-        onMouseLeave={() => setHoveredField(null)}
-      >
-        <p className={`text-gray-800 font-semibold ${business.workingHours && business.workingHours.length > 22 ? 'truncate' : ''}`}>
-          {business.workingHours || 'N/A'}
-        </p>
-        {/* Tooltip */}
-        {hoveredField === 'workingHours' && business.workingHours && business.workingHours.length > 22 && (
-          <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 whitespace-nowrap">
-            {business.workingHours}
-            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-
-{/* Business Address */}
-<div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 shadow-sm border border-purple-100 group hover:shadow-md transition-all">
-  <div className="flex items-center gap-4">
-    <div className="p-3 bg-purple-100 rounded-xl group-hover:scale-110 transition-transform">
-      <FiMapPin className="text-purple-600 w-6 h-6" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-gray-600 text-sm font-medium">Business Address</p>
-      <div 
-        className="relative"
-        onMouseEnter={() => setHoveredField('address')}
-        onMouseLeave={() => setHoveredField(null)}
-      >
-        <p className={`text-gray-800 font-semibold ${business.address && business.address.length > 22 ? 'truncate' : ''}`}>
-          {business.address || 'N/A'}
-        </p>
-        {/* Tooltip */}
-        {hoveredField === 'address' && business.address && business.address.length > 22 && (
-          <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 max-w-xs break-words whitespace-normal">
-            {business.address}
-            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-
-{/* Business Owner */}
-<div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 shadow-sm border border-blue-100 group hover:shadow-md transition-all">
-  <div className="flex items-center gap-4">
-    <div className="p-3 bg-blue-100 rounded-xl group-hover:scale-110 transition-transform">
-      <FiUser className="text-blue-600 w-6 h-6" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="text-gray-600 text-sm font-medium">Business Owner</p>
-      <div className="flex items-center gap-2">
-        <div 
-          className="relative"
-          onMouseEnter={() => setHoveredField('owner')}
-          onMouseLeave={() => setHoveredField(null)}
-        >
-          <p className={`text-gray-800 font-semibold ${business.sellerInfo?.name && business.sellerInfo.name.length > 18 ? 'truncate' : ''}`}>
-            {business.sellerInfo?.name || 'N/A'}
-          </p>
-          {/* Tooltip */}
-          {hoveredField === 'owner' && business.sellerInfo?.name && business.sellerInfo.name.length > 18 && (
-            <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg z-10 whitespace-nowrap">
-              {business.sellerInfo.name}
-              <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-900"></div>
-            </div>
-          )}
-        </div>
-        {/* Owner Verified Badge */}
-        {business.sellerInfo?.verified && (
-          <FiCheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-        )}
-      </div>
-    </div>
-  </div>
-</div>
-              {/* Additional Info Card */}
-              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-6 shadow-sm border border-gray-100 group hover:shadow-md transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-gray-100 rounded-xl group-hover:scale-110 transition-transform">
-                    <FiStar className="text-gray-600 w-6 h-6" />
+            {/* Details Section - Stacked on mobile, grid on larger screens */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-4 md:gap-6"
+            >
+              {/* Email */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-indigo-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 sm:p-3 bg-indigo-100 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FiMail className="text-indigo-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Business Status</p>
-                    <p className="text-gray-800 font-semibold">Active & Operating</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Email</p>
+                    <p className="text-gray-800 font-bold text-sm sm:text-base break-all">
+                      {business.businessEmail || 'N/A'}
+                    </p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
 
-            {/* Contact Button */}
+              {/* Contact Method */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 sm:p-3 bg-green-100 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FiPhone className="text-green-600 w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Contact Method</p>
+                    <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
+                      {business.contactMethod || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Working Hours */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-amber-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 sm:p-3 bg-amber-100 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FiClock className="text-amber-600 w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Working Hours</p>
+                    <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
+                      {business.workingHours || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Business Address */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 sm:p-3 bg-purple-100 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FiMapPin className="text-purple-600 w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Business Address</p>
+                    <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
+                      {business.address || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Business Owner */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 sm:p-3 bg-blue-100 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FiUser className="text-blue-600 w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Business Owner</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
+                        {business.sellerInfo?.name || 'N/A'}
+                      </p>
+                      {business.sellerInfo?.verified && (
+                        <FiCheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Additional Info Card */}
+              <motion.div 
+                whileHover={{ scale: 1.02, y: -2 }}
+                className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 sm:p-3 bg-gray-100 rounded-lg sm:rounded-xl flex-shrink-0">
+                    <FiStar className="text-gray-600 w-5 h-5 sm:w-6 sm:h-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-gray-600 text-sm font-semibold mb-1">Business Status</p>
+                    <p className="text-gray-800 font-bold text-sm sm:text-base">Active & Operating</p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Contact Buttons */}
             {business.id && (
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
-                <Link
-                  to="/contactseller"
-                  state={{ service: business }}
-                  className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl hover:shadow-indigo-500/25 hover:scale-105"
-                >
-                  <FiMail className="w-5 h-5" />
-                  Contact Business Owner
-                </Link>
-                
-                <button className="inline-flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-4 rounded-2xl font-semibold border-2 border-gray-200 hover:border-indigo-300 hover:bg-gray-50 transition-all">
-                  <FiPhone className="w-5 h-5" />
-                  Call Now
-                </button>
-              </div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="flex flex-col sm:flex-row gap-4 pt-6 sm:pt-8 border-t border-gray-100"
+              >
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="flex-1">
+                  <Link
+                    to="/contactseller"
+                    state={{ service: business }}
+                    className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 sm:px-8 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-xl hover:shadow-2xl w-full text-center"
+                  >
+                    <FiMail className="w-5 h-5 sm:w-6 sm:h-6" />
+                    Contact Business Owner
+                  </Link>
+                </motion.div>
+              </motion.div>
             )}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Trust Badges Section */}
-        <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
-          <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">Why Choose This Business?</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4">
-              <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <FiCheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <h4 className="font-semibold text-gray-800 mb-2">Verified Business</h4>
-              <p className="text-gray-600 text-sm">Thoroughly checked and approved</p>
+        {/* Trust Badges Section - Only show if verified */}
+        {business.sellerInfo?.isVerified && (
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-8 sm:mt-12 bg-gradient-to-br from-white to-gray-50 rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 md:p-10 border border-white/20"
+          >
+            <div className="text-center max-w-2xl mx-auto">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 1, type: "spring" }}
+                className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6"
+              >
+                <FiCheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
+              </motion.div>
+              
+              <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
+                Verified Business
+              </h3>
+              
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8">
+                This business has been thoroughly verified and authenticated by our team. 
+                You can trust that you're dealing with a legitimate and reliable service provider.
+              </p>
+
+              <motion.div 
+                whileHover={{ scale: 1.03 }}
+                className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-green-200"
+              >
+                <FiCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="font-semibold text-sm sm:text-base">Trusted & Verified Partner</span>
+              </motion.div>
             </div>
-            <div className="text-center p-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <FiStar className="w-6 h-6 text-blue-600" />
-              </div>
-              <h4 className="font-semibold text-gray-800 mb-2">Premium Quality</h4>
-              <p className="text-gray-600 text-sm">High standards guaranteed</p>
-            </div>
-            <div className="text-center p-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <FiUser className="w-6 h-6 text-purple-600" />
-              </div>
-              <h4 className="font-semibold text-gray-800 mb-2">Trusted Owner</h4>
-              <p className="text-gray-600 text-sm">Reliable and professional service</p>
-            </div>
-          </div>
-        </div>
+          </motion.div>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 
