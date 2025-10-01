@@ -254,12 +254,12 @@ const handleDeleteListing = async (listingId, category) => {
             <div className="relative px-8 pb-8">
               {/* Profile Image */}
               <div className="relative -mt-20 mb-6">
-                {currentUser.profilePhoto.url ? (
+                {currentUser?.profilePhoto?.url ? (
                   <motion.img
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200 }}
-                    src={currentUser.profilePhoto.url}
+                    src={currentUser?.profilePhoto?.url}
                     alt="Profile"
                     className="w-32 h-32 rounded-full border-4 border-white shadow-2xl object-cover"
                   />
