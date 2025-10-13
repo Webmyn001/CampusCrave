@@ -86,6 +86,12 @@ const Navbar = () => {
                   >
                     Report
                   </Link>
+                  <Link 
+                    to="/website-guide" 
+                    className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                  >
+                    FAQs
+                  </Link>
                 </div>
               )}
             </div>
@@ -161,6 +167,13 @@ const Navbar = () => {
               >
                 Report
               </Link>
+              <Link 
+                    to="/website-guide" 
+                    className="block px-4 py-2 text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
+                    onClick={closeMobileMenu} 
+                  >
+                    FAQs
+               </Link>
 
               {/* Auth Mobile */}
               {isLoggedIn ? (

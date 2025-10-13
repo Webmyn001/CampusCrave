@@ -170,3 +170,8 @@ const NotFoundPage = () => {
 };
 
 export default NotFoundPage;
+
+
+  
+//onClick={() => navigate(`/listing/${item._id}`, { state: { item } })}
+   //             onClick={() => navigate(`/business/${item._id}`, { state: { item } })}

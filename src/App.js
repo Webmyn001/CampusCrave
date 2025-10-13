@@ -33,6 +33,10 @@ import VerifyNotice from './Campus/VerifyNotice';
 import VerifyEmail from './Campus/VerifyEmail';
 import ResetPassword from './Campus/ResetPassword';
 import ForgotPassword from './Campus/ForgotPassword';
+import UrgentListingsPage from './Campus/UrgentListingsSection';
+import PremiumListingsPage from './Campus/PremiumListingsSection';
+import ServicesPage from './Campus/RecurringServicesSection';
+import Faqs from './Campus/Faqs';
 
 function App() {
   return (
@@ -69,6 +73,13 @@ function App() {
           <Route path="/urgentlistings" element={<UrgentListings />} />
           <Route path="/premiumlistings" element={<PremiumListings />} />
           <Route path="/viplistings" element={<VipServicesListings />} />
+
+          <Route path="/Quicksales" element={<UrgentListingsPage/>} />
+          <Route path="/premium" element={<PremiumListingsPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+
+          <Route path="/website-guide" element={<Faqs/>} />
+
           
           <Route path="/business/:id" element={<BusinessDetails />} />
           {/* Publishing */}
