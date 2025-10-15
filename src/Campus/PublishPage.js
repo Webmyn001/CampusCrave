@@ -1,30 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { FiCheck, FiZap, FiStar, FiRepeat, FiUser, FiTrendingUp, FiShield } from "react-icons/fi";
+import {
+  FiCheck,
+  FiZap,
+  FiStar,
+  FiRepeat,
+  FiUser,
+  FiTrendingUp,
+  FiShield,
+} from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { FlutterWaveButton, closePaymentModal } from "flutterwave-react-v3";
 import axios from "axios";
 
 const API_URL = "https://campus-plum.vercel.app/api";
 const userId = localStorage.getItem("userId");
-const userEmail = localStorage.getItem("userEmail")
+const userEmail = localStorage.getItem("userEmail");
+
 const tiers = [
   {
     id: "starter",
     title: "Starter Tier",
     price: "Free Forever",
-   features: [
-  "Basic seller profile setup",
-  "Unlimited listings",
-  "Upload up to 2 images per listing",
-  "Listings expire after 24 hours",
-  "Standard visibility",
-],
+    features: [
+      "Basic seller profile setup",
+      "Unlimited listings",
+      "Upload up to 2 images per listing",
+      "Listings expire after 24 hours",
+      "Standard visibility",
+    ],
     bestFor: "Casual sellers",
     link: "/publish/starter",
     free: true,
     icon: FiUser,
     gradient: "from-gray-100 to-gray-200",
-    color: "text-gray-600"
+    color: "text-gray-600",
   },
   {
     id: "standard",
@@ -33,16 +42,15 @@ const tiers = [
     priceValue: 1500,
     currency: "NGN",
     features: [
-  "Upload up to 3 images per listing",
-  "Listings expire after 7 days (1 week)",
-  "Priority visibility",
-],
+      "Upload up to 3 images per listing",
+      "Listings expire after 7 days (1 week)",
+      "Priority visibility",
+    ],
     bestFor: "Frequent sellers",
-    popular: true,
     link: "/publish/pro",
     icon: FiZap,
     gradient: "from-blue-50 to-indigo-100",
-    color: "text-blue-600"
+    color: "text-blue-600",
   },
   {
     id: "premium",
@@ -50,17 +58,17 @@ const tiers = [
     price: "₦2,500/month",
     priceValue: 2500,
     currency: "NGN",
-   features: [
-  "Upload up to 4 images (first image must be a business/service flyer)",
-  "Listings expire after 30 days (1 month)",
-  "Best for business owners and service providers",
-  "Business flyer displayed on homepage for visibility",
-],
+    features: [
+      "Upload up to 4 images (first image must be a business/service flyer)",
+      "Listings expire after 30 days (1 month)",
+      "Best for business owners and service providers",
+      "Business flyer displayed on homepage for visibility",
+    ],
     bestFor: "Business owners and Service providers",
     link: "/publish/vip",
     icon: FiTrendingUp,
     gradient: "from-purple-50 to-pink-100",
-    color: "text-purple-600"
+    color: "text-purple-600",
   },
 ];
 
@@ -80,10 +88,8 @@ export default function PublishNewMarketPage() {
           res.data.activePlans?.forEach((plan) => {
             data[plan.plan] = plan.status;
           });
-        localStorage.setItem("subscriptionStatus", JSON.stringify(data)); 
+          localStorage.setItem("subscriptionStatus", JSON.stringify(data));
           setSubscriptionStatus(data);
-          console.log(subscriptionStatus)
-
         }
       } catch (err) {
         console.error("Error fetching subscription status:", err);
@@ -98,8 +104,6 @@ export default function PublishNewMarketPage() {
     };
   }, []);
 
-
-  //i will later customize this flutterwave payment page
   const getFlutterwaveConfig = (tier) => ({
     public_key:
       process.env.REACT_APP_FLW_PUBLIC_KEY ||
@@ -119,8 +123,6 @@ export default function PublishNewMarketPage() {
     },
     callback: async (response) => {
       closePaymentModal();
-      console.log("Flutterwave response:", response);
-
       const transaction_id =
         response?.transaction_id ||
         response?.tx_ref ||
@@ -134,7 +136,10 @@ export default function PublishNewMarketPage() {
           userId,
         });
 
-        setSubscriptionStatus((prev) => ({ ...prev, [tier.id]: "subscribed" }));
+        setSubscriptionStatus((prev) => ({
+          ...prev,
+          [tier.id]: "subscribed",
+        }));
         alert(verifyRes.data.message || "Subscription successful");
       } catch (err) {
         console.error("Verification failed:", err.response?.data || err.message);
@@ -146,45 +151,52 @@ export default function PublishNewMarketPage() {
 
   const getStatusBadgeColor = (tier, tierStatus) => {
     if (loading) return "bg-gray-400 text-white";
-    if (tierStatus === "subscribed") return "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg";
-    if (tierStatus === "expired") return "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg";
+    if (tierStatus === "subscribed")
+      return "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg";
+    if (tierStatus === "expired")
+      return "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg";
     return "bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-lg";
   };
 
   const StatusBadge = ({ tier, tierStatus }) => (
-    <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 ${getStatusBadgeColor(tier, tierStatus)} shadow-lg`}>
-      {loading ? "Checking..." : tierStatus === "subscribed" ? "✓ Active" : tierStatus === "expired" ? "⏰ Expired" : "Not Subscribed"}
+    <div
+      className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${getStatusBadgeColor(
+        tier,
+        tierStatus
+      )} shadow-lg`}
+    >
+      {loading
+        ? "Checking..."
+        : tierStatus === "subscribed"
+        ? "✓ Active"
+        : tierStatus === "expired"
+        ? "⏰ Expired"
+        : "Not Subscribed"}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-200 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-200 rounded-full blur-3xl opacity-20 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-200 rounded-full blur-3xl opacity-10 animate-pulse delay-500"></div>
-      </div>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20 shadow-lg mb-6">
-            <FiShield className="w-5 h-5 text-indigo-600" />
-            <span className="text-sm font-semibold text-gray-700">Choose Your Plan</span>
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-5 py-2 rounded-full border border-white/20 shadow-md mb-5">
+            <FiShield className="w-4 h-4 text-indigo-600" />
+            <span className="text-sm font-semibold text-gray-700">
+              Choose Your Plan
+            </span>
           </div>
-          
-          <h1 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-6">
+
+          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
             Boost Your Sales
           </h1>
-          
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Maximize your selling potential with our flexible listing options designed for every type of seller
+
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Maximize your selling potential with our flexible listing options
+            designed for every type of seller
           </p>
         </div>
 
-        {/* Pricing Tiers */}
-        <div className="grid gap-8 lg:gap-12 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-10 lg:gap-8 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {tiers.map((tier) => {
             const tierStatus = subscriptionStatus[tier.id];
             const IconComponent = tier.icon;
@@ -193,76 +205,76 @@ export default function PublishNewMarketPage() {
               <div
                 key={tier.id}
                 className={`relative group cursor-pointer transition-all duration-500 ${
-                  hoveredTier === tier.id ? 'scale-105' : 'scale-100'
+                  hoveredTier === tier.id ? "scale-105" : "scale-100"
                 }`}
                 onMouseEnter={() => setHoveredTier(tier.id)}
                 onMouseLeave={() => setHoveredTier(null)}
               >
-                {/* Status Badge */}
-                {!tier.free && <StatusBadge tier={tier} tierStatus={tierStatus} />}
-
-                {/* Popular Badge */}
-                {tier.popular && (
-                  <div className="absolute -top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg animate-pulse">
-                    🔥 Most Popular
-                  </div>
+                {!tier.free && (
+                  <StatusBadge tier={tier} tierStatus={tierStatus} />
                 )}
 
-                {/* Main Card */}
-                <div className={`h-full bg-gradient-to-br ${tier.gradient} rounded-3xl border border-white/50 shadow-xl overflow-hidden transition-all duration-300 group-hover:shadow-2xl`}>
-                  
-                  {/* Card Header */}
-                  <div className="p-8 text-center border-b border-white/30">
-                    <div className="flex justify-center mb-4">
-                      <div className="p-3 bg-white rounded-2xl shadow-lg">
-                        <IconComponent className={`w-8 h-8 ${tier.color}`} />
+                <div
+                  className={`h-full bg-gradient-to-br ${tier.gradient} rounded-2xl border border-white/50 shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl`}
+                >
+                  <div className="p-6 text-center border-b border-white/30">
+                    <div className="flex justify-center mb-3">
+                      <div className="p-2 bg-white rounded-xl shadow-md">
+                        <IconComponent
+                          className={`w-6 h-6 ${tier.color}`}
+                        />
                       </div>
                     </div>
-                    
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">{tier.title}</h3>
-                    <div className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-900 bg-clip-text text-transparent mb-3">
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                      {tier.title}
+                    </h3>
+                    <div className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-900 bg-clip-text text-transparent mb-2">
                       {tier.price}
                     </div>
-                    <p className="text-sm text-gray-600 italic bg-white/50 px-3 py-1 rounded-full inline-block">
+                    <p className="text-xs text-gray-600 italic bg-white/50 px-3 py-1 rounded-full inline-block">
                       Perfect for {tier.bestFor}
                     </p>
                   </div>
 
-                  {/* Features List */}
-                  <div className="p-8">
-                    <ul className="space-y-4 mb-8">
+                  <div className="p-6">
+                    <ul className="space-y-3 mb-6">
                       {tier.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start transition-transform duration-200 hover:translate-x-1">
-                          <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                        <li
+                          key={idx}
+                          className="flex items-start transition-transform duration-200 hover:translate-x-1"
+                        >
+                          <div className="flex-shrink-0 w-5 h-5 bg-green-100 rounded-full flex items-center justify-center mr-2 mt-0.5">
                             <FiCheck className="w-3 h-3 text-green-600" />
                           </div>
-                          <span className="text-gray-700 font-medium">{feature}</span>
+                          <span className="text-gray-700 text-sm font-medium">
+                            {feature}
+                          </span>
                         </li>
                       ))}
                     </ul>
 
-                    {/* Action Button */}
                     <div className="mt-auto">
                       {tier.free ? (
                         <Link to={tier.link}>
-                          <button className="w-full py-4 px-6 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                            <FiUser className="w-5 h-5" />
+                          <button className="w-full py-3 px-5 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                            <FiUser className="w-4 h-4" />
                             Get Started Free
                           </button>
                         </Link>
                       ) : tierStatus === "subscribed" ? (
                         <Link to={tier.link}>
-                          <button className="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
-                            <FiZap className="w-5 h-5" />
+                          <button className="w-full py-3 px-5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2">
+                            <FiZap className="w-4 h-4" />
                             Access Dashboard
                           </button>
                         </Link>
                       ) : (
                         <FlutterWaveButton
                           {...getFlutterwaveConfig(tier)}
-                          className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                          className="w-full py-3 px-5 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-bold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                         >
-                          <FiZap className="w-5 h-5" />
+                          <FiZap className="w-4 h-4" />
                           Subscribe Now
                         </FlutterWaveButton>
                       )}
@@ -274,41 +286,39 @@ export default function PublishNewMarketPage() {
           })}
         </div>
 
-        {/* Footer Features */}
         <div className="mt-10 text-center">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white/20 shadow-lg">
-              <FiRepeat className="w-12 h-12 text-green-600 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">30-Day Guarantee</h3>
-              <p className="text-gray-600">Not satisfied? Get a full refund within 30 days</p>
+              <FiRepeat className="w-10 h-10 text-green-600 mx-auto mb-1" />
+              <h3 className="text-base font-semibold text-gray-900 mb-1">
+                30-Day Guarantee
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Not satisfied? Get a full refund within 30 days
+              </p>
             </div>
-            
+
             <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-white/20 shadow-lg">
-              <FiStar className="w-12 h-12 text-yellow-600 mx-auto mb-2" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Secure Payments</h3>
-              <p className="text-gray-600">Bank-level security with Flutterwave</p>
+              <FiStar className="w-10 h-10 text-yellow-600 mx-auto mb-1" />
+              <h3 className="text-base font-semibold text-gray-900 mb-1">
+                Secure Payments
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Bank-level security with Flutterwave
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Support Text */}
-        <div className="mt-12 text-center">
-          <p className="text-gray-500 text-sm">
-            Need help choosing? <span className="text-indigo-600 font-semibold cursor-pointer hover:underline">Contact our support team</span>
+        <div className="mt-10 text-center">
+          <p className="text-gray-500 text-xs">
+            Need help choosing?{" "}
+            <span className="text-indigo-600 font-semibold cursor-pointer hover:underline">
+              Contact our support team
+            </span>
           </p>
         </div>
       </div>
-
-      {/* Custom Animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-10px); }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-      `}</style>
     </div>
   );
 }

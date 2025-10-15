@@ -1,4 +1,4 @@
-import { FiEdit, FiLogOut, FiPlus, FiMail, FiCalendar, FiBook, FiHome, FiEye, FiLoader, FiStar, FiAlertTriangle, FiShield, FiTrash2, FiTrendingUp } from 'react-icons/fi';
+import { FiEdit, FiLogOut, FiPlus, FiMail, FiCalendar, FiBook, FiHome, FiLoader, FiStar, FiAlertTriangle, FiShield, FiTrash2, FiTrendingUp, FiCheck, FiX } from 'react-icons/fi';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -28,23 +28,6 @@ const UserProfile = () => {
     }
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const cardHoverVariants = {
-    rest: { scale: 1, y: 0 },
-    hover: { scale: 1.02, y: -2 }
-  };
-
   // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
@@ -72,9 +55,6 @@ const UserProfile = () => {
     fetchUser();
   }, [navigate]);
 
-
-  
-
   // Fetch listings
   useEffect(() => {
     if (!currentUser) return;
@@ -83,15 +63,12 @@ const UserProfile = () => {
       try {
         const userId = localStorage.getItem('userId');
         
-        // Fetch premium listings
         const premiumRes = await axios.get('https://campus-plum.vercel.app/api/pro-listings/');
         const premium = premiumRes.data.filter(item => item.sellerInfo._id === userId);
         
-        // Fetch VIP listings
         const vipRes = await axios.get('https://campus-plum.vercel.app/api/vip-listings/');
         const vip = vipRes.data.filter(item => item.sellerInfo._id === userId);
         
-        // Fetch normal listings and filter urgent ones
         const normalRes = await axios.get('https://campus-plum.vercel.app/api/listings/');
         const urgent = normalRes.data.filter(item => item.sellerInfo._id === userId);
         
@@ -110,53 +87,90 @@ const UserProfile = () => {
     fetchListings();
   }, [currentUser]);
 
-  
-
-const handleDeleteListing = async (listingId, category) => {
-  if (!window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
-    return;
-  }
-
-  setDeletingId(listingId);
-
-  try {
-    const token = localStorage.getItem('token'); // get your token from localStorage
-    let endpoint = '';
-
-    switch (category) {
-      case 'premium':
-        endpoint = `https://campus-plum.vercel.app/api/pro-listings/${listingId}`;
-        break;
-      case 'vip':
-        endpoint = `https://campus-plum.vercel.app/api/vip-listings/${listingId}`;
-        break;
-      case 'urgent':
-        endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
-        break;
-      default:
-        throw new Error('Invalid listing category');
+  const handleDeleteListing = async (listingId, category) => {
+    if (!window.confirm('Are you sure you want to delete this listing?')) {
+      return;
     }
 
-    await axios.delete(endpoint, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // <-- Authorization added here
-      },
-    });
+    setDeletingId(listingId);
+    try {
+      const token = localStorage.getItem('token');
+      let endpoint = '';
 
-    // Remove the listing from state
-    setListings(prev => ({
-      ...prev,
-      [category]: prev[category].filter(item => item._id !== listingId)
-    }));
+      switch (category) {
+        case 'premium':
+          endpoint = `https://campus-plum.vercel.app/api/pro-listings/${listingId}`;
+          break;
+        case 'vip':
+          endpoint = `https://campus-plum.vercel.app/api/vip-listings/${listingId}`;
+          break;
+        case 'urgent':
+          endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
+          break;
+        default:
+          throw new Error('Invalid listing category');
+      }
 
-  } catch (error) {
-    console.error('Error deleting listing:', error);
-    alert('Failed to delete listing. Please try again.');
-  } finally {
-    setDeletingId(null);
-  }
-};
+      await axios.delete(endpoint, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setListings(prev => ({
+        ...prev,
+        [category]: prev[category].filter(item => item._id !== listingId)
+      }));
+
+    } catch (error) {
+      console.error('Error deleting listing:', error);
+      alert('Failed to delete listing. Please try again.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Toggle sold status
+  const toggleSoldStatus = async (listingId, category, currentStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      let endpoint = '';
+
+      switch (category) {
+        case 'premium':
+          endpoint = `https://campus-plum.vercel.app/api/pro-listings/${listingId}`;
+          break;
+        case 'urgent':
+          endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
+          break;
+        default:
+          return; // Don't update for VIP/business
+      }
+
+      await axios.put(endpoint, 
+        { soldOut: !currentStatus },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Update local state
+      setListings(prev => ({
+        ...prev,
+        [category]: prev[category].map(item => 
+          item._id === listingId ? { ...item, sold: !currentStatus } : item
+        )
+      }));
+
+    } catch (error) {
+      console.error('Error updating sold status:', error);
+      alert('Failed to update status. Please try again.');
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('Login');
@@ -165,14 +179,12 @@ const handleDeleteListing = async (listingId, category) => {
     localStorage.removeItem('userId');
     navigate('/');
   };
+
+  
   if (loading || !currentUser) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="flex flex-col items-center gap-4"
-        >
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-purple-50">
+        <div className="flex flex-col items-center gap-4">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
@@ -180,7 +192,7 @@ const handleDeleteListing = async (listingId, category) => {
             <FiLoader className="text-indigo-600 text-4xl" />
           </motion.div>
           <p className="text-gray-600">Loading your profile...</p>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -190,279 +202,201 @@ const handleDeleteListing = async (listingId, category) => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-purple-50/20 py-8 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8"
     >
-
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl"></div>
-      </div>
-
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-8">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
               My Profile
             </h1>
-            <p className="text-gray-600 mt-2">Welcome back, {currentUser.name}!</p>
+            <p className="text-gray-600 mt-2 text-lg">Welcome back, {currentUser.name}! 👋</p>
           </div>
           <div className="flex gap-3">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link
-                to="/publish"
-                className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 shadow-md font-semibold"
-              >
-                <FiPlus className="mr-2" /> New Listing
-              </Link>
-            </motion.div>
-
-
-
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <button 
-                onClick={handleLogout}
-                className="flex items-center px-6 py-3 bg-gradient-to-r from-rose-500 to-red-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 shadow-md font-semibold"
-              >
-                <FiLogOut className="mr-2" /> Logout
-              </button>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Profile Card */}
-        <motion.div variants={itemVariants} className="mb-8">
-          <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-            {/* Header Section with Gradient */}
-            <div className="relative h-48 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
-              {/* Update Profile Button */}
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                className="absolute top-6 right-6"
-              >
-                <Link
-                  to="/profilepage"
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm text-indigo-600 font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-white transition-all duration-200 border border-white/20"
-                >
-                  <FiEdit className="text-indigo-600" />
-                  <span>Update Profile</span>
-                </Link>
-              </motion.div>
-            </div>
-            {/* Profile Content */}
-            <div className="relative px-8 pb-8">
-              {/* Profile Image */}
-              <div className="relative -mt-20 mb-6">
-                {currentUser?.profilePhoto?.url ? (
-                  <motion.img
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                    src={currentUser?.profilePhoto?.url}
-                    alt="Profile"
-                    className="w-32 h-32 rounded-full border-4 border-white shadow-2xl object-cover"
-                  />
-                ) : (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200 }}
-                    className="w-32 h-32 flex items-center justify-center rounded-full border-4 border-white shadow-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-4xl font-bold"
-                  >
-                    {currentUser.name
-                      ? currentUser.name
-                          .split(" ")
-                          .map(word => word[0]?.toUpperCase())
-                          .slice(0, 2)
-                          .join("")
-                      : "U"}
-                  </motion.div>
-                )}
-              </div>
-
-              {/* User Info */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-                  <div className="flex items-center gap-4 mb-6">
-                    <h1 className="text-2xl font-bold text-gray-800">{currentUser.name}</h1>
-                    {currentUser.isPro && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="px-4 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-sm font-semibold rounded-full shadow-lg"
-                      >
-                        PRO MEMBER
-                      </motion.span>
-                    )}
-                  </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                    <InfoCard icon={<FiMail />} label="Email" value={currentUser.email} truncate={true} />
-                    <InfoCard icon={<FiCalendar />} label="Member Since" value={currentUser.memberSince} />
-                    <InfoCard icon={<FiBook />} label="Department" value={currentUser.course || 'Not specified'} />
-                    <InfoCard icon={<FiHome />} label="Hostel" value={currentUser.hostel || 'Not specified'} />
-                  </div>
-                </div>
-                
-                {/* Stats Overview */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-6 border border-gray-200/50">
-                  <h3 className="font-semibold text-gray-700 mb-4">Quick Stats</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <StatPreview value={listings.premium.length} label="Premium" color="purple" />
-                    <StatPreview value={listings.vip.length} label="VIP" color="yellow" />
-                    <StatPreview value={listings.urgent.length} label="Urgent" color="red" />
-                    <StatPreview 
-                      value={listings.premium.length + listings.vip.length + listings.urgent.length} 
-                      label="Total" 
-                      color="indigo" 
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Tabs Navigation */}
-        <motion.div variants={itemVariants} className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20 mb-8">
-          {[
-            { id: 'listings', label: 'My Listings', icon: <FiShield /> },
-            { id: 'stats', label: 'Account Stats', icon: <FiStar /> }
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 text-sm py-3 rounded-xl font-semibold transition-all duration-200 flex-1 justify-center ${
-                activeTab === tab.id 
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg' 
-                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100/50'
-              }`}
+            <Link
+              to="/publish"
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
             >
-              {tab.icon}
-              {tab.label}
+              <FiPlus className="mr-2" /> New Listing
+            </Link>
+            <button 
+              onClick={handleLogout}
+              className="flex items-center px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 font-medium shadow-lg hover:shadow-xl"
+            >
+              <FiLogOut className="mr-2" /> Logout
             </button>
-          ))}
-        </motion.div>
-        
-
- {/* Verification Status Message - Enhanced */}
- <motion.div
-  variants={itemVariants}
-  initial={{ opacity: 0, y: -20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6, ease: "easeOut" }}
-  className="mb-8"
->
-  {/* Verification Status Message - Enhanced */}
-  <div className={`relative overflow-hidden rounded-3xl p-6 shadow-lg ${
-    currentUser.isVerified 
-      ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-200/50' 
-      : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-200/50'
-  }`}>
-    
-    {/* Animated Background Pattern */}
-    <div className={`absolute inset-0 opacity-5 ${
-      currentUser.isVerified ? 'bg-green-500' : 'bg-amber-500'
-    }`} 
-    style={{
-      backgroundImage: `radial-gradient(circle at 25px 25px, currentColor 2%, transparent 2%), radial-gradient(circle at 75px 75px, currentColor 2%, transparent 2%)`,
-      backgroundSize: '100px 100px'
-    }}></div>
-    
-    <div className="relative z-10">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          {/* Animated Icon Container */}
-          <motion.div 
-            animate={currentUser.isVerified ? {
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
-            } : {
-              scale: [1, 1.05, 1],
-            }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className={`p-3 rounded-2xl ${
-              currentUser.isVerified 
-                ? 'bg-gradient-to-br from-green-400 to-emerald-500' 
-                : 'bg-gradient-to-br from-amber-400 to-orange-500'
-            } shadow-lg`}
-          >
-            {currentUser.isVerified ? (
-              <span className="text-2xl">🏆</span> // Star for verified
-            ) : (
-              <span className="text-2xl">⚡</span> // Lightning bolt for not verified
-            )}
-          </motion.div>
-          
-          <div>
-            <h3 className={`text-xl font-bold ${
-              currentUser.isVerified ? 'text-green-800' : 'text-amber-800'
-            }`}>
-              {currentUser.isVerified ? (
-                <>Account Verified <span className="text-2xl">🎉</span></>
-              ) : (
-                <>Get Verified <span className="text-2xl">🚀</span></>
-              )}
-            </h3>
-            <p className={`mt-1 ${
-              currentUser.isVerified ? 'text-green-700' : 'text-amber-700'
-            }`}>
-              {currentUser.isVerified 
-                ? 'Your verified status boosts buyer confidence and helps you sell 3x faster! Trust built, sales unlocked. 💫' 
-                : 'Complete verification to unlock higher trust scores, faster sales, and premium features. Start now! ✨'
-              }
-            </p>
           </div>
         </div>
-         
 
-        {/* Status Badge */}
+     {/* Profile Card */}
+<div className="bg-white rounded-2xl shadow-xl border font-raleway border-gray-100 p-8 mb-8 backdrop-blur-sm bg-white/90">
+  <div className="flex flex-col lg:flex-row gap-8">
+    {/* Profile Image with Edit Icon */}
+    <div className="flex-shrink-0 relative group">
+      <div className="relative">
+        {currentUser?.profilePhoto?.url ? (
+          <img
+            src={currentUser?.profilePhoto?.url}
+            alt="Profile"
+            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-2xl transition-all duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-32 h-32 flex items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-3xl font-bold border-4 border-white shadow-2xl">
+            {currentUser.name?.split(" ").map(word => word[0]?.toUpperCase()).slice(0, 2).join("") || "U"}
+          </div>
+        )}
+        
+        {/* Edit Icon with Text */}
         <motion.div
-          whileHover={{ scale: 1.05 }}
-          className={`px-4 py-2 rounded-full font-semibold shadow-md ${
-            currentUser.isVerified
-              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
-              : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-          }`}
-        >
-          {currentUser.isVerified ? 'VERIFIED SELLER' : 'PENDING VERIFICATION'}
-        </motion.div>
+  whileHover={{ scale: 1.08, rotate: 2 }}
+  whileTap={{ scale: 0.95 }}
+  className="absolute -bottom-3 -right-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white 
+             rounded-full shadow-xl border-2 border-white/80 transition-all duration-300 
+             hover:from-indigo-700 hover:to-purple-700 hover:shadow-2xl hover:-translate-y-0.5 
+             flex items-center gap-2 px-3 py-2 cursor-pointer backdrop-blur-sm"
+>
+  <Link to="/profilepage" className="flex items-center gap-1">
+    <FiEdit className="w-4 h-4 sm:w-5 sm:h-5" />
+    <span className="text-[11px] sm:text-xs font-semibold tracking-wide">Update</span>
+  </Link>
+</motion.div>
+      </div>
+    </div>
 
-         {/* Start Trading Button */}
-  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-    <Link to="/marketplace">
-      <button className="flex items-center gap-2 px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all duration-200 shadow-sm">
-        Enter Marketplace
-        <FiTrendingUp className="w-4 h-4" />
-      </button>
-    </Link>
-  </motion.div>
+    {/* User Info */}
+    <div className="flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
+        <h2 className="text-2xl font-bold font-raleway text-gray-900">{currentUser.name}</h2>
+        <div className="flex flex-wrap gap-2">
+          {currentUser.isPro && (
+            <span className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-full shadow-lg">
+              ⭐ PRO SELLER
+            </span>
+          )}
+          {/* Conditional Verified Badge */}
+          {currentUser.isVerified ? (
+            <span className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-2">
+              <FiCheck className="w-4 h-4" /> VERIFIED
+            </span>
+          ) : (
+            <div className="">
+              <div className="px-2 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-2">
+                <FiAlertTriangle className="w-3 h-3" />
+              <span>Not Verified</span>
+              </div>
+              <p className='text-xs pt-1'>Complete your profile to get verified</p>
+            </div>
+            
+          )}
+        </div>
       </div>
       
-      {/* Progress/Status Bar for Unverified */}
       {!currentUser.isVerified && (
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="mt-4"
-        >
-          <div className="bg-amber-200/50 rounded-full h-2">
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full w-3/4"></div>
-          </div>
-          <p className="text-amber-600 text-sm mt-2 text-center">
-            Complete your profile  to get verified quickly and start selling faster!
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <p className="text-amber-800 text-sm flex items-center gap-2">
+            <FiAlertTriangle className="w-4 h-4 flex-shrink-0" />
+            Verify your account to get your items sold quickly and build trust with buyers.
           </p>
-        </motion.div>
+        </div>
       )}
       
-      
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden">
+  <InfoItem 
+    icon={<FiMail className="text-indigo-500 shrink-0" />} 
+    label="Email" 
+    value={
+      <span
+        className="truncate block max-w-[200px] sm:max-w-[250px] cursor-pointer"
+        title={currentUser.email} // 👈 shows full value on hover
+      >
+        {currentUser.email}
+      </span>
+    }  
+  />
+  <InfoItem 
+    icon={<FiCalendar className="text-purple-500 shrink-0" />} 
+    label="Member Since" 
+    value={
+      <span
+        className="truncate block max-w-[200px] sm:max-w-[250px]"
+        title={currentUser.memberSince}
+      >
+        {currentUser.memberSince}
+      </span>
+    } 
+  />
+  <InfoItem 
+    icon={<FiBook className="text-blue-500 shrink-0" />} 
+    label="Department" 
+    value={
+      <span
+        className="truncate block max-w-[200px] sm:max-w-[250px]"
+        title={currentUser.course || 'Not specified'}
+      >
+        {currentUser.course || 'Not specified'}
+      </span>
+    } 
+  />
+  <InfoItem 
+    icon={<FiHome className="text-green-500 shrink-0" />} 
+    label="Hostel" 
+    value={
+      <span
+        className="truncate block max-w-[200px] sm:max-w-[250px]"
+        title={currentUser.hostel || 'Not specified'}
+      >
+        {currentUser.hostel || 'Not specified'}
+      </span>
+    } 
+  />
+</div>
+
+
+
+    </div>
+
+    {/* Quick Stats */}
+    <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 min-w-[240px] text-white shadow-2xl">
+      <h3 className="font-bold text-lg mb-4 text-white/90">Quick Stats</h3>
+      <div className="space-y-4">
+        <StatItem value={listings.premium.length} label="Premium" />
+        <StatItem value={listings.vip.length} label="Business" />
+        <StatItem value={listings.urgent.length} label="Quick Sales" />
+        <div className="pt-4 border-t border-white/20">
+          <StatItem 
+            value={listings.premium.length + listings.vip.length + listings.urgent.length} 
+            label="Total Listings" 
+            primary 
+          />
+        </div>
+      </div>
     </div>
   </div>
-</motion.div>
+</div>
 
-
+        {/* Tabs */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-2 mb-8">
+          <div className="flex">
+            {[
+              { id: 'listings', label: 'My Listings', icon: <FiShield /> },
+              { id: 'stats', label: 'Performance Stats', icon: <FiTrendingUp /> }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1 px-6 py-1 rounded-xl font-semibold transition-all duration-300 flex-1 justify-center ${
+                  activeTab === tab.id 
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg' 
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Tab Content */}
         <AnimatePresence mode="wait">
@@ -476,33 +410,30 @@ const handleDeleteListing = async (listingId, category) => {
             {activeTab === 'listings' && (
               <div className="space-y-8">
                 <ListingSection
-                  title="Premium Listings"
-                  icon={<FiShield />}
+                  title="⭐ Premium Listings"
                   listings={listings.premium}
                   loading={listings.loading}
                   category="premium"
-                  color="purple"
                   onDelete={handleDeleteListing}
+                  onToggleSold={toggleSoldStatus}
                 />
                 
                 <ListingSection
-                  title="Business/Service Listings"
-                  icon={<FiStar />}
+                  title="💼 Business Services"
                   listings={listings.vip}
                   loading={listings.loading}
                   category="vip"
-                  color="yellow"
                   onDelete={handleDeleteListing}
+                  onToggleSold={toggleSoldStatus}
                 />
                 
                 <ListingSection
-                  title="Quick Sales"
-                  icon={<FiAlertTriangle />}
+                  title="⚡ Quick Sales"
                   listings={listings.urgent}
                   loading={listings.loading}
                   category="urgent"
-                  color="red"
                   onDelete={handleDeleteListing}
+                  onToggleSold={toggleSoldStatus}
                 />
               </div>
             )}
@@ -512,26 +443,26 @@ const handleDeleteListing = async (listingId, category) => {
                 <StatCard 
                   title="Total Listings" 
                   value={listings.premium.length + listings.vip.length + listings.urgent.length}
-                  icon={<FiShield />}
                   color="indigo"
-                />
-                <StatCard 
-                  title="Premium Listings" 
-                  value={listings.premium.length}
                   icon={<FiShield />}
+                />
+                <StatCard 
+                  title="Premium" 
+                  value={listings.premium.length}
                   color="purple"
-                />
-                <StatCard 
-                  title="VIP Listings" 
-                  value={listings.vip.length}
                   icon={<FiStar />}
-                  color="yellow"
                 />
                 <StatCard 
-                  title="Urgent Listings" 
+                  title="Business" 
+                  value={listings.vip.length}
+                  color="amber"
+                  icon={<FiTrendingUp />}
+                />
+                <StatCard 
+                  title="Quick Sales" 
                   value={listings.urgent.length}
-                  icon={<FiAlertTriangle />}
                   color="red"
+                  icon={<FiHome />}
                 />
               </div>
             )}
@@ -542,143 +473,106 @@ const handleDeleteListing = async (listingId, category) => {
   );
 };
 
-// Updated InfoCard component with better text handling
-const InfoCard = ({ icon, label, value, truncate = false }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
-
-  return (
-    <div className="flex items-start gap-3 p-3 bg-white/50 rounded-xl border border-gray-200/50 min-w-0 hover:bg-white/70 transition-colors duration-200 relative">
-      <div className="p-2 bg-indigo-100 rounded-lg text-indigo-600 flex-shrink-0 mt-0.5">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs text-gray-500 font-medium mb-1 whitespace-nowrap">{label}</p>
-        <div 
-          className="relative"
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
-        >
-          <p className={`font-medium text-gray-800 break-words word-break-break-all ${
-            truncate ? 'truncate' : ''
-          }`}>
-            {value}
-          </p>
-          
-          {/* Tooltip for truncated content */}
-          {truncate && showTooltip && (
-            <div className="absolute z-10 bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg whitespace-nowrap">
-              {value}
-              <div className="absolute top-full left-4 border-4 border-transparent border-t-gray-900"></div>
-            </div>
-          )}
-        </div>
-      </div>
+// Enhanced Info Item
+const InfoItem = ({ icon, label, value }) => (
+  <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-gray-50 transition-colors duration-200">
+    <div className="p-2 bg-gray-100 rounded-lg">{icon}</div>
+    <div className="flex-1">
+      <p className="text-sm text-gray-500 font-medium">{label}</p>
+      <p className="font-semibold text-gray-900">{value}</p>
     </div>
-  );
-};
+  </div>
+);
 
-const StatPreview = ({ value, label, color }) => {
-  const colorClasses = {
-    purple: 'from-purple-500 to-indigo-500',
-    yellow: 'from-amber-400 to-yellow-500',
-    red: 'from-rose-500 to-red-500',
-    indigo: 'from-indigo-500 to-blue-500'
-  };
+// Enhanced Stat Item
+const StatItem = ({ value, label, primary = false }) => (
+  <div className={`flex justify-between items-center ${primary ? 'font-bold text-lg' : ''}`}>
+    <span className="text-white/90">{label}</span>
+    <span className={`font-bold ${primary ? 'text-white text-xl' : 'text-white'}`}>
+      {value}
+    </span>
+  </div>
+);
 
-  return (
-    <div className="text-center p-3 bg-white/80 rounded-lg border border-gray-200/50">
-      <div className={`text-2xl font-bold bg-gradient-to-r ${colorClasses[color]} bg-clip-text text-transparent`}>
-        {value}
+// Updated Listing Section
+const ListingSection = ({ title, listings, loading, category, onDelete, onToggleSold }) => {
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <FiLoader className="text-2xl text-gray-400 animate-spin" />
       </div>
-      <div className="text-xs text-gray-600 font-medium">{label}</div>
-    </div>
-  );
-};
-
-const ListingSection = ({ title, icon, listings, loading, category, color, onDelete }) => {
-  const colorClasses = {
-    purple: { bg: 'bg-purple-100', text: 'text-purple-600', gradient: 'from-purple-500 to-indigo-500' },
-    yellow: { bg: 'bg-yellow-100', text: 'text-yellow-600', gradient: 'from-amber-400 to-yellow-500' },
-    red: { bg: 'bg-red-100', text: 'text-red-600', gradient: 'from-rose-500 to-red-500' }
-  };
-
-  const colors = colorClasses[color];
+    );
+  }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-      <div className="flex items-center gap-3 mb-6">
-        <div className={`p-3 rounded-xl ${colors.bg} ${colors.text}`}>
-          {icon}
-        </div>
-        <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
-        <span className={`px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${colors.gradient} text-white`}>
-          {listings.length} items
+    <div>
+      <div className="flex items-center justify-between gap-4 mb-6">
+        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+        <span className="px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-sm font-semibold rounded-full shadow-sm">
+          {listings.length} {listings.length === 1 ? 'item' : 'items'}
         </span>
       </div>
       
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          >
-            <FiLoader className={`text-2xl ${colors.text}`} />
-          </motion.div>
-        </div>
-      ) : listings.length > 0 ? (
-        <div className="overflow-x-auto pb-4">
-          <div className="flex space-x-6 min-w-max">
-            {listings.map((item, index) => (
-              <ListingCard 
-                key={item._id} 
-                item={item} 
-                category={category} 
-                index={index}
-                onDelete={onDelete}
-              />
-            ))}
-          </div>
+      {listings.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {listings.map((item, index) => (
+            <ListingCard 
+              key={item._id} 
+              item={item} 
+              category={category} 
+              index={index}
+              onDelete={onDelete}
+              onToggleSold={onToggleSold}
+            />
+          ))}
         </div>
       ) : (
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300/50"
-        >
-          <div className={`w-16 h-16 mx-auto mb-4 ${colors.bg} rounded-2xl flex items-center justify-center`}>
-            {icon}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300">
+          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FiPlus className="text-gray-400 text-2xl" />
           </div>
-          <p className="text-gray-600 font-medium">You don't have any {title.toLowerCase()}</p>
-          <p className="text-sm text-gray-500 mt-2">Create your first listing to get started</p>
-        </motion.div>
+          <p className="text-gray-600 font-semibold text-lg mb-2">No {title.toLowerCase()} found</p>
+          <p className="text-gray-500">Create your first listing to get started</p>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 
-// Updated Listing Card Component without link wrappers
-const ListingCard = ({ item, category, index, onDelete }) => {
+// Enhanced Listing Card
+const ListingCard = ({ item, category, index, onDelete, onToggleSold }) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  
-  const getCategoryColor = () => {
-    switch(category) {
-      case 'premium': return 'from-purple-500 to-indigo-500';
-      case 'vip': return 'from-amber-400 to-yellow-500';
-      case 'urgent': return 'from-rose-500 to-red-500';
-      default: return 'from-gray-500 to-gray-700';
+  const navigate = useNavigate();
+  const isBusiness = category === 'vip';
+
+  const handleDeleteClick = async (e) => {
+    e.stopPropagation();
+    setIsDeleting(true);
+    await onDelete(item._id, category);
+    setIsDeleting(false);
+  };
+
+  const handleSoldToggle = (e) => {
+    e.stopPropagation();
+    onToggleSold(item._id, category, item.sold);
+  };
+
+  const handleCardClick = () => {
+    if (isBusiness) {
+      navigate(`/business/${item._id}`, { state: { item } });
+    } else {
+      navigate(`/listing/${item._id}`, { state: { item } });
     }
   };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
-    
-    // Split date and time
-    const [datePart] = dateStr.split(" "); // "28/09/2025"
+    const [datePart] = dateStr.split(" ");
     const parts = datePart.split("/");
 
     if (parts.length === 3) {
       const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1; // JS months are 0-based
+      const month = parseInt(parts[1], 10) - 1;
       const year = parseInt(parts[2], 10);
 
       const formatted = new Date(year, month, day);
@@ -690,126 +584,118 @@ const ListingCard = ({ item, category, index, onDelete }) => {
         });
       }
     }
-
-    return dateStr; // fallback
+    return dateStr;
   };
-
-  const handleDeleteClick = async () => {
-    setIsDeleting(true);
-    await onDelete(item._id, category);
-    setIsDeleting(false);
-  };
-console.log(item)
-  const isVip = category === 'vip';
 
   return (
     <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-      }}
-      initial="hidden"
-      animate="visible"
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      whileHover="hover"
-      className="group relative flex-shrink-0 w-64"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.1 }}
+      whileHover={{ scale: 1.03, y: -5 }}
+      className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group"
+      onClick={handleCardClick}
     >
-      <motion.div
-        variants={{
-          rest: { scale: 1 },
-          hover: { scale: 1.02 }
-        }}
-        className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden hover:shadow-xl transition-all duration-300 h-full"
-      >
+      {/* Image */}
+      <div className="relative h-48 overflow-hidden">
+        <img 
+          src={item.images?.[0]?.url || "/api/placeholder/300/200"} 
+          alt={item.title} 
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        
         {/* Delete Button */}
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={handleDeleteClick}
           disabled={isDeleting}
-          className="absolute top-3 left-3 z-10 bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-red-500 hover:text-white transition-all duration-200 group/delete"
+          className="absolute top-3 left-3 bg-white/90 p-2 rounded-full shadow-lg hover:bg-red-500 hover:text-white transition-all duration-300"
           title="Delete listing"
         >
           {isDeleting ? (
-            <FiLoader className="w-4 h-4 animate-spin text-red-500" />
+            <FiLoader className="w-4 h-4 animate-spin" />
           ) : (
-            <FiTrash2 className="w-4 h-4 text-red-500 group-hover/delete:text-white" />
+            <FiTrash2 className="w-4 h-4 text-red-500 group-hover:text-white" />
           )}
         </motion.button>
 
-        {/* Card content without link wrapper */}
-        <div className="h-full">
-          <div className="relative h-48 overflow-hidden">
-            <img 
-              src={item.images?.[0]?.url || "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} 
-              alt={item.title} 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            
-            {/* Conditional content based on VIP status */}
-            {isVip ? (
-              // VIP: Show business name only
-              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <h3 className="font-bold text-lg truncate text-center">
-                  {item.businessName || item.title}
-                </h3>
-              </div>
-            ) : (
-              // Premium/Urgent: Show price and title
-              <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                <p className="text-xl font-bold text-center">₦{item.price}</p>
-                <h3 className="font-semibold text-sm truncate text-center mt-1">
-                  {item.title}
-                </h3>
-              </div>
-            )}
+        {/* Sold Status Badge */}
+        {!isBusiness && item.sold && (
+          <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+            SOLD
           </div>
-          
-          {/* Additional info and note for all listings */}
-          <div className="p-4">
-            <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
-              <span>{formatDate(item.formattedPostedAt || item.createdAt)}</span>
-            </div>
-            
-            {/* Note about viewing in marketplace */}
-            <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded-lg border border-blue-100">
-              <p className="text-center">
-                View this listing in marketplace to see details
-              </p>
-            </div>
-          </div>
+        )}
+
+        {/* Title/Price Overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+          {isBusiness ? (
+            <h3 className="font-bold text-lg truncate">{item.businessName || item.title}</h3>
+          ) : (
+            <>
+              <p className="font-bold text-xl">₦{item.price}</p>
+              <h3 className="font-semibold text-sm truncate">{item.title}</h3>
+            </>
+          )}
         </div>
-      </motion.div>
+      </div>
+      
+      {/* Card Content */}
+      <div className="p-4">
+        <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
+          <span>{formatDate(item.formattedPostedAt || item.createdAt)}</span>
+        </div>
+        
+        {/* Sold Checkbox (not for business) */}
+        {!isBusiness && (
+          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+            <span className="text-sm text-gray-600 font-medium">Mark as sold:</span>
+            <button
+              onClick={handleSoldToggle}
+              className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+                item.sold ? 'bg-green-500' : 'bg-gray-300'
+              }`}
+            >
+              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${
+                item.sold ? 'left-7' : 'left-1'
+              }`} />
+            </button>
+          </div>
+        )}
+        
+        {/* Business tag */}
+        {isBusiness && (
+          <div className="pt-3 border-t border-gray-100">
+            <span className="text-sm text-blue-600 font-semibold">💼 Business Service</span>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };
 
-// Stat Card Component
-const StatCard = ({ title, value, icon, color }) => {
+// Enhanced Stat Card
+const StatCard = ({ title, value, color, icon }) => {
   const colorClasses = {
     indigo: 'from-indigo-500 to-blue-500',
-    purple: 'from-purple-500 to-indigo-500',
-    yellow: 'from-amber-400 to-yellow-500',
-    red: 'from-rose-500 to-red-500'
+    purple: 'from-purple-500 to-pink-500',
+    amber: 'from-amber-500 to-orange-500',
+    red: 'from-red-500 to-rose-500'
   };
 
   return (
     <motion.div
       whileHover={{ scale: 1.05, y: -5 }}
-      className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300"
+      className={`bg-gradient-to-br ${colorClasses[color]} rounded-2xl p-6 text-white shadow-xl`}
     >
-      <div className="flex justify-between items-center">
-        <div>
-          <div className={`text-3xl font-bold bg-gradient-to-r ${colorClasses[color]} bg-clip-text text-transparent`}>
-            {value}
-          </div>
-          <div className="text-gray-600 font-medium mt-1">{title}</div>
-        </div>
-        <div className={`p-3 rounded-xl bg-gradient-to-r ${colorClasses[color]} text-white shadow-lg`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
           {icon}
         </div>
       </div>
+      <div className="text-3xl font-bold mb-1">{value}</div>
+      <div className="text-white/90 font-medium">{title}</div>
     </motion.div>
   );
 };
