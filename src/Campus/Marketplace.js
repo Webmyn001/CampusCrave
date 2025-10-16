@@ -161,11 +161,7 @@ const Marketplace = () => {
           alt={service.businessName}
           className="w-full h-48 object-cover"
         />
-        <div className="absolute top-3 left-3">
-          <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-            Service
-          </span>
-        </div>
+       
       </div>
       <div className="p-4">
         <h3 className="font-bold text-sm sm:text-base md:text-lg text-gray-800 mb-2 line-clamp-2 leading-tight">
@@ -209,18 +205,6 @@ const Marketplace = () => {
     className="w-full h-48 object-cover rounded-lg"
   />
 
-  {/* 🔹 Urgent / Premium Tag */}
-  <div className="absolute top-3 left-3">
-    <span
-      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-        type === "urgent"
-          ? "bg-red-500 text-white"
-          : "bg-yellow-500 text-gray-800"
-      }`}
-    >
-      {type === "urgent" ? "Urgent" : "Premium"}
-    </span>
-  </div>
 
   {/* 🔹 SOLD OUT Overlay */}
   {product.soldOut && (
@@ -283,7 +267,19 @@ const Marketplace = () => {
       className="mb-12"
     >
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+        <h2
+  className={`text-2xl font-bold ${
+    title === "Services"
+      ? "text-green-500"
+      : title === "Premium Listings"
+      ? "text-yellow-500"
+      : title === "Quick Sales"
+      ? "text-red-500"
+      : "text-gray-800"
+  }`}
+>
+  {title}
+</h2>
         <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium">
           {displayedData.length} of {totalCount} items
         </span>
@@ -406,7 +402,7 @@ const Marketplace = () => {
                 >
                   <option value="all">All Categories</option>
                   <option value="service">Services</option>
-                  <option value="urgent">Urgent Listings</option>
+                  <option value="urgent">Quick Sales</option>
                   <option value="premium">Premium Listings</option>
                 </select>
               </div>
@@ -597,7 +593,7 @@ const Marketplace = () => {
                   >
                     <option value="all">All Categories</option>
                     <option value="service">Services</option>
-                    <option value="urgent">Urgent Listings</option>
+                    <option value="urgent">Quick Sales</option>
                     <option value="premium">Premium Listings</option>
                   </select>
                 </div>
@@ -706,7 +702,7 @@ const Marketplace = () => {
 
                 {/* Urgent Listings Section */}
                 {renderSection(
-                  "Urgent Listings", 
+                  "Quick Sales", 
                   filteredUrgent, 
                   displayedUrgent, 
                   renderProductCard, 
@@ -732,7 +728,7 @@ const Marketplace = () => {
                   loading.services
                 )}
                 {selectedCategory === 'urgent' && renderSection(
-                  "Urgent Listings", 
+                  "Quick Sales", 
                   filteredUrgent, 
                   displayedUrgent, 
                   renderProductCard, 

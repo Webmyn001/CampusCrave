@@ -97,17 +97,7 @@ const ListingDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-6">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Back Navigation */}
-        <div className="mb-6">
-          <Link
-            to="/listings"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200 group"
-          >
-            <FiArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            Back to listings
-          </Link>
-        </div>
-
+        
         {/* Main Card Container */}
         <div className="bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-white/20">
           {/* Image Gallery */}
@@ -176,7 +166,7 @@ const ListingDetails = () => {
             <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
               <div className="flex-1 space-y-4">
                 <div className="space-y-3">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
+                  <h1 className="text-xl sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-900 to-indigo-900 bg-clip-text text-transparent leading-tight">
                     {service.title}
                   </h1>
                   
@@ -208,7 +198,7 @@ const ListingDetails = () => {
                 {/* Price */}
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-1 rounded-2xl shadow-xl w-fit">
                   <div className="bg-white rounded-xl p-6 text-center min-w-[200px]">
-                    <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    <p className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                       ₦{formatNaira(service?.price)}
                     </p>
                     <p className="text-sm text-gray-600 mt-2">Negotiable</p>
@@ -221,13 +211,13 @@ const ListingDetails = () => {
 
             {/* Description */}
             <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-2xl border border-gray-100 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-3">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-3">
                 <div className="p-2 bg-indigo-100 rounded-lg">
                   <FiMessageSquare className="text-indigo-600 w-5 h-5" />
                 </div>
                 Description
               </h2>
-              <p className="text-gray-700 leading-relaxed text-lg">
+              <p className="text-gray-700 leading-relaxed text-sm">
                 {service.description || "No description available."}
               </p>
             </div>
@@ -249,7 +239,7 @@ const ListingDetails = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm text-gray-500">Preferred Contact</p>
-                      <p className="font-semibold text-gray-900 text-lg">
+                      <p className="font-semibold text-gray-900 text-sm">
                         {service.contactMethod || "Message"}
                       </p>
                     </div>
@@ -335,17 +325,17 @@ const ListingDetails = () => {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-gray-700 flex items-center gap-3">
+                    <p className="text-gray-700 text-sm flex items-center gap-3">
                       <FiMapPin className="text-red-500 w-5 h-5 flex-shrink-0" />
                       {service.sellerInfo?.hostel || "Location not updated"}
                     </p>
-                    <p className="text-gray-700 flex items-center gap-3">
+                    <p className="text-gray-700 text-sm flex items-center gap-3">
                       <FiMail className="text-blue-500 w-5 h-5 flex-shrink-0" />
                       {service.sellerInfo?.email || "No email provided"}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex text-sm flex-wrap gap-2">
                     <span className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-xl text-sm font-semibold">
                       {service.sellerInfo?.course || "Not updated"}
                     </span>

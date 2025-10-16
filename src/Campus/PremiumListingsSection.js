@@ -418,22 +418,6 @@ const PremiumListingsPage = () => {
                         className="w-full h-48 object-cover rounded-lg"
                       />
 
-                      {/* Premium Tag */}
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-yellow-500 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">
-                          Premium
-                        </span>
-                      </div>
-
-                      {/* Featured Tag */}
-                      {(item.featured || item.premium) && (
-                        <div className="absolute top-3 right-3">
-                          <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                            ⭐ Featured
-                          </span>
-                        </div>
-                      )}
-
                       {/* SOLD OUT Overlay */}
                       {item.soldOut && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">

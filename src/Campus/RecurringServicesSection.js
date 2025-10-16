@@ -419,14 +419,15 @@ const ServicesPage = () => {
                         alt={service.businessName || service.title}
                         className="w-full h-48 object-cover"
                       />
+                      
+                      {/*Sample to be used for verifie users */}
                       <div className="absolute top-3 left-3">
                         <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
                           Service
                         </span>
                       </div>
-                      <div className="absolute top-3 right-3 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs">
-                        ⭐ {service.rating || "4.5"}
-                      </div>
+
+                
                     </div>
                     
                     <div className="p-4">
