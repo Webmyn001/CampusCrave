@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiGrid, FiDollarSign, FiX, FiFilter, FiChevronDown } from 'react-icons/fi';
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { GiTwoCoins } from "react-icons/gi"
 import axios from 'axios';
 
 const UrgentListingsPage = () => {
@@ -412,7 +413,7 @@ const UrgentListingsPage = () => {
                   >
                     <div className="relative">
                       <img 
-                        src={item.image || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
+                        src={item?.images?.[0]?.url || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
                         alt={item.title || item.businessName}
                         className="w-full h-48 object-cover rounded-lg"
                       />
@@ -458,7 +459,7 @@ const UrgentListingsPage = () => {
                           <span>Condition: {item.condition || "Good"}</span>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <FiDollarSign className="w-3 h-3" />
+                          <GiTwoCoins  className="w-3 h-3" />
                           <span className="font-bold text-green-600">
                             ₦{item.price?.toLocaleString() || "0"}
                           </span>

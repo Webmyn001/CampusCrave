@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiFilter, FiClock, FiUser, FiDollarSign, FiGrid, FiList, FiX, FiChevronDown, FiArrowRight } from 'react-icons/fi';
 import { useState, useMemo, useEffect } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { GiTwoCoins } from "react-icons/gi"
 import axios from 'axios';
 
 const Marketplace = () => {
@@ -14,12 +15,11 @@ const Marketplace = () => {
   const [showDesktopFilters, setShowDesktopFilters] = useState(true);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [displayLimits, setDisplayLimits] = useState({
-    services: 12,
-    urgent: 12,
-    premium: 12
+    services: 5,
+    urgent: 5,
+    premium: 5
   });
 
-   const navigate = useNavigate(); // Add this hook
   // State for all data
   const [baseServices, setBaseServices] = useState([]);
   const [urgentListingsData, setUrgentListingsData] = useState([]);
@@ -157,7 +157,7 @@ const Marketplace = () => {
     >
       <div className="relative">
         <img 
-          src={service.image || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
+          src={service?.images?.[0]?.url || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
           alt={service.businessName}
           className="w-full h-48 object-cover"
         />
@@ -175,7 +175,7 @@ const Marketplace = () => {
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
             <FiUser className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="line-clamp-1">{service.ownerName}</span>
+            <span className="line-clamp-1">{service?.sellerInfo?.name}</span>
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
             <FiClock className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -188,7 +188,7 @@ const Marketplace = () => {
   state={{ service }}
   className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 text-xs sm:text-sm text-center"
 >
-  View Service
+  View Business
 </Link>
       </div>
     </motion.div>
@@ -204,7 +204,7 @@ const Marketplace = () => {
     >
       <div className="relative">
   <img 
-    src={product.image || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
+    src={product?.images?.[0]?.url || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
     alt={product.title}
     className="w-full h-48 object-cover rounded-lg"
   />
@@ -243,7 +243,7 @@ const Marketplace = () => {
             <span>Condition: {product.condition || "Good"}</span>
           </div>
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-            <FiDollarSign className="w-3 h-3 sm:w-4 sm:h-4" />
+            <GiTwoCoins className="w-3 h-3 sm:w-4 sm:h-4" />
             <span className="font-bold text-green-600">₦{product.price?.toLocaleString() || "0"}</span>
           </div>
         </div>
@@ -253,7 +253,7 @@ const Marketplace = () => {
   state={{ product }}
   className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 text-xs sm:text-sm text-center"
 >
-  View Service
+  View Details
 </Link>
       </div>
     </motion.div>
@@ -319,7 +319,7 @@ const Marketplace = () => {
       </AnimatePresence>
 
       {/* View All Link */}
-      {!isLoading && data.length > 12 && displayedData.length < data.length && (
+      {!isLoading && data.length > 5 && displayedData.length < data.length && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

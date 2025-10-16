@@ -328,7 +328,7 @@ const BusinessDetails = () => {
                       <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
                         {business.sellerInfo?.name || 'N/A'}
                       </p>
-                      {business.sellerInfo?.verified && (
+                      {business.sellerInfo?.isUserVerified && (
                         <FiCheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                       )}
                     </div>

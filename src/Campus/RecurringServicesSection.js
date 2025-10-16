@@ -3,6 +3,7 @@ import { FiSearch, FiClock, FiUser, FiDollarSign, FiX, FiFilter, FiChevronDown }
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { GiTwoCoins } from 'react-icons/gi';
 
 const ServicesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -414,7 +415,7 @@ const ServicesPage = () => {
                   >
                     <div className="relative">
                       <img 
-                        src={service.image || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
+                        src={service?.images?.[0]?.url || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
                         alt={service.businessName || service.title}
                         className="w-full h-48 object-cover"
                       />
@@ -436,16 +437,16 @@ const ServicesPage = () => {
                       <div className="space-y-2 mb-3">
                         <div className="flex items-center gap-2 text-xs text-gray-600">
                           <FiUser className="w-3 h-3" />
-                          <span className="line-clamp-1">{service.ownerName || "Service Provider"}</span>
+                          <span className="line-clamp-1">{service.sellerInfo.name || "Service Provider"}</span>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-600">
                           <FiClock className="w-3 h-3" />
                           <span>{service.workingHours || "Flexible"}</span>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <FiDollarSign className="w-3 h-3" />
+                          <GiTwoCoins className="w-3 h-3" />
                           <span className="font-bold text-green-600">
-                            ₦{service.price?.toLocaleString() || "0"}
+                            {service.price?.toLocaleString() || "Affordable Prices"}
                           </span>
                         </div>
                       </div>
