@@ -9,7 +9,7 @@ const ListingDetails = () => {
   const [activeImage, setActiveImage] = useState(0);
 
   const location = useLocation();
-  const service = location.state?.item;
+  const service = location.state?.product;
 
   const isVerifiedSeller = service?.sellerInfo?.verified || Math.random() > 0.5;
 
@@ -108,18 +108,26 @@ const initials =
           <div className="relative">
             <div className="flex flex-col sm:grid sm:grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 p-3 sm:p-6">
               {/* Main Image */}
-              <div className={`${images.length > 1 ? 'lg:col-span-2' : 'lg:col-span-3'} relative group`}>
-                <img
-                  src={images[activeImage].url}
-                  alt={service.title}
-                  className="w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover rounded-xl sm:rounded-2xl shadow-lg"
-                  onError={(e) => { 
-                    e.target.onerror = null; 
-                    e.target.src = 'https://picsum.photos/600/400?commerce'; 
-                  }}
-                />
-               
-              </div>
+             <div className={`${images.length > 1 ? 'lg:col-span-2' : 'lg:col-span-3'} relative group`}>
+  <img
+    src={images[activeImage].url}
+    alt={service.title}
+    className="w-full h-48 sm:h-64 md:h-80 lg:h-96 object-cover rounded-xl sm:rounded-2xl shadow-lg"
+    onError={(e) => { 
+      e.target.onerror = null; 
+      e.target.src = 'https://picsum.photos/600/400?commerce'; 
+    }}
+  />
+
+  {/* ✅ Sold Out Overlay */}
+  {service.soldOut && (
+    <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-xl sm:rounded-2xl">
+      <span className="text-white text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-widest uppercase drop-shadow-lg">
+        Sold Out
+      </span>
+    </div>
+  )}
+</div>
 
               {/* Thumbnail Images - Only show if more than 1 image */}
               {images.length > 1 && (

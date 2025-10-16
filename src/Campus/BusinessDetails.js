@@ -147,7 +147,7 @@ const BusinessDetails = () => {
                     <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold drop-shadow-2xl break-words">
                       {business.businessName}
                     </h1>
-                    {business.sellerInfo?.isVerified && (
+                    {business.sellerInfo?.isUserVerified && (
                       <motion.div 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}

@@ -266,29 +266,6 @@ const ContactSeller = () => {
                 </div>
               </motion.div>
 
-              {/* Email */}
-              <motion.div
-                variants={itemVariants}
-                className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl sm:rounded-2xl border border-purple-100 hover:shadow-lg transition-all duration-300 group"
-              >
-                <div className="p-3 sm:p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform flex-shrink-0">
-                  <FiMail className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Email Address</p>
-                  {email !== "N/A" ? (
-                    <a
-                      href={`mailto:${email}`}
-                      className="text-sm sm:text-base font-semibold text-gray-900 hover:text-purple-600 transition-colors break-all"
-                    >
-                      {email}
-                    </a>
-                  ) : (
-                    <span className="text-gray-500">N/A</span>
-                  )}
-                </div>
-              </motion.div>
-
               {/* Hostel Address */}
               {service?.sellerInfo?.hostel && (
                 <motion.div

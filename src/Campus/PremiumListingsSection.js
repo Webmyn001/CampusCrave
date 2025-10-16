@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiGrid, FiDollarSign, FiX, FiFilter, FiChevronDown } from 'react-icons/fi';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const PremiumListingsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,121 +13,27 @@ const PremiumListingsPage = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showDesktopFilters, setShowDesktopFilters] = useState(true);
 
-  // Premium listings data
-  const premiumListingsData = [
-    {
-      id: 1,
-      title: "MacBook Pro 2023 M2 Chip 16GB RAM",
-      condition: "Brand New",
-      price: 450000,
-      image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 2,
-      title: "Designer Handbag Luxury Collection",
-      condition: "Excellent",
-      price: 25000,
-      image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 3,
-      title: "Gaming Console & Accessories Bundle",
-      condition: "Like New",
-      price: 35000,
-      image: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 4,
-      title: "Smart Watch Series 8 Latest Model",
-      condition: "Brand New",
-      price: 15000,
-      image: "https://images.unsplash.com/photo-1579586337278-3fbd766d2b3a?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 5,
-      title: "Professional DSLR Camera Kit",
-      condition: "Excellent",
-      price: 120000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 6,
-      title: "Designer Sunglasses & Eyewear",
-      condition: "New",
-      price: 18000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 7,
-      title: "Wireless Headphones Premium Edition",
-      condition: "Like New",
-      price: 22000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 8,
-      title: "Luxury Watch & Timepiece Collection",
-      condition: "Excellent",
-      price: 75000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 9,
-      title: "Gaming Laptop High Performance",
-      condition: "Brand New",
-      price: 280000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 10,
-      title: "Designer Shoes & Footwear Set",
-      condition: "New",
-      price: 32000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 11,
-      title: "Smart Home Devices Bundle",
-      condition: "Like New",
-      price: 45000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 12,
-      title: "Premium Sound System & Speakers",
-      condition: "Excellent",
-      price: 68000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 13,
-      title: "Luxury Perfume & Fragrance Set",
-      condition: "New",
-      price: 25000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    },
-    {
-      id: 14,
-      title: "Designer Jewelry & Accessories",
-      condition: "Brand New",
-      price: 55000,
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      featured: true
-    }
-  ];
+  // State for premium listings data
+  const [premiumListingsData, setPremiumListingsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch premium listings data from API
+  useEffect(() => {
+    const fetchPremiumListings = async () => {
+      try {
+        const res = await axios.get('https://campus-plum.vercel.app/api/pro-listings/');
+        setPremiumListingsData(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching premium listings', err);
+        setError(err);
+        setLoading(false);
+      }
+    };
+
+    fetchPremiumListings();
+  }, []);
 
   // Filter premium listings based on search criteria
   const filteredListings = useMemo(() => {
@@ -134,7 +42,8 @@ const PremiumListingsPage = () => {
     // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(item =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase())
+        item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.businessName?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -151,11 +60,11 @@ const PremiumListingsPage = () => {
       let aValue, bValue;
       
       if (sortBy === 'name') {
-        aValue = a.title;
-        bValue = b.title;
+        aValue = a.title || a.businessName || '';
+        bValue = b.title || b.businessName || '';
       } else {
-        aValue = a.price;
-        bValue = b.price;
+        aValue = a.price || 0;
+        bValue = b.price || 0;
       }
 
       if (sortOrder === 'asc') {
@@ -190,6 +99,23 @@ const PremiumListingsPage = () => {
       }
     }
   };
+
+  // Loading skeleton component
+  const renderLoadingSkeleton = () => (
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      {[...Array(8)].map((_, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse">
+          <div className="w-full h-48 bg-gray-300"></div>
+          <div className="p-4">
+            <div className="h-4 bg-gray-300 rounded mb-2"></div>
+            <div className="h-3 bg-gray-300 rounded mb-1"></div>
+            <div className="h-3 bg-gray-300 rounded mb-4"></div>
+            <div className="h-10 bg-gray-300 rounded"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -238,7 +164,9 @@ const PremiumListingsPage = () => {
               {/* Results Count */}
               <div className="flex items-end">
                 <div className="w-full text-center p-3 bg-yellow-50 rounded-lg">
-                  <div className="font-bold text-yellow-600 text-lg">{filteredListings.length}</div>
+                  <div className="font-bold text-yellow-600 text-lg">
+                    {loading ? '...' : filteredListings.length}
+                  </div>
                   <div className="text-yellow-500 text-sm">Premium Listings Found</div>
                 </div>
               </div>
@@ -358,7 +286,7 @@ const PremiumListingsPage = () => {
               Search & Filters
             </span>
             <span className="bg-yellow-100 text-yellow-600 px-2 py-1 rounded-full text-xs">
-              {filteredListings.length} found
+              {loading ? '...' : filteredListings.length} found
             </span>
           </button>
         </div>
@@ -456,64 +384,99 @@ const PremiumListingsPage = () => {
 
         {/* Listings Grid */}
         <div>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-          >
-            <AnimatePresence>
-              {filteredListings.map((item) => (
-                <motion.div
-                  key={item.id}
-                  variants={cardVariants}
-                  className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
-                >
-                  <div className="relative">
-                    <img 
-                      src={item.image} 
-                      alt={item.title}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="bg-yellow-500 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">
-                        Premium
-                      </span>
-                    </div>
-                    <div className="absolute top-3 right-3">
-                      <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                        ⭐ Featured
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-bold text-sm sm:text-base text-gray-800 mb-2 line-clamp-2 leading-tight">
-                      {item.title}
-                    </h3>
-                    
-                    <div className="space-y-2 mb-3">
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <FiGrid className="w-3 h-3" />
-                        <span>Condition: {item.condition}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <FiDollarSign className="w-3 h-3" />
-                        <span className="font-bold text-green-600">₦{item.price.toLocaleString()}</span>
-                      </div>
-                    </div>
+          {loading ? (
+            renderLoadingSkeleton()
+          ) : error ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <div className="text-red-400 text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">Error loading listings</h3>
+              <p className="text-gray-500">Please try again later</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+            >
+              <AnimatePresence>
+                {filteredListings.map((item) => (
+                  <motion.div
+                    key={item.id || item._id}
+                    variants={cardVariants}
+                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                  >
+                    <div className="relative">
+                      <img 
+                        src={item.image || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
+                        alt={item.title || item.businessName}
+                        className="w-full h-48 object-cover rounded-lg"
+                      />
 
-                    <button className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 text-xs">
-                      View Details
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                      {/* Premium Tag */}
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-yellow-500 text-gray-800 px-2 py-1 rounded-full text-xs font-semibold">
+                          Premium
+                        </span>
+                      </div>
+
+                      {/* Featured Tag */}
+                      {(item.featured || item.premium) && (
+                        <div className="absolute top-3 right-3">
+                          <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                            ⭐ Featured
+                          </span>
+                        </div>
+                      )}
+
+                      {/* SOLD OUT Overlay */}
+                      {item.soldOut && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
+                          <span className="text-white text-2xl sm:text-3xl font-extrabold uppercase tracking-widest drop-shadow-lg">
+                            Sold Out
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="p-4">
+                      <h3 className="font-bold text-sm sm:text-base text-gray-800 mb-2 line-clamp-2 leading-tight">
+                        {item.title || item.businessName}
+                      </h3>
+                      
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <FiGrid className="w-3 h-3" />
+                          <span>Condition: {item.condition || "Good"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <FiDollarSign className="w-3 h-3" />
+                          <span className="font-bold text-green-600">
+                            ₦{item.price?.toLocaleString() || "0"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Link 
+                        to={`/listing/${item._id || item.id}`}
+                        state={{ product: item }}
+                        className="block w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-2 rounded-lg font-semibold hover:from-yellow-600 hover:to-orange-700 transition-all duration-300 text-xs text-center"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
 
           {/* Empty State */}
-          {filteredListings.length === 0 && (
+          {!loading && !error && filteredListings.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

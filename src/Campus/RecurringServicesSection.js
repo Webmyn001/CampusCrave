@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiClock, FiUser, FiDollarSign, FiX, FiFilter, FiChevronDown } from 'react-icons/fi';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ServicesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,135 +13,27 @@ const ServicesPage = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showDesktopFilters, setShowDesktopFilters] = useState(true);
 
-  // Services data
-  const servicesData = [
-    {
-      id: 1,
-      businessName: "Campus Printing Hub",
-      ownerName: "John Ade",
-      workingHours: "8AM - 6PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.5,
-      price: 500
-    },
-    {
-      id: 2,
-      businessName: "Student Haircuts & Styling Studio",
-      ownerName: "Sarah Beauty",
-      workingHours: "9AM - 8PM",
-      image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=185&h=185&fit=crop",
-      rating: 4.8,
-      price: 3000
-    },
-    {
-      id: 3,
-      businessName: "Tech Repair Zone & Phone Services",
-      ownerName: "Mike Tech",
-      workingHours: "10AM - 7PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.3,
-      price: 1500
-    },
-    {
-      id: 4,
-      businessName: "Campus Laundry & Dry Cleaning",
-      ownerName: "Grace Clean",
-      workingHours: "7AM - 9PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.6,
-      price: 2000
-    },
-    {
-      id: 5,
-      businessName: "Food Delivery & Catering Services",
-      ownerName: "David Meals",
-      workingHours: "24/7",
-      image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=185&h=185&fit=crop",
-      rating: 4.7,
-      price: 2500
-    },
-    {
-      id: 6,
-      businessName: "Study Group Tutoring Center",
-      ownerName: "Prof. Smart",
-      workingHours: "3PM - 9PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.9,
-      price: 5000
-    },
-    {
-      id: 7,
-      businessName: "Fitness Training & Gym Sessions",
-      ownerName: "Coach Strong",
-      workingHours: "5AM - 10PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.8,
-      price: 8000
-    },
-    {
-      id: 8,
-      businessName: "Photography & Event Coverage",
-      ownerName: "Emma Shots",
-      workingHours: "Flexible",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.7,
-      price: 15000
-    },
-    {
-      id: 9,
-      businessName: "Graphic Design & Branding Studio",
-      ownerName: "Alex Creative",
-      workingHours: "9AM - 6PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.9,
-      price: 12000
-    },
-    {
-      id: 10,
-      businessName: "Music Lessons & Instrument Training",
-      ownerName: "Melody Masters",
-      workingHours: "2PM - 8PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.8,
-      price: 6000
-    },
-    {
-      id: 11,
-      businessName: "Car Wash & Auto Detailing",
-      ownerName: "Sparkle Clean",
-      workingHours: "7AM - 7PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.6,
-      price: 4000
-    },
-    {
-      id: 12,
-      businessName: "Web Development & IT Solutions",
-      ownerName: "Tech Wizards",
-      workingHours: "10AM - 6PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.9,
-      price: 25000
-    },
-    {
-      id: 13,
-      businessName: "Language Translation Services",
-      ownerName: "Global Communicators",
-      workingHours: "24/7 Online",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.7,
-      price: 7000
-    },
-    {
-      id: 14,
-      businessName: "Event Planning & Decorations",
-      ownerName: "Celebration Experts",
-      workingHours: "9AM - 5PM",
-      image: "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop",
-      rating: 4.8,
-      price: 18000
-    }
-  ];
+  // State for services data
+  const [servicesData, setServicesData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch services data from API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await axios.get('https://campus-plum.vercel.app/api/vip-listings/');
+        setServicesData(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching services', err);
+        setError(err);
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   // Filter services based on search criteria
   const filteredServices = useMemo(() => {
@@ -148,8 +42,9 @@ const ServicesPage = () => {
     // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(service =>
-        service.businessName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.ownerName.toLowerCase().includes(searchQuery.toLowerCase())
+        service.businessName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        service.ownerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        service.title?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -166,11 +61,11 @@ const ServicesPage = () => {
       let aValue, bValue;
       
       if (sortBy === 'name') {
-        aValue = a.businessName;
-        bValue = b.businessName;
+        aValue = a.businessName || a.title || '';
+        bValue = b.businessName || b.title || '';
       } else {
-        aValue = a.price;
-        bValue = b.price;
+        aValue = a.price || 0;
+        bValue = b.price || 0;
       }
 
       if (sortOrder === 'asc') {
@@ -205,6 +100,24 @@ const ServicesPage = () => {
       }
     }
   };
+
+  // Loading skeleton component
+  const renderLoadingSkeleton = () => (
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+      {[...Array(8)].map((_, index) => (
+        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse">
+          <div className="w-full h-48 bg-gray-300"></div>
+          <div className="p-4">
+            <div className="h-4 bg-gray-300 rounded mb-2"></div>
+            <div className="h-3 bg-gray-300 rounded mb-1"></div>
+            <div className="h-3 bg-gray-300 rounded mb-1"></div>
+            <div className="h-3 bg-gray-300 rounded mb-4"></div>
+            <div className="h-10 bg-gray-300 rounded"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -253,7 +166,9 @@ const ServicesPage = () => {
               {/* Results Count */}
               <div className="flex items-end">
                 <div className="w-full text-center p-3 bg-blue-50 rounded-lg">
-                  <div className="font-bold text-blue-600 text-lg">{filteredServices.length}</div>
+                  <div className="font-bold text-blue-600 text-lg">
+                    {loading ? '...' : filteredServices.length}
+                  </div>
                   <div className="text-blue-500 text-sm">Services Found</div>
                 </div>
               </div>
@@ -373,7 +288,7 @@ const ServicesPage = () => {
               Search & Filters
             </span>
             <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
-              {filteredServices.length} found
+              {loading ? '...' : filteredServices.length} found
             </span>
           </button>
         </div>
@@ -471,66 +386,86 @@ const ServicesPage = () => {
 
         {/* Services Grid */}
         <div>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-          >
-            <AnimatePresence>
-              {filteredServices.map((service) => (
-                <motion.div
-                  key={service.id}
-                  variants={cardVariants}
-                  className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
-                >
-                  <div className="relative">
-                    <img 
-                      src={service.image} 
-                      alt={service.businessName}
-                      className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                        Service
-                      </span>
+          {loading ? (
+            renderLoadingSkeleton()
+          ) : error ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <div className="text-red-400 text-6xl mb-4">⚠️</div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">Error loading services</h3>
+              <p className="text-gray-500">Please try again later</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+            >
+              <AnimatePresence>
+                {filteredServices.map((service) => (
+                  <motion.div
+                    key={service.id || service._id}
+                    variants={cardVariants}
+                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                  >
+                    <div className="relative">
+                      <img 
+                        src={service.image || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
+                        alt={service.businessName || service.title}
+                        className="w-full h-48 object-cover"
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+                          Service
+                        </span>
+                      </div>
+                      <div className="absolute top-3 right-3 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs">
+                        ⭐ {service.rating || "4.5"}
+                      </div>
                     </div>
-                    <div className="absolute top-3 right-3 bg-black bg-opacity-70 text-white px-2 py-1 rounded-full text-xs">
-                      ⭐ {service.rating}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-bold text-sm sm:text-base text-gray-800 mb-2 line-clamp-2 leading-tight">
-                      {service.businessName}
-                    </h3>
                     
-                    <div className="space-y-2 mb-3">
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <FiUser className="w-3 h-3" />
-                        <span className="line-clamp-1">{service.ownerName}</span>
+                    <div className="p-4">
+                      <h3 className="font-bold text-sm sm:text-base text-gray-800 mb-2 line-clamp-2 leading-tight">
+                        {service.businessName || service.title}
+                      </h3>
+                      
+                      <div className="space-y-2 mb-3">
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <FiUser className="w-3 h-3" />
+                          <span className="line-clamp-1">{service.ownerName || "Service Provider"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <FiClock className="w-3 h-3" />
+                          <span>{service.workingHours || "Flexible"}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <FiDollarSign className="w-3 h-3" />
+                          <span className="font-bold text-green-600">
+                            ₦{service.price?.toLocaleString() || "0"}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <FiClock className="w-3 h-3" />
-                        <span>{service.workingHours}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <FiDollarSign className="w-3 h-3" />
-                        <span className="font-bold text-green-600">₦{service.price.toLocaleString()}</span>
-                      </div>
-                    </div>
 
-                    <button className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 text-xs">
-                      View Details
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                      <Link 
+                        to={`/business/${service._id || service.id}`}
+                        state={{ service }}
+                        className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 text-xs text-center"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
 
           {/* Empty State */}
-          {filteredServices.length === 0 && (
+          {!loading && !error && filteredServices.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

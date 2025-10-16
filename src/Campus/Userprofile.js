@@ -131,46 +131,43 @@ const UserProfile = () => {
     }
   };
 
-  // Toggle sold status
-  const toggleSoldStatus = async (listingId, category, currentStatus) => {
-    try {
-      const token = localStorage.getItem('token');
-      let endpoint = '';
+  // Replace existing toggleSoldStatus with this
+const toggleSoldStatus = async (listingId, category, currentStatus) => {
+  try {
+    const token = localStorage.getItem('token');
+    let endpoint = '';
 
-      switch (category) {
-        case 'premium':
-          endpoint = `https://campus-plum.vercel.app/api/pro-listings/${listingId}`;
-          break;
-        case 'urgent':
-          endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
-          break;
-        default:
-          return; // Don't update for VIP/business
+    if (category === 'premium') {
+      endpoint = `https://campus-plum.vercel.app/api/pro-listings/${listingId}`;
+    } else if (category === 'urgent') {
+      endpoint = `https://campus-plum.vercel.app/api/listings/${listingId}`;
+    } else return; // skip vip
+
+    // send JSON { soldOut: !currentStatus }
+    await axios.put(
+      endpoint,
+      { soldOut: !currentStatus },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       }
+    );
 
-      await axios.put(endpoint, 
-        { soldOut: !currentStatus },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    // update local state using soldOut (not sold)
+    setListings(prev => ({
+      ...prev,
+      [category]: prev[category].map(it =>
+        it._id === listingId ? { ...it, soldOut: !currentStatus } : it
+      ),
+    }));
+  } catch (err) {
+    console.error('Error toggling sold-out status:', err);
+    alert('Failed to update status. Try again.');
+  }
+};
 
-      // Update local state
-      setListings(prev => ({
-        ...prev,
-        [category]: prev[category].map(item => 
-          item._id === listingId ? { ...item, sold: !currentStatus } : item
-        )
-      }));
-
-    } catch (error) {
-      console.error('Error updating sold status:', error);
-      alert('Failed to update status. Please try again.');
-    }
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('Login');
@@ -621,12 +618,12 @@ const ListingCard = ({ item, category, index, onDelete, onToggleSold }) => {
           )}
         </motion.button>
 
-        {/* Sold Status Badge */}
-        {!isBusiness && item.sold && (
-          <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-            SOLD
-          </div>
-        )}
+       
+{!isBusiness && item.soldOut && (
+  <div className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+    SOLD
+  </div>
+)}
 
         {/* Title/Price Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -648,21 +645,24 @@ const ListingCard = ({ item, category, index, onDelete, onToggleSold }) => {
         </div>
         
         {/* Sold Checkbox (not for business) */}
-        {!isBusiness && (
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <span className="text-sm text-gray-600 font-medium">Mark as sold:</span>
-            <button
-              onClick={handleSoldToggle}
-              className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                item.sold ? 'bg-green-500' : 'bg-gray-300'
-              }`}
-            >
-              <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${
-                item.sold ? 'left-7' : 'left-1'
-              }`} />
-            </button>
-          </div>
-        )}
+       {!isBusiness && (
+  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+    <span className="text-sm text-gray-600 font-medium">Mark as sold:</span>
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggleSold(item._id, category, item.soldOut);
+      }}
+      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+        item.soldOut ? 'bg-green-500' : 'bg-gray-300'
+      }`}
+    >
+      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${
+        item.soldOut ? 'left-7' : 'left-1'
+      }`} />
+    </button>
+  </div>
+)}
         
         {/* Business tag */}
         {isBusiness && (
