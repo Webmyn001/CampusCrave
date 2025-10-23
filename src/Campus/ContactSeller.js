@@ -11,11 +11,11 @@ import {
   FiInfo,
   FiCheckCircle,
   FiShield,
-  FiClock
+  FiClock,
+  FiTag,
+  FiBriefcase
 } from "react-icons/fi";
-import { FaNairaSign } from "react-icons/fa6";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
 import axios from "axios";
 
 const ContactSeller = () => {
@@ -23,51 +23,74 @@ const ContactSeller = () => {
   const location = useLocation();
   const { id } = useParams();
 
-  const [service, setService] = useState(location.state?.service || null);
-  const [loading, setLoading] = useState(!service);
+  const [listing, setListing] = useState(location.state?.product || location.state?.service || null);
+  const [loading, setLoading] = useState(!listing);
   const [error, setError] = useState(null);
 
-  // Fetch service if not passed via location.state
+  // Fetch listing if not passed via location.state
   useEffect(() => {
-    const fetchService = async () => {
-      if (!service && id) {
+    const fetchListing = async () => {
+      if (!listing && id) {
         try {
           setLoading(true);
-          const res = await axios.get(
-            `https://campus-plum.vercel.app/api/vip-listings/${id}`
-          );
-          console.log(service)
-          setService(res.data);
+          // Try multiple endpoints
+          const endpoints = [
+            'https://campus-plum.vercel.app/api/vip-listings/',
+            'https://campus-plum.vercel.app/api/listings/',
+            'https://campus-plum.vercel.app/api/pro-listings/'
+          ];
+
+          let listingData = null;
+
+          for (const endpoint of endpoints) {
+            try {
+              const response = await axios.get(endpoint);
+              const foundListing = response.data.find(item => item._id === id);
+              if (foundListing) {
+                listingData = foundListing;
+                break;
+              }
+            } catch (err) {
+              console.log(`Failed to fetch from ${endpoint}:`, err.message);
+              continue;
+            }
+          }
+
+          if (listingData) {
+            setListing(listingData);
+          } else {
+            setError("Listing not found");
+          }
         } catch (err) {
           console.error(err);
-          setError("Failed to load service details.");
+          setError("Failed to load listing details.");
         } finally {
           setLoading(false);
         }
       }
     };
-    fetchService();
-  }, [id, service]);
+    fetchListing();
+  }, [id, listing]);
 
   if (loading)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-700 font-medium">Loading seller details...</p>
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 text-sm sm:text-base">Loading contact details...</p>
         </div>
       </div>
     );
     
   if (error)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <div className="text-center bg-white rounded-2xl shadow-lg p-8 max-w-md mx-4">
-          <FiAlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-red-500 text-lg font-semibold">{error}</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white rounded-lg shadow-sm p-6 max-w-sm w-full border border-gray-200">
+          <FiAlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-500 font-medium mb-4 text-sm sm:text-base">{error}</p>
           <button 
             onClick={() => navigate(-1)}
-            className="mt-6 bg-indigo-600 text-white px-6 py-2 rounded-xl hover:bg-indigo-700 transition-colors"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm sm:text-base"
           >
             Go Back
           </button>
@@ -75,411 +98,387 @@ const ContactSeller = () => {
       </div>
     );
     
-  if (!service)
+  if (!listing)
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
-        <p className="text-center text-gray-700 text-lg bg-white rounded-2xl shadow-lg p-8">Service not found.</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <p className="text-gray-700 text-sm sm:text-base">Listing not found.</p>
+        </div>
       </div>
     );
 
-  // Safe values
-  const phone = service?.sellerInfo?.phone || "";
-  const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
-  const email = service?.sellerInfo?.email || "N/A";
+  // Handle different data structures for business vs product listings
+  const isBusiness = !!listing.businessName;
   
-  // Check if user is verified (you'll need to adjust this based on your actual data structure)
-  const isVerified = service?.sellerInfo?.verified || service?.verified || false;
+  // Safe values - handle both business and product structures
+  const sellerInfo = listing.sellerInfo || {};
+  const phone = sellerInfo.phone || listing.phone || "";
+  const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
+  const email = sellerInfo.email || listing.businessEmail || listing.email || "N/A";
+  const sellerName = sellerInfo.name || listing.ownerName || "Anonymous Seller";
+  const locationInfo = sellerInfo.hostel || listing.address || listing.location || "N/A";
+  const course = sellerInfo.course || "Student";
+  const year = sellerInfo.year || "Not specified";
+  
+  // Check if user is verified
+  const isVerified = sellerInfo.verified || listing.verified || false;
 
   // Avatar initials fallback
-  const initials =
-    service?.sellerInfo?.name
-      ?.split(" ")
-      .map((w) => w[0])
-      .join("")
-      .toUpperCase() || "NA";
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { type: "spring", stiffness: 120 },
-    },
-  };
+  const initials = sellerName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase() || "NA";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Header with Back Button */}
-        <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="mb-8"
-        >
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-6">
+      <div className="max-w-4xl mx-auto px-3 sm:px-6">
+        {/* Header */}
+        <div className="mb-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors group mb-6"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-4 text-sm sm:text-base"
           >
-            <div className="p-2 bg-white rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
-              <FiArrowLeft className="w-5 h-5" />
-            </div>
+            <FiArrowLeft className="w-4 h-4" />
             <span className="font-medium">Back to Listing</span>
           </button>
 
-          <div className="text-center mb-2">
-            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent break-words">
-              Contact Seller
+          <div className="text-center">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              Contact {isBusiness ? "Business" : "Seller"}
             </h1>
-            <p className="text-gray-600 mt-2 max-w-2xl mx-auto text-sm sm:text-base break-words">
-              Get in touch with the seller to discuss this item. All contact information is verified for your safety.
+            <p className="text-gray-600 text-sm sm:text-base">
+              Get in touch to discuss this {isBusiness ? "service" : "item"}
             </p>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8">
-          {/* Left Column - Seller Profile */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100 xl:col-span-2"
-          >
-            {/* Profile Header */}
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col items-center text-center mb-8 relative"
-            >
-              <div className="relative mb-6">
-                {service?.sellerInfo?.profilePhoto?.url ? (
-                  <div className="relative">
-                    <img
-                      src={service.sellerInfo?.profilePhoto.url}
-                      alt={service?.sellerInfo?.title || "Seller"}
-                      className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover ring-4 ring-white shadow-2xl"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src =
-                          "https://via.placeholder.com/150?text=Avatar";
-                      }}
-                    />
-                    {service.sellerInfo?.isVerified && (
-                      <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 sm:p-2 rounded-full shadow-lg border-2 border-white">
-                        <FiCheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />
-                      </div>
-                    )}
-                  </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Left Column - Contact Info */}
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            {/* Seller/Business Profile Card */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+                {/* Avatar */}
+                {sellerInfo?.profilePhoto?.url ? (
+                  <img
+                    src={sellerInfo.profilePhoto.url}
+                    alt={sellerName}
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border border-gray-200"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://via.placeholder.com/150?text=S";
+                    }}
+                  />
                 ) : (
-                  <div className="relative">
-                    <div className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-2xl sm:text-3xl font-bold ring-4 ring-white shadow-2xl">
-                      {initials}
-                    </div>
-                    {service.sellerInfo?.isVerified && (
-                      <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 sm:p-2 rounded-full shadow-lg border-2 border-white">
-                        <FiCheckCircle className="w-4 h-4 sm:w-6 sm:h-6" />
-                      </div>
-                    )}
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center bg-blue-500 text-white rounded-full font-semibold text-sm sm:text-lg">
+                    {initials}
                   </div>
                 )}
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-                  <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 break-words text-center">
-                    {service?.sellerInfo?.name || "Unknown Seller"}
-                  </h2>
-                  {isVerified && (
-                    <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                      <FiCheckCircle className="w-3 h-3 sm:w-4 sm:h-4" />
-                      Verified
-                    </span>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">
+                      {sellerName}
+                    </h2>
+                    {isVerified && (
+                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 px-2 py-1 rounded text-xs flex-shrink-0">
+                        <FiCheckCircle className="w-3 h-3" />
+                        Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-600 text-xs sm:text-sm">
+                    {course} • Year {year}
+                  </p>
+                  {isBusiness && (
+                    <p className="text-blue-600 text-xs sm:text-sm font-medium mt-1">
+                      Business Account
+                    </p>
                   )}
                 </div>
               </div>
-            </motion.div>
 
-            {/* Contact Information */}
-            <motion.div
-              variants={containerVariants}
-              className="space-y-4 sm:space-y-6 mb-8"
-            >
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 pb-2 sm:pb-3 border-b border-gray-200 flex items-center gap-2">
-                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-                  <FiUser className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                Contact Information
-              </h3>
-
-              {/* WhatsApp */}
-              <motion.div
-                variants={itemVariants}
-                className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl sm:rounded-2xl border border-green-100 hover:shadow-lg transition-all duration-300 group"
-              >
-                <div className="p-3 sm:p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform flex-shrink-0">
-                  <FiMessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">WhatsApp</p>
-                  {cleanPhone ? (
-                    <div>
+              {/* Contact Methods */}
+              <div className="space-y-3 sm:space-y-4">
+                {/* WhatsApp */}
+                {cleanPhone && (
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-100">
+                    <div className="p-2 sm:p-3 bg-green-500 text-white rounded-lg flex-shrink-0">
+                      <FiMessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">WhatsApp</p>
                       <a
                         href={`https://wa.me/${cleanPhone}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm sm:text-base font-semibold text-gray-900 hover:text-green-600 transition-colors flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 break-all"
+                        className="text-base sm:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors break-all"
                       >
-                        {service?.sellerInfo?.phone}
-                        <span className="text-[10px] sm:text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full w-fit">Recommended</span>
+                        {phone}
+                      </a>
+                      <p className="text-xs text-green-600 mt-1">Recommended • Fast response</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Phone */}
+                {phone && (
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="p-2 sm:p-3 bg-blue-500 text-white rounded-lg flex-shrink-0">
+                      <FiPhone className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">Phone Call</p>
+                      <a
+                        href={`tel:${phone}`}
+                        className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors break-all"
+                      >
+                        {phone}
                       </a>
                     </div>
-                  ) : (
-                    <span className="text-gray-500">N/A</span>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Phone */}
-              <motion.div
-                variants={itemVariants}
-                className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl border border-blue-100 hover:shadow-lg transition-all duration-300 group"
-              >
-                <div className="p-3 sm:p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform flex-shrink-0">
-                  <FiPhone className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Primary Phone</p>
-                  {phone ? (
-                    <a
-                      href={`tel:${phone}`}
-                      className="text-sm sm:text-base font-semibold text-gray-900 hover:text-blue-600 transition-colors break-all"
-                    >
-                      {phone}
-                    </a>
-                  ) : (
-                    <span className="text-gray-500">N/A</span>
-                  )}
-                </div>
-              </motion.div>
-
-              {/* Hostel Address */}
-              {service?.sellerInfo?.hostel && (
-                <motion.div
-                  variants={itemVariants}
-                  className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl sm:rounded-2xl border border-amber-100 hover:shadow-lg transition-all duration-300 group"
-                >
-                  <div className="p-3 sm:p-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform flex-shrink-0">
-                    <FiMapPin className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs sm:text-sm font-medium text-gray-500 mb-1">Hostel Address</p>
-                    <p className="text-sm sm:text-base font-semibold text-gray-900 break-words">
-                      {service.sellerInfo.hostel}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </motion.div>
-          </motion.div>
+                )}
 
-          {/* Right Column - Service Details & Safety Tips */}
-          <div className="space-y-4 sm:space-y-6">
-            {/* Conditional Service/Goods Details Card */}
-            {service?.businessName ? (
-              // Service Details Card
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 border border-gray-100"
-              >
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 pb-2 sm:pb-3 border-b border-gray-200 flex items-center gap-2">
-                  <div className="p-2 bg-green-100 text-green-600 rounded-lg">
-                    <FiPackage className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </div>
-                  Service Details
-                </h3>
-
-                <div className="space-y-4 sm:space-y-5">
-                  {/* Business Name */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
-                    <FiUser className="text-green-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                {/* Email */}
+                {email && email !== "N/A" && (
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-purple-50 rounded-lg border border-purple-100">
+                    <div className="p-2 sm:p-3 bg-purple-500 text-white rounded-lg flex-shrink-0">
+                      <FiMail className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Business Name</p>
-                      <p className="font-bold text-gray-900 text-sm sm:text-base break-words">
-                        {service.businessName}
-                      </p>
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">Email</p>
+                      <a
+                        href={`mailto:${email}`}
+                        className="text-base sm:text-lg font-semibold text-gray-900 hover:text-purple-600 transition-colors break-all text-sm sm:text-base"
+                      >
+                        {email}
+                      </a>
                     </div>
                   </div>
+                )}
 
-                  {/* Business Email */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
-                    <FiMail className="text-green-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
+                {/* Location */}
+                {locationInfo && locationInfo !== "N/A" && (
+                  <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-orange-50 rounded-lg border border-orange-100">
+                    <div className="p-2 sm:p-3 bg-orange-500 text-white rounded-lg flex-shrink-0">
+                      <FiMapPin className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Business Email</p>
-                      <p className="font-bold text-gray-900 text-sm sm:text-base break-all">
-                        {service.businessEmail || "N/A"}
+                      <p className="text-xs sm:text-sm text-gray-600 mb-1">Location</p>
+                      <p className="text-base sm:text-lg font-semibold text-gray-900 break-words">
+                        {locationInfo}
                       </p>
                     </div>
                   </div>
-
-                  {/* Business Address */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
-                    <FiMapPin className="text-green-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Business Address</p>
-                      <p className="font-bold text-gray-900 text-sm sm:text-base break-words">
-                        {service.address || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Working Hours */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
-                    <FiClock className="text-green-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Working Hours</p>
-                      <p className="font-bold text-gray-900 text-sm sm:text-base break-words">
-                        {service.workingHours || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              // Goods Details Card
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 border border-gray-100"
-              >
-                <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-5 pb-2 sm:pb-3 border-b border-gray-200 flex items-center gap-2">
-                  <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-                    <FiPackage className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </div>
-                  Goods Details
-                </h3>
-
-                <div className="space-y-4 sm:space-y-5">
-                  {/* Item Title */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                    <FiPackage className="text-indigo-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Item</p>
-                      <p className="font-bold text-gray-900 text-base sm:text-lg break-words">
-                        {service?.title || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                    <FaNairaSign className="text-green-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Price</p>
-                      <p className="font-bold text-gray-900 text-base sm:text-lg">
-                        #{service?.price ? Number(service.price).toLocaleString() : "0"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Condition */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                    <FiInfo className="text-blue-600 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Condition</p>
-                      <p className="font-bold text-gray-900 text-base sm:text-lg break-words">
-                        {service?.condition || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Contact Method */}
-                  <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                    <FiMapPin className="text-red-500 mt-1 w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-500">Preferred Contact Method</p>
-                      <p className="font-bold text-gray-900 text-base sm:text-lg break-words">
-                        {service?.contactMethod || "N/A"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
+                )}
+              </div>
+            </div>
 
             {/* Safety Tips */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg"
-            >
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="bg-amber-100 p-2 sm:p-3 rounded-xl sm:rounded-2xl mt-1">
-                  <FiShield className="text-amber-600 w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                <FiShield className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
+                Safety Tips
+              </h3>
+              <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-gray-700">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <span>Always meet in public campus locations</span>
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-base sm:text-lg mb-2 sm:mb-3">
-                    Safety Tips
-                  </h3>
-                  <ul className="text-gray-700 space-y-2 text-sm sm:text-base">
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="break-words">Always meet in public campus locations</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="break-words">Never send payments in advance without verification</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="break-words">Check item condition before purchasing</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <span className="break-words">Report suspicious activity to Campus Security</span>
-                    </li>
-                  </ul>
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <span>Never send payments in advance without verification</span>
+                </div>
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <span>Check {isBusiness ? "service details" : "item condition"} before committing</span>
+                </div>
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                  <span>Report suspicious activity to Campus Security</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </div>
+
+          {/* Right Column - Listing Info */}
+          <div className="space-y-4 sm:space-y-6">
+            {/* Listing Details Card */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
+                {isBusiness ? (
+                  <>
+                    <FiBriefcase className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                    Service Details
+                  </>
+                ) : (
+                  <>
+                    <FiPackage className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+                    Item Details
+                  </>
+                )}
+              </h3>
+
+              {/* Listing Image */}
+             {/* Listing Image with Sold Out Overlay */}
+{listing?.images?.[0]?.url && (
+  <div className="mb-3 sm:mb-4 relative">
+    <img
+      src={listing.images[0].url}
+      alt={isBusiness ? listing.businessName : listing.title}
+      className="w-full h-24 sm:h-32 object-cover rounded-lg bg-gray-100"
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = "https://via.placeholder.com/300x150?text=No+Image";
+      }}
+    />
+    {/* Sold Out Overlay */}
+    {listing.soldOut && (
+      <div className="absolute inset-0 bg-black bg-opacity-70 rounded-lg flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-2">
+            <FiCheckCircle className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-white font-bold text-lg tracking-wide uppercase">
+            Sold Out
+          </span>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
+              <div className="space-y-2 sm:space-y-3">
+                {/* Title/Business Name */}
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">
+                    {isBusiness ? "Business" : "Item"}
+                  </p>
+                  <p className="font-semibold text-gray-900 text-sm sm:text-base leading-tight break-words">
+                    {isBusiness ? listing.businessName : listing.title}
+                  </p>
+                </div>
+
+                {/* Price */}
+                {listing?.price && (
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Price</p>
+                    <p className="text-lg sm:text-xl font-bold text-gray-900">
+                      ₦{Number(listing.price).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+
+                {/* Condition - for products */}
+                {!isBusiness && listing?.condition && (
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Condition</p>
+                    <div className="flex items-center gap-2">
+                      <FiTag className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                      <span className="font-medium text-gray-900 text-sm sm:text-base">{listing.condition}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Working Hours - for businesses */}
+                {isBusiness && listing?.workingHours && (
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Working Hours</p>
+                    <div className="flex items-center gap-2">
+                      <FiClock className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                      <span className="font-medium text-gray-900 text-sm sm:text-base">{listing.workingHours}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Category */}
+                {listing?.category && (
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Category</p>
+                    <span className="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs sm:text-sm">
+                      {listing.category}
+                    </span>
+                  </div>
+                )}
+
+                {/* Contact Method */}
+                {listing?.contactMethod && (
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Preferred Contact</p>
+                    <span className="font-medium text-gray-900 text-sm sm:text-base capitalize">
+                      {listing.contactMethod}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 sm:mb-4">Quick Actions</h3>
+              <div className="space-y-2 sm:space-y-3">
+                {cleanPhone && (
+                  <a
+                    href={`https://wa.me/${cleanPhone}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-2 sm:py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+                  >
+                    <FiMessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                    WhatsApp {isBusiness ? "Business" : "Seller"}
+                  </a>
+                )}
+                {phone && (
+                  <a
+                    href={`tel:${phone}`}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 sm:py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+                  >
+                    <FiPhone className="w-4 h-4 sm:w-5 sm:h-5" />
+                    Call {isBusiness ? "Business" : "Seller"}
+                  </a>
+                )}
+                {email && email !== "N/A" && (
+                  <a
+                    href={`mailto:${email}`}
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 sm:py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
+                  >
+                    <FiMail className="w-4 h-4 sm:w-5 sm:h-5" />
+                    Email {isBusiness ? "Business" : "Seller"}
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Call to Action */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 sm:grid-cols-2 mt-8 sm:mt-10 gap-4 sm:gap-5 max-w-2xl mx-auto"
-        >
-          {cleanPhone && (
-            <a
-              href={`https://wa.me/${cleanPhone}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-4 sm:py-5 px-6 sm:px-8 rounded-xl sm:rounded-2xl font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
-            >
-              <FiMessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
-              WhatsApp Seller
-            </a>
-          )}
-          {phone && (
-            <a
-              href={`tel:${phone}`}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-4 sm:py-5 px-6 sm:px-8 rounded-xl sm:rounded-2xl font-bold flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-xl text-sm sm:text-base"
-            >
-              <FiPhone className="w-5 h-5 sm:w-6 sm:h-6" />
-              Call Seller
-            </a>
-          )}
-        </motion.div>
+        {/* Bottom Action Buttons for Mobile */}
+        {(cleanPhone || phone) && (
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 lg:hidden">
+            <div className="flex gap-2">
+              {cleanPhone && (
+                <a
+                  href={`https://wa.me/${cleanPhone}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm"
+                >
+                  <FiMessageSquare className="w-4 h-4" />
+                  WhatsApp
+                </a>
+              )}
+              {phone && (
+                <a
+                  href={`tel:${phone}`}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm"
+                >
+                  <FiPhone className="w-4 h-4" />
+                  Call
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
