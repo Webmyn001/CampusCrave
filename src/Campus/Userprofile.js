@@ -377,12 +377,12 @@ const toggleSoldStatus = async (listingId, category, currentStatus) => {
           <div className="flex">
             {[
               { id: 'listings', label: 'My Listings', icon: <FiShield /> },
-              { id: 'stats', label: 'Performance Stats', icon: <FiTrendingUp /> }
+              { id: 'stats', label: 'Stats', icon: <FiTrendingUp /> }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1 px-6 py-1 rounded-xl font-semibold transition-all duration-300 flex-1 justify-center ${
+                className={`flex items-center gap-1 px-3 py-1 text-[15px] rounded-xl font-semibold transition-all duration-300 flex-1 justify-center ${
                   activeTab === tab.id 
                     ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg' 
                     : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
@@ -491,7 +491,7 @@ const StatItem = ({ value, label, primary = false }) => (
   </div>
 );
 
-// Updated Listing Section
+// Updated Listing Section with Horizontal Scroll
 const ListingSection = ({ title, listings, loading, category, onDelete, onToggleSold }) => {
   if (loading) {
     return (
@@ -511,17 +511,20 @@ const ListingSection = ({ title, listings, loading, category, onDelete, onToggle
       </div>
       
       {listings.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {listings.map((item, index) => (
-            <ListingCard 
-              key={item._id} 
-              item={item} 
-              category={category} 
-              index={index}
-              onDelete={onDelete}
-              onToggleSold={onToggleSold}
-            />
-          ))}
+        <div className="relative">
+          <div className="flex overflow-x-auto pb-6 space-x-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            {listings.map((item, index) => (
+              <div key={item._id} className="flex-shrink-0 w-80"> {/* Fixed width for equal size cards */}
+                <ListingCard 
+                  item={item} 
+                  category={category} 
+                  index={index}
+                  onDelete={onDelete}
+                  onToggleSold={onToggleSold}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-12 text-center border-2 border-dashed border-gray-300">
@@ -536,7 +539,7 @@ const ListingSection = ({ title, listings, loading, category, onDelete, onToggle
   );
 };
 
-// Enhanced Listing Card
+// Enhanced Listing Card with Equal Height
 const ListingCard = ({ item, category, index, onDelete, onToggleSold }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
@@ -590,11 +593,11 @@ const ListingCard = ({ item, category, index, onDelete, onToggleSold }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
       whileHover={{ scale: 1.03, y: -5 }}
-      className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group"
+      className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-2xl transition-all duration-300 group h-full flex flex-col" // Added h-full and flex-col for equal height
       onClick={handleCardClick}
     >
       {/* Image */}
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden flex-shrink-0"> {/* Fixed image height */}
         <img 
           src={item.images?.[0]?.url || "/api/placeholder/300/200"} 
           alt={item.title} 
@@ -638,38 +641,40 @@ const ListingCard = ({ item, category, index, onDelete, onToggleSold }) => {
         </div>
       </div>
       
-      {/* Card Content */}
-      <div className="p-4">
+      {/* Card Content - Flex-grow to take remaining space */}
+      <div className="p-4 flex-grow flex flex-col">
         <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
           <span>{formatDate(item.formattedPostedAt || item.createdAt)}</span>
         </div>
         
-        {/* Sold Checkbox (not for business) */}
-       {!isBusiness && (
-  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-    <span className="text-sm text-gray-600 font-medium">Mark as sold:</span>
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onToggleSold(item._id, category, item.soldOut);
-      }}
-      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-        item.soldOut ? 'bg-green-500' : 'bg-gray-300'
-      }`}
-    >
-      <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${
-        item.soldOut ? 'left-7' : 'left-1'
-      }`} />
-    </button>
-  </div>
-)}
-        
-        {/* Business tag */}
-        {isBusiness && (
-          <div className="pt-3 border-t border-gray-100">
-            <span className="text-sm text-blue-600 font-semibold">💼 Business Service</span>
-          </div>
-        )}
+        {/* Sold Checkbox (not for business) - Pushed to bottom with mt-auto */}
+        <div className="mt-auto">
+          {!isBusiness && (
+            <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+              <span className="text-sm text-gray-600 font-medium">Mark as sold:</span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSold(item._id, category, item.soldOut);
+                }}
+                className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+                  item.soldOut ? 'bg-green-500' : 'bg-gray-300'
+                }`}
+              >
+                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${
+                  item.soldOut ? 'left-7' : 'left-1'
+                }`} />
+              </button>
+            </div>
+          )}
+          
+          {/* Business tag */}
+          {isBusiness && (
+            <div className="pt-3 border-t border-gray-100">
+              <span className="text-sm text-blue-600 font-semibold">💼 Business Service</span>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

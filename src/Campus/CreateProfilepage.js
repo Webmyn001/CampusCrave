@@ -18,6 +18,31 @@ const ProfilePage = () => {
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
+  // Function to remove +234 prefix from phone numbers
+  const removeCountryCode = (phone) => {
+    if (!phone) return "";
+    // Remove +234 or 234 prefix if present
+    return phone.replace(/^(\+?234)/, "").replace(/[\s-]/g, "");
+  };
+
+  // Process user data to remove country codes from phone numbers
+  const processUserData = (data) => {
+    if (!data) return data;
+    
+    const processedData = { ...data };
+    
+    // Remove +234 prefix from phone numbers for display/editing
+    if (processedData.phone) {
+      processedData.phone = removeCountryCode(processedData.phone);
+    }
+    
+    if (processedData.whatsapp) {
+      processedData.whatsapp = removeCountryCode(processedData.whatsapp);
+    }
+    
+    return processedData;
+  };
+
   // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
@@ -25,7 +50,8 @@ const ProfilePage = () => {
         const res = await axios.get(`https://campus-plum.vercel.app/api/auth/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserData(res.data);
+        // Process the data to remove country codes before setting state
+        setUserData(processUserData(res.data));
       } catch (err) {
         setError("Failed to load profile data");
       } finally {
@@ -35,25 +61,13 @@ const ProfilePage = () => {
     fetchUser();
   }, [userId, token]);
 
-  // Format phone number to remove +234 if present and clean the number
-  const formatPhoneDisplay = (phone) => {
-    if (!phone) return "";
-    // Remove +234 prefix if present and any spaces/dashes
-    return phone.replace(/^\+234/, "").replace(/[\s-]/g, "");
-  };
-
   // Handle text input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    if (name === "phone" || name === "emergencyContact") {
-      // Remove any non-digit characters except + at the beginning
+    if (name === "phone" || name === "whatsapp") {
+      // Remove any non-digit characters
       let cleanedValue = value.replace(/[^\d]/g, "");
-      
-      // If user tries to type +234 manually, prevent it and use our auto-format
-      if (cleanedValue.startsWith("234")) {
-        cleanedValue = cleanedValue.substring(3);
-      }
       
       // Limit to 10 digits (without +234)
       if (cleanedValue.length <= 10) {
@@ -69,12 +83,12 @@ const ProfilePage = () => {
     const submitData = { ...data };
     
     // Add +234 prefix to phone numbers if they have value
-    if (submitData.phone) {
+    if (submitData.phone && submitData.phone.length === 10) {
       submitData.phone = `+234${submitData.phone}`;
     }
     
-    if (submitData.emergencyContact) {
-      submitData.emergencyContact = `+234${submitData.emergencyContact}`;
+    if (submitData.whatsapp && submitData.whatsapp.length === 10) {
+      submitData.whatsapp = `+234${submitData.whatsapp}`;
     }
     
     return submitData;
@@ -115,7 +129,8 @@ const ProfilePage = () => {
         }
       );
 
-      setUserData(res.data.user);
+      // Process the response data to remove country codes before setting state
+      setUserData(processUserData(res.data.user));
       setSuccess("Profile details updated successfully!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
@@ -316,7 +331,7 @@ const ProfilePage = () => {
                       <input
                         type="tel"
                         name="phone"
-                        value={formatPhoneDisplay(userData?.phone) || ""}
+                        value={userData?.phone || ""}
                         onChange={handleInputChange}
                         className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         placeholder="8012345678"
@@ -381,10 +396,10 @@ const ProfilePage = () => {
                     </select>
                   </motion.div>
 
-                  {/* Emergency Contact */}
+                  {/* WhatsApp */}
                   <motion.div variants={itemVariants} className="group">
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                      <FiShield className="text-red-600" /> Emergency Contact
+                      <FiShield className="text-red-600" /> WhatsApp
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -392,8 +407,8 @@ const ProfilePage = () => {
                       </div>
                       <input
                         type="tel"
-                        name="emergencyContact"
-                        value={formatPhoneDisplay(userData?.emergencyContact) || ""}
+                        name="whatsapp"
+                        value={userData?.whatsapp || ""}
                         onChange={handleInputChange}
                         className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
                         placeholder="8012345678"

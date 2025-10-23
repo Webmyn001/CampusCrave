@@ -71,7 +71,7 @@ const ContactSeller = () => {
     };
     fetchListing();
   }, [id, listing]);
-
+console.log(listing)
   if (loading)
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -113,6 +113,7 @@ const ContactSeller = () => {
   // Safe values - handle both business and product structures
   const sellerInfo = listing.sellerInfo || {};
   const phone = sellerInfo.phone || listing.phone || "";
+  const whatsapp = sellerInfo.whatsapp || listing.whatsapp || "";
   const cleanPhone = phone ? phone.replace(/[^0-9]/g, "") : "";
   const email = sellerInfo.email || listing.businessEmail || listing.email || "N/A";
   const sellerName = sellerInfo.name || listing.ownerName || "Anonymous Seller";
@@ -202,7 +203,7 @@ const ContactSeller = () => {
               {/* Contact Methods */}
               <div className="space-y-3 sm:space-y-4">
                 {/* WhatsApp */}
-                {cleanPhone && (
+                {whatsapp && (
                   <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-100">
                     <div className="p-2 sm:p-3 bg-green-500 text-white rounded-lg flex-shrink-0">
                       <FiMessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -210,12 +211,12 @@ const ContactSeller = () => {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs sm:text-sm text-gray-600 mb-1">WhatsApp</p>
                       <a
-                        href={`https://wa.me/${cleanPhone}`}
+                        href={`https://wa.me/${whatsapp}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-base sm:text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors break-all"
                       >
-                        {phone}
+                        {whatsapp}
                       </a>
                       <p className="text-xs text-green-600 mt-1">Recommended • Fast response</p>
                     </div>
@@ -420,7 +421,7 @@ const ContactSeller = () => {
               <div className="space-y-2 sm:space-y-3">
                 {cleanPhone && (
                   <a
-                    href={`https://wa.me/${cleanPhone}`}
+                    href={`https://wa.me/${whatsapp}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full bg-green-500 hover:bg-green-600 text-white py-2 sm:py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm sm:text-base"
@@ -453,12 +454,12 @@ const ContactSeller = () => {
         </div>
 
         {/* Bottom Action Buttons for Mobile */}
-        {(cleanPhone || phone) && (
+        {(whatsapp || phone) && (
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 lg:hidden">
             <div className="flex gap-2">
               {cleanPhone && (
                 <a
-                  href={`https://wa.me/${cleanPhone}`}
+                  href={`https://wa.me/${whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-3 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors text-sm"
