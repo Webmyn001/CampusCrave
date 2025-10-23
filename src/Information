@@ -144,3 +144,77 @@ export default function Navbar() {
 
 
  <Route path="/admin" element={<AdminDashboard />} />
+
+
+
+
+
+
+
+
+ ///verify payemnt
+
+
+ export const verifyPayment = async (req: Request, res: Response) => {
+  const { txId, plan, amount, currency, email, childId } = req.body; // 👈 added childId
+
+  try {
+    if (txId === "FREE_PLAN") {
+      const validityMinutes = 2;
+      const subscription = new UserSubscription({
+        userEmail: email,
+        childId: childId, // 👈 attach child reference
+        plan,
+        amountPaid: 0,
+        currency,
+        paymentStatus: "successful",
+        flutterwaveTxId: txId,
+        validityInterval: validityMinutes,
+        createdAt: new Date(),
+        expiresAt: new Date(Date.now() + validityMinutes * 60 * 1000),
+      });
+      await subscription.save();
+
+      // Optional: directly mark as subscribed for free plan
+      await ChildModel.findByIdAndUpdate(childId, { $set: { isSubscribed: true } });
+
+      return res.status(200).json({
+        success: true,
+        message: `Free plan subscribed successfully (expires in ${validityMinutes} minutes)`,
+      });
+    }
+
+    const response = await axios.get(
+      `https://api.flutterwave.com/v3/transactions/${txId}/verify`,
+      { headers: { Authorization: `Bearer ${process.env.FLW_SECRET_KEY}` } }
+    );
+
+    const data = response.data.data;
+    if (!data || data.status !== "successful" || Number(data.amount) !== Number(amount)) {
+      return res.status(400).json({ success: false, message: "Payment verification failed" });
+    }
+
+    const validityDays = 365;
+    const subscription = new UserSubscription({
+      userEmail: email,
+      childId: childId, // 👈 link child to subscription
+      plan,
+      amountPaid: amount,
+      currency,
+      paymentStatus: "pending",
+      flutterwaveTxId: txId,
+      validityInterval: validityDays,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000),
+    });
+    await subscription.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Your payment is pending, waiting for confirmation.",
+    });
+  } catch (err: any) {
+    console.error(err.response?.data || err.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};

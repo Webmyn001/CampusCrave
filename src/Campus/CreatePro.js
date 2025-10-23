@@ -259,6 +259,7 @@ const savedStatus = JSON.parse(localStorage.getItem("subscriptionStatus"));
                 value={formData.condition}
                 onChange={handleInputChange}
                 options={conditions}
+                required
               />
               <SelectField
                 label="Contact Method *"
@@ -266,6 +267,7 @@ const savedStatus = JSON.parse(localStorage.getItem("subscriptionStatus"));
                 value={formData.contactMethod}
                 onChange={handleInputChange}
                 options={contactMethods}
+                required
               />
             </div>
 
@@ -276,6 +278,7 @@ const savedStatus = JSON.parse(localStorage.getItem("subscriptionStatus"));
               value={formData.description}
               onChange={handleInputChange}
               placeholder="Describe your premium item in detail..."
+              required
             />
 
             {/* Image Upload */}
@@ -284,6 +287,7 @@ const savedStatus = JSON.parse(localStorage.getItem("subscriptionStatus"));
               images={formData.images}
               onFileChange={handleFileChange}
               onRemove={removeImage}
+              required
             />
 
             {/* Submit Button */}

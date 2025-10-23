@@ -35,9 +35,49 @@ const ProfilePage = () => {
     fetchUser();
   }, [userId, token]);
 
+  // Format phone number to remove +234 if present and clean the number
+  const formatPhoneDisplay = (phone) => {
+    if (!phone) return "";
+    // Remove +234 prefix if present and any spaces/dashes
+    return phone.replace(/^\+234/, "").replace(/[\s-]/g, "");
+  };
+
   // Handle text input changes
   const handleInputChange = (e) => {
-    setUserData({ ...userData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    if (name === "phone" || name === "emergencyContact") {
+      // Remove any non-digit characters except + at the beginning
+      let cleanedValue = value.replace(/[^\d]/g, "");
+      
+      // If user tries to type +234 manually, prevent it and use our auto-format
+      if (cleanedValue.startsWith("234")) {
+        cleanedValue = cleanedValue.substring(3);
+      }
+      
+      // Limit to 10 digits (without +234)
+      if (cleanedValue.length <= 10) {
+        setUserData({ ...userData, [name]: cleanedValue });
+      }
+    } else {
+      setUserData({ ...userData, [name]: value });
+    }
+  };
+
+  // Prepare data for submission - add +234 prefix to phone numbers
+  const prepareSubmitData = (data) => {
+    const submitData = { ...data };
+    
+    // Add +234 prefix to phone numbers if they have value
+    if (submitData.phone) {
+      submitData.phone = `+234${submitData.phone}`;
+    }
+    
+    if (submitData.emergencyContact) {
+      submitData.emergencyContact = `+234${submitData.emergencyContact}`;
+    }
+    
+    return submitData;
   };
 
   // Handle file upload preview
@@ -61,7 +101,7 @@ const ProfilePage = () => {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      const updates = { ...userData };
+      const updates = prepareSubmitData(userData);
       delete updates.profilePhoto; // do not send photo in this update
 
       const res = await axios.put(
@@ -269,14 +309,23 @@ const ProfilePage = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                       <FiPhone className="text-blue-600" /> Phone Number
                     </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={userData?.phone || ""}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="Your phone number"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 text-sm">+234</span>
+                      </div>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formatPhoneDisplay(userData?.phone) || ""}
+                        onChange={handleInputChange}
+                        className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        placeholder="8012345678"
+                        maxLength={10}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter your 10-digit number without the country code
+                    </p>
                   </motion.div>
 
                   {/* Hostel */}
@@ -337,14 +386,23 @@ const ProfilePage = () => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                       <FiShield className="text-red-600" /> Emergency Contact
                     </label>
-                    <input
-                      type="tel"
-                      name="emergencyContact"
-                      value={userData?.emergencyContact || ""}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                      placeholder="Emergency contact number"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 text-sm">+234</span>
+                      </div>
+                      <input
+                        type="tel"
+                        name="emergencyContact"
+                        value={formatPhoneDisplay(userData?.emergencyContact) || ""}
+                        onChange={handleInputChange}
+                        className="w-full pl-12 pr-4 py-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                        placeholder="8012345678"
+                        maxLength={10}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 10-digit number without country code
+                    </p>
                   </motion.div>
                 </div>
               </motion.div>
@@ -366,15 +424,29 @@ const ProfilePage = () => {
           </div>
         </motion.div>
 
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} 
-        className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6" > <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-           <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"> <FiShield className="text-green-600" /> Privacy First </h3>
-            <p className="text-gray-600 text-sm"> Your personal contact information is never shared publicly. We only display what's necessary for safe campus transactions. </p>
-             </div> <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"> 
-              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"> <FiAward className="text-purple-600" /> Campus Trust </h3>
-               <p className="text-gray-600 text-sm"> {userData?.verified ? 'As a verified user, you receive 3x more responses and build reputation within our campus community.' : 'Verified profiles receive 3x more responses and build reputation within our campus community.' } </p>
-                </div> 
-          </motion.div>
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }} 
+          animate={{ y: 0, opacity: 1 }} 
+          transition={{ delay: 0.5 }} 
+          className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <FiShield className="text-green-600" /> Privacy First
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Your personal contact information is never shared publicly. We only display what's necessary for safe campus transactions.
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+              <FiAward className="text-purple-600" /> Campus Trust
+            </h3>
+            <p className="text-gray-600 text-sm">
+              {userData?.verified ? 'As a verified user, you receive 3x more responses and build reputation within our campus community.' : 'Verified profiles receive 3x more responses and build reputation within our campus community.'}
+            </p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
