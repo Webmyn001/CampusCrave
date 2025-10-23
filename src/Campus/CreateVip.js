@@ -75,14 +75,14 @@ const VipListingForm = () => {
 
   // Check total count (existing + new)
   if (formData.images.length + files.length > 4) {
-    toast.error("🚨 You can only upload up to 4 images. (all must not be more than 10mb )", { icon: "⚠️" });
+    toast.error("🚨 You can only upload up to 4 images. (all must not be more than 15mb )", { icon: "⚠️" });
     return;
   }
 
   setIsUploading(true);
 
   const validFiles = files.filter(file => {
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+    if (file.size > 15 * 1024 * 1024) { // 10MB limit
       toast.error(`❌ your upload is larger than 10MB`, { icon: "⚠️" });
       return false;
     }
@@ -346,7 +346,7 @@ const ImageUpload = ({ isUploading, images, onFileChange, onRemove }) => (
               <span className="font-semibold text-amber-600">Click to upload</span> or drag and drop
               <p className="text-center">Maximum of 4 Images</p>
             </p>
-            <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
+            <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 15MB</p>
           </>
         )}
       </div>

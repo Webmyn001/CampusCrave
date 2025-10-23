@@ -282,7 +282,7 @@ const ProductForm = () => {
                       <p className="text-sm text-gray-600 text-center">
                         <span className="font-semibold text-indigo-600">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 6MB</p>
                     </>
                   )}
                 </div>

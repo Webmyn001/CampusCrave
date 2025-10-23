@@ -418,7 +418,7 @@ const ImageUpload = ({ isUploading, images, onFileChange, onRemove }) => (
               or drag and drop
             </p>
               <p className="text-center">Maximum of 3 Images</p>
-            <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 3MB</p>
+            <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
           </>
         )}
       </div>
