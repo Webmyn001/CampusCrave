@@ -467,7 +467,7 @@ const UrgentListingsPage = () => {
                       </div>
 
                       <Link 
-                        to={`/Quicksales/${item._id || item.id}`}
+                        to={`/listing/${item._id || item.id}`}
                         state={{ product: item }}
                         className="block w-full bg-gradient-to-r from-red-500 to-orange-600 text-white py-2 rounded-lg font-semibold hover:from-red-600 hover:to-orange-700 transition-all duration-300 text-xs text-center"
                       >
