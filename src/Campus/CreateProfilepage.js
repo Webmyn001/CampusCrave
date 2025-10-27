@@ -6,12 +6,12 @@ import {
 } from "react-icons/fi";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ProfilePage = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [preview, setPreview] = useState(null);
   const [newPhoto, setNewPhoto] = useState(null);
 
@@ -53,7 +53,21 @@ const ProfilePage = () => {
         // Process the data to remove country codes before setting state
         setUserData(processUserData(res.data));
       } catch (err) {
-        setError("Failed to load profile data");
+        toast.error("Failed to load profile data", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          style: {
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#dc2626',
+            fontSize: '16px',
+            fontWeight: '500'
+          }
+        });
       } finally {
         setLoading(false);
       }
@@ -100,7 +114,21 @@ const ProfilePage = () => {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("🚨 Profile photo must be less than 5MB");
+      toast.error("🚨 Profile photo must be less than 5MB", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          fontSize: '16px',
+          fontWeight: '500'
+        }
+      });
       return;
     }
 
@@ -131,17 +159,58 @@ const ProfilePage = () => {
 
       // Process the response data to remove country codes before setting state
       setUserData(processUserData(res.data.user));
-      setSuccess("Profile details updated successfully!");
-      setTimeout(() => setSuccess(""), 3000);
+      toast.success("✅ Profile details updated successfully!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          color: '#16a34a',
+          fontSize: '16px',
+          fontWeight: '500'
+        }
+      });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update profile");
+      toast.error(err.response?.data?.message || "Failed to update profile", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          fontSize: '16px',
+          fontWeight: '500'
+        }
+      });
     }
   };
 
   // Update only photo
   const handlePhotoUpdate = async () => {
     if (!newPhoto) {
-      setError("Please select a photo first");
+      toast.error("Please select a photo first", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          fontSize: '16px',
+          fontWeight: '500'
+        }
+      });
       return;
     }
 
@@ -160,10 +229,37 @@ const ProfilePage = () => {
       setUserData(res.data.user);
       setPreview(null);
       setNewPhoto(null);
-      setSuccess("Profile photo updated successfully!");
-      setTimeout(() => setSuccess(""), 3000);
+      toast.success("✅ Profile photo updated successfully!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: '#f0fdf4',
+          border: '1px solid #bbf7d0',
+          color: '#16a34a',
+          fontSize: '16px',
+          fontWeight: '500'
+        }
+      });
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update photo");
+      toast.error(err.response?.data?.message || "Failed to update photo", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        style: {
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
+          fontSize: '16px',
+          fontWeight: '500'
+        }
+      });
     }
   };
 
@@ -202,6 +298,32 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
+        toastStyle={{
+          borderRadius: '12px',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+          minHeight: '60px',
+          fontSize: '16px',
+          fontWeight: '500'
+        }}
+      />
+      
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <motion.div
@@ -224,37 +346,6 @@ const ProfilePage = () => {
           className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
         >
           <div className="p-6 md:p-8">
-            {/* Status Messages */}
-            {error && (
-              <motion.div
-                variants={itemVariants}
-                className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-4"
-              >
-                <div className="bg-red-100 p-2 rounded-xl">
-                  <FiAlertTriangle className="text-red-600 w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-red-800">Error</h3>
-                  <p className="text-red-600 text-sm mt-1">{error}</p>
-                </div>
-              </motion.div>
-            )}
-
-            {success && (
-              <motion.div
-                variants={itemVariants}
-                className="mb-6 p-4 bg-green-50 border border-green-200 rounded-2xl flex items-start gap-4"
-              >
-                <div className="bg-green-100 p-2 rounded-xl">
-                  <FiCheck className="text-green-600 w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-green-800">Success</h3>
-                  <p className="text-green-600 text-sm mt-1">{success}</p>
-                </div>
-              </motion.div>
-            )}
-
             {/* PHOTO SECTION */}
             <motion.div
               variants={itemVariants}

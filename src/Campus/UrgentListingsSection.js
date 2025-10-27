@@ -1,8 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSearch, FiGrid, FiDollarSign, FiX, FiFilter, FiChevronDown } from 'react-icons/fi';
+import { Search, Grid, DollarSign, X, Filter, ChevronDown, Eye, Heart, User, Clock, Coins } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { GiTwoCoins } from "react-icons/gi"
 import axios from 'axios';
 
 const UrgentListingsPage = () => {
@@ -11,8 +10,7 @@ const UrgentListingsPage = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [showDesktopFilters, setShowDesktopFilters] = useState(true);
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // State for urgent listings data
   const [urgentListingsData, setUrgentListingsData] = useState([]);
@@ -88,6 +86,12 @@ const UrgentListingsPage = () => {
         duration: 0.5,
         ease: "easeOut"
       }
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      scale: 0.95,
+      transition: { duration: 0.3 }
     }
   };
 
@@ -103,15 +107,21 @@ const UrgentListingsPage = () => {
 
   // Loading skeleton component
   const renderLoadingSkeleton = () => (
-    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
       {[...Array(8)].map((_, index) => (
-        <div key={index} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 animate-pulse">
-          <div className="w-full h-48 bg-gray-300"></div>
-          <div className="p-4">
+        <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-100 animate-pulse">
+          <div className="w-full h-32 sm:h-40 bg-gray-300"></div>
+          <div className="p-3">
             <div className="h-4 bg-gray-300 rounded mb-2"></div>
-            <div className="h-3 bg-gray-300 rounded mb-1"></div>
-            <div className="h-3 bg-gray-300 rounded mb-4"></div>
-            <div className="h-10 bg-gray-300 rounded"></div>
+            <div className="space-y-1 mb-3">
+              <div className="h-3 bg-gray-300 rounded"></div>
+              <div className="h-3 bg-gray-300 rounded"></div>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <div className="h-4 bg-gray-300 rounded w-16"></div>
+              <div className="h-3 bg-gray-300 rounded w-12"></div>
+            </div>
+            <div className="h-8 bg-gray-300 rounded"></div>
           </div>
         </div>
       ))}
@@ -119,271 +129,240 @@ const UrgentListingsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-100 py-4 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+        
+        {/* Modern Header - Matching Marketplace */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.8 }} 
+          className="mb-8"
         >
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-            Urgent Listings
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Quick deals and urgent sales from campus community
-          </p>
-        </motion.div>
-
-        {/* Top Filter Bar - Only for Large Screens */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="hidden lg:block mb-8"
-        >
-          {/* Always Visible Search Bar */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 mb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Search Input */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Search Listings
-                </label>
-                <div className="relative">
-                  <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    placeholder="Search by item name..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  />
-                </div>
-              </div>
-
-              {/* Results Count */}
-              <div className="flex items-end">
-                <div className="w-full text-center p-3 bg-red-50 rounded-lg">
-                  <div className="font-bold text-red-600 text-lg">
-                    {loading ? '...' : filteredListings.length}
-                  </div>
-                  <div className="text-red-500 text-sm">Urgent Listings Found</div>
-                </div>
-              </div>
-            </div>
+          {/* Logo and Title */}
+          <div className="text-center mb-6">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.8, delay: 0.3 }} 
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-3 leading-tight"
+            >
+              <span className="bg-gradient-to-r from-red-600 via-orange-600 to-pink-600 bg-clip-text text-transparent">Quick</span>
+              <span className="text-gray-800 font-light">Sales</span>
+            </motion.h1>
+            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+              Urgent deals and quick sales from your campus community
+            </p>
           </div>
 
-          {/* Collapsible Advanced Filters */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
-            {/* Filter Toggle Button */}
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Advanced Filters</h3>
-              <button
-                onClick={() => setShowDesktopFilters(!showDesktopFilters)}
-                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors duration-200"
-              >
-                <FiFilter className="w-4 h-4" />
-                {showDesktopFilters ? 'Hide Filters' : 'Show Filters'}
-                <FiChevronDown 
-                  className={`w-4 h-4 transition-transform duration-200 ${
-                    showDesktopFilters ? 'rotate-180' : ''
-                  }`} 
+          {/* Search Bar - Matching Marketplace Style */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }} 
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
+              {/* Search Input with Filter Icon */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search urgent listings by item name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm bg-gray-50 focus:bg-white transition-all"
                 />
-              </button>
-            </div>
-
-            {/* Advanced Filter Content - Collapsible */}
-            <AnimatePresence>
-              {showDesktopFilters && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
+                <button
+                  onClick={() => setShowFilterModal(true)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1.5 bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white rounded-md transition-all duration-300 hover:scale-105"
                 >
-                  <div className="pt-4 border-t border-gray-200">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      {/* Price Range */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Price Range (₦)
-                        </label>
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            placeholder="Min"
-                            value={minPrice}
-                            onChange={(e) => setMinPrice(e.target.value)}
-                            className="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          />
-                          <input
-                            type="number"
-                            placeholder="Max"
-                            value={maxPrice}
-                            onChange={(e) => setMaxPrice(e.target.value)}
-                            className="w-1/2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
+                  <Filter className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
 
-                      {/* Sort Options */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Sort By
-                        </label>
-                        <div className="flex gap-2">
-                          <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          >
-                            <option value="name">Item Name</option>
-                            <option value="price">Price</option>
-                          </select>
-                          <select
-                            value={sortOrder}
-                            onChange={(e) => setSortOrder(e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                          >
-                            <option value="asc">Ascending</option>
-                            <option value="desc">Descending</option>
-                          </select>
-                        </div>
-                      </div>
+        {/* Advanced Filter Modal - Matching Marketplace */}
+        <AnimatePresence>
+          {showFilterModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowFilterModal(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold text-gray-800">Advanced Filters</h2>
+                  <button
+                    onClick={() => setShowFilterModal(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="w-6 h-6 text-gray-500" />
+                  </button>
+                </div>
 
-                      {/* Reset Filters */}
-                      <div className="flex items-end">
-                        <button
-                          onClick={() => {
-                            setSearchQuery('');
-                            setMinPrice('');
-                            setMaxPrice('');
-                            setSortBy('name');
-                            setSortOrder('asc');
-                          }}
-                          className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors duration-200"
-                        >
-                          Reset Filters
-                        </button>
+                {/* Modal Content */}
+                <div className="p-6 space-y-6">
+                  {/* Price Range */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Price Range (₦)
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <input
+                          type="number"
+                          placeholder="Min Price"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="number"
+                          placeholder="Max Price"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        />
                       </div>
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+
+                  {/* Sort Options */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Sort By
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      >
+                        <option value="name">Name</option>
+                        <option value="price">Price</option>
+                      </select>
+                      <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      >
+                        <option value="asc">Ascending</option>
+                        <option value="desc">Descending</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Statistics */}
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-gray-700 mb-3">Search Results</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div className="text-center p-3 bg-red-50 rounded-lg">
+                        <div className="font-bold text-red-600 text-lg">{filteredListings.length}</div>
+                        <div className="text-red-500">Filtered Results</div>
+                      </div>
+                      <div className="text-center p-3 bg-orange-50 rounded-lg">
+                        <div className="font-bold text-orange-600 text-lg">{urgentListingsData.length}</div>
+                        <div className="text-orange-500">Total Listings</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="flex gap-3 p-6 border-t border-gray-200">
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setMinPrice('');
+                      setMaxPrice('');
+                      setSortBy('name');
+                      setSortOrder('asc');
+                    }}
+                    className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+                  >
+                    Reset All
+                  </button>
+                  <button
+                    onClick={() => setShowFilterModal(false)}
+                    className="flex-1 bg-gradient-to-r from-red-500 to-orange-600 text-white py-3 rounded-xl font-semibold hover:from-red-600 hover:to-orange-700 transition-colors"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Results Summary - Matching Marketplace */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mb-6"
+        >
+          <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-xl shadow-sm p-4 border border-red-100">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <h3 className="text-lg font-bold text-gray-800">
+                    Quick Sales
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-gradient-to-r from-red-500 to-orange-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-md">
+                    {loading ? '...' : filteredListings.length} results
+                  </span>
+                  <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
+                    of {urgentListingsData.length} total
+                  </span>
+                </div>
+              </div>
+              
+              {/* Modern Sort Section */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <ChevronDown className="w-4 h-4 text-red-500" />
+                  <span className="font-medium">Sort by:</span>
+                </div>
+                <div className="relative">
+                  <select
+                    value={`${sortBy}-${sortOrder}`}
+                    onChange={(e) => {
+                      const [newSortBy, newSortOrder] = e.target.value.split('-');
+                      setSortBy(newSortBy);
+                      setSortOrder(newSortOrder);
+                    }}
+                    className="appearance-none bg-white border-2 border-red-200 rounded-lg px-4 py-2 pr-8 text-sm font-medium text-gray-700 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+                  >
+                    <option value="name-asc">Name A-Z</option>
+                    <option value="name-desc">Name Z-A</option>
+                    <option value="price-asc">Price Low-High</option>
+                    <option value="price-desc">Price High-Low</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-red-500 pointer-events-none" />
+                </div>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Mobile Filter Toggle */}
-        <div className="lg:hidden mb-4">
-          <button
-            onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="w-full bg-white py-3 px-4 rounded-xl shadow-md flex items-center justify-between"
-          >
-            <span className="flex items-center gap-2">
-              <FiSearch className="w-5 h-5" />
-              Search & Filters
-            </span>
-            <span className="bg-red-100 text-red-600 px-2 py-1 rounded-full text-xs">
-              {loading ? '...' : filteredListings.length} found
-            </span>
-          </button>
-        </div>
-
-        {/* Search and Filter Section for Mobile */}
-        <div className="lg:hidden">
-          <AnimatePresence>
-            {showMobileFilters && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-white rounded-2xl shadow-lg p-6 mb-6 overflow-hidden"
-              >
-                {/* Search Input */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Search Listings
-                  </label>
-                  <div className="relative">
-                    <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                      type="text"
-                      placeholder="Search by item name..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Price Range */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Price Range (₦)
-                  </label>
-                  <div className="space-y-3">
-                    <input
-                      type="number"
-                      placeholder="Min Price"
-                      value={minPrice}
-                      onChange={(e) => setMinPrice(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Max Price"
-                      value={maxPrice}
-                      onChange={(e) => setMaxPrice(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-
-                {/* Sort Options */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sort By
-                  </label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent mb-2"
-                  >
-                    <option value="name">Item Name</option>
-                    <option value="price">Price</option>
-                  </select>
-                  <select
-                    value={sortOrder}
-                    onChange={(e) => setSortOrder(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    <option value="asc">Ascending</option>
-                    <option value="desc">Descending</option>
-                  </select>
-                </div>
-
-                {/* Reset Filters */}
-                <button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setMinPrice('');
-                    setMaxPrice('');
-                    setSortBy('name');
-                    setSortOrder('asc');
-                  }}
-                  className="w-full bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors duration-200"
-                >
-                  Reset Filters
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Listings Grid */}
+        {/* Listings Grid - Matching Marketplace Card Grid */}
         <div>
           {loading ? (
             renderLoadingSkeleton()
@@ -391,108 +370,121 @@ const UrgentListingsPage = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-12"
+              className="text-center py-12 bg-gray-50 rounded-2xl"
             >
               <div className="text-red-400 text-6xl mb-4">⚠️</div>
               <h3 className="text-xl font-semibold text-gray-600 mb-2">Error loading listings</h3>
               <p className="text-gray-500">Please try again later</p>
             </motion.div>
           ) : (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-            >
-              <AnimatePresence>
-                {filteredListings.map((item) => (
-                  <motion.div
-                    key={item.id || item._id}
-                    variants={cardVariants}
-                    className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
-                  >
-                    <div className="relative">
-                      <img 
-                        src={item?.images?.[0]?.url || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=185&h=185&fit=crop"} 
-                        alt={item.title || item.businessName}
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
+            <AnimatePresence mode="wait">
+              {filteredListings.length > 0 ? (
+                <motion.div
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6"
+                >
+                  {filteredListings.map((item) => (
+                    <motion.div
+                      key={item.id || item._id}
+                      variants={cardVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer"
+                    >
+                      <div className="relative overflow-hidden">
+                        <img 
+                          src={item?.images?.[0]?.url || "https://images.unsplash.com/photo-1581093458791-9d4a34f65a1f?w=300&h=200&fit=crop"} 
+                          alt={item.title || item.businessName}
+                          className="w-full h-32 sm:h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        
+                        {/* Wishlist Button */}
+                        <div className="absolute top-2 right-2">
+                          <button className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white transition-colors">
+                            <Heart className="w-3 h-3 text-gray-600 hover:text-red-500" />
+                          </button>
+                        </div>
 
-                      {/* Urgent Tag */}
-                      <div className="absolute top-3 left-3">
-                        <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                          Urgent
-                        </span>
-                      </div>
-
-                      {/* Hot / Quick Tag */}
-                      <div className="absolute top-3 right-3">
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                            item.urgency === "high"
-                              ? "bg-red-600 text-white"
-                              : "bg-orange-500 text-white"
-                          }`}
-                        >
-                          {item.urgency === "high" ? "🔥 Hot" : "⚡ Quick"}
-                        </span>
-                      </div>
-
-                      {/* SOLD OUT Overlay */}
-                      {item.soldOut && (
-                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
-                          <span className="text-white text-2xl sm:text-3xl font-extrabold uppercase tracking-widest drop-shadow-lg">
-                            Sold Out
+                        {/* Category Badge */}
+                        <div className="absolute bottom-2 left-2">
+                          <span className="bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">
+                            Quick Sale
                           </span>
                         </div>
-                      )}
-                    </div>
-                    
-                    <div className="p-4">
-                      <h3 className="font-bold text-sm sm:text-base text-gray-800 mb-2 line-clamp-2 leading-tight">
-                        {item.title || item.businessName}
-                      </h3>
+
+                        {/* Sold Out Overlay */}
+                        {item.soldOut && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <span className="text-white text-sm font-bold uppercase tracking-wider drop-shadow-lg">
+                              Sold Out
+                            </span>
+                          </div>
+                        )}
+                      </div>
                       
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <FiGrid className="w-3 h-3" />
-                          <span>Condition: {item.condition || "Good"}</span>
+                      <div className="p-3">
+                        <h3 className="font-semibold text-sm text-gray-800 mb-2 line-clamp-2 leading-tight group-hover:text-red-600 transition-colors">
+                          {item.title || item.businessName}
+                        </h3>
+                        
+                        <div className="space-y-1 mb-3">
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                            <Grid className="w-3 h-3 text-purple-500" />
+                            <span className="line-clamp-1">Condition: {item.condition || "Good"}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-xs text-gray-600">
+                            <User className="w-3 h-3 text-indigo-500" />
+                            <span className="line-clamp-1">{item.sellerInfo?.name || "Campus Seller"}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <GiTwoCoins  className="w-3 h-3" />
-                          <span className="font-bold text-green-600">
-                            ₦{item.price?.toLocaleString() || "0"}
-                          </span>
+
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-1">
+                            <Coins className="w-4 h-4 text-green-600" />
+                            <span className="text-sm font-bold text-green-600">₦{item.price?.toLocaleString() || "0"}</span>
+                          </div>
                         </div>
+
+                        <Link 
+                          to={`/listing/${item._id || item.id}`}
+                          state={{ product: item }}
+                          className="block w-full bg-gradient-to-r from-red-500 to-orange-600 text-white py-2 rounded-lg font-medium hover:from-red-600 hover:to-orange-700 transition-all duration-300 text-xs text-center flex items-center justify-center gap-1"
+                        >
+                          <Eye className="w-3 h-3" />
+                          View Details
+                        </Link>
                       </div>
-
-                      <Link 
-                        to={`/listing/${item._id || item.id}`}
-                        state={{ product: item }}
-                        className="block w-full bg-gradient-to-r from-red-500 to-orange-600 text-white py-2 rounded-lg font-semibold hover:from-red-600 hover:to-orange-700 transition-all duration-300 text-xs text-center"
-                      >
-                        View Details
-                      </Link>
-                    </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !error && filteredListings.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-12"
-            >
-              <div className="text-gray-400 text-6xl mb-4">⚡</div>
-              <h3 className="text-xl font-semibold text-gray-600 mb-2">No urgent listings found</h3>
-              <p className="text-gray-500">Try adjusting your search criteria</p>
-            </motion.div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-12 bg-gray-50 rounded-2xl"
+                >
+                  <div className="text-gray-400 text-6xl mb-4">🔍</div>
+                  <h3 className="text-xl font-semibold text-gray-600 mb-2">No quick sales found</h3>
+                  <p className="text-gray-500">Try adjusting your search criteria</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           )}
         </div>
+
+        {/* Floating Filter Button for Mobile */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 1 }}
+          onClick={() => setShowFilterModal(true)}
+          className="fixed bottom-6 right-6 lg:hidden bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white p-3 rounded-full shadow-lg z-40 transition-all duration-300 hover:scale-110"
+        >
+          <Filter className="w-5 h-5" />
+        </motion.button>
       </div>
     </div>
   );

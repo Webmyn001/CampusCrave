@@ -1,29 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FiMail, FiUser, FiCalendar, FiMapPin, FiClock, FiPhone, FiCheckCircle, FiStar } from 'react-icons/fi';
+import {
+  FiMail,
+  FiUser,
+  FiCalendar,
+  FiMapPin,
+  FiClock,
+  FiPhone,
+  FiCheckCircle,
+  FiStar,
+  FiX,
+  FiChevronLeft,
+  FiChevronRight,
+} from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 const BusinessDetails = () => {
+  // -------------------------------------------------------------------
+  // --- 1. ALL REACT HOOKS MUST BE CALLED UNCONDITIONALLY AT THE TOP ---
+  // -------------------------------------------------------------------
   const { id } = useParams();
   const [business, setBusiness] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A';
-    const [day, month, year] = dateStr.split(' ')[0].split('/');
-    const date = new Date(`${year}-${month}-${day}`);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
-
+  // useEffect for fetching data
   useEffect(() => {
     const fetchBusiness = async () => {
       try {
-        const response = await axios.get(`https://campus-plum.vercel.app/api/vip-listings/${id}`);
-        setBusiness(response.data);
+        // Reset state on ID change
+        setBusiness(null);
         setError(null);
+        setLoading(true);
+        const response = await axios.get(
+          `https://campus-plum.vercel.app/api/vip-listings/${id}`
+        );
+        setBusiness(response.data);
       } catch (err) {
         setError('Failed to load business details.');
         console.error(err);
@@ -35,83 +50,203 @@ const BusinessDetails = () => {
     fetchBusiness();
   }, [id]);
 
-  if (loading) return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
-    >
-      <div className="text-center">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"
-        ></motion.div>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-gray-700 text-lg font-medium"
-        >
-          Loading business details...
-        </motion.p>
-      </div>
-    </motion.div>
-  );
-  
-  if (error) return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20"
-      >
-        <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <FiStar className="w-8 h-8 text-red-600" />
-        </div>
-        <p className="text-red-500 text-xl font-semibold">{error}</p>
-        <Link to="/" className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
-          Back to Home
-        </Link>
-      </motion.div>
-    </motion.div>
-  );
-  
-  if (!business) return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20"
-      >
-        <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <FiUser className="w-8 h-8 text-gray-600" />
-        </div>
-        <p className="text-gray-700 text-xl font-semibold">Business not found</p>
-        <Link to="/" className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105">
-          Browse Other Businesses
-        </Link>
-      </motion.div>
-    </motion.div>
-  );
+  // -------------------------------------------------------------------
+  // --- 2. State-dependent Logic (Safe after hooks) -------------------
+  // -------------------------------------------------------------------
+  const images =
+    business?.images && business.images.length > 0
+      ? business.images.map((img, index) => ({
+          ...img,
+          id: img.id || `img-${index}`,
+          url:
+            img.url ||
+            `https://picsum.photos/seed/${business.businessName}-${index}/1200/600`,
+        }))
+      : [
+          {
+            id: 'placeholder',
+            url: `https://picsum.photos/seed/${
+              business?.businessName || 'business'
+            }/1200/600`,
+          },
+        ];
 
+  // -------------------------------------------------------------------
+  // --- 3. More Hooks (useCallback/useEffect) -------------------------
+  // -------------------------------------------------------------------
+
+  // Lightbox navigation functions
+  const nextImage = useCallback(() => {
+    setActiveImage((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+
+  const prevImage = useCallback(() => {
+    setActiveImage((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
+
+  // useEffect for lightbox keyboard navigation
+  useEffect(() => {
+    if (!isLightboxOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+      }
+      if (images.length > 1) {
+        if (e.key === 'ArrowLeft') {
+          prevImage();
+        }
+        if (e.key === 'ArrowRight') {
+          nextImage();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLightboxOpen, nextImage, prevImage, images.length]);
+
+  // -------------------------------------------------------------------
+  // --- 4. Helper Functions -------------------------------------------
+  // -------------------------------------------------------------------
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    try {
+      // Assuming dateStr is in "dd/mm/yyyy hh:mm" format (based on original context)
+      const [day, month, year] = dateStr.split(' ')[0].split('/');
+      const date = new Date(`${year}-${month}-${day}`);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch (e) {
+      return dateStr; // Fallback to original string if format is unexpected
+    }
+  };
+
+  // -------------------------------------------------------------------
+  // --- 5. CONDITIONAL RETURNS (After all hooks) ----------------------
+  // -------------------------------------------------------------------
+
+  if (loading)
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+      >
+        <div className="text-center">
+          
+          {/* --- MODERN LOADER: Pulsing Dot and Bar --- */}
+          <div className="flex items-center justify-center space-x-2 mb-6">
+            <motion.div
+              animate={{
+                y: [0, -10, 0], // Move up and down
+                scale: [1, 1.3, 1], // Pulse scale
+                opacity: [0.8, 1, 0.8]
+              }}
+              transition={{
+                duration: 1.2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="w-4 h-4 rounded-full bg-indigo-600"
+            />
+            <motion.div
+              animate={{
+                width: ["4rem", "8rem", "4rem"], // Bar grows and shrinks
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 2.4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="h-2 rounded-full bg-indigo-400"
+            />
+          </div>
+          {/* ------------------------------------------- */}
+
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-700 text-lg font-medium"
+          >
+            Loading business details...
+          </motion.p>
+        </div>
+      </motion.div>
+    );
+
+  if (error)
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20"
+        >
+          <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FiStar className="w-8 h-8 text-red-600" />
+          </div>
+          <p className="text-red-500 text-xl font-semibold">{error}</p>
+          <Link
+            to="/"
+            className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
+          >
+            Back to Home
+          </Link>
+        </motion.div>
+      </motion.div>
+    );
+
+  if (!business)
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center p-8 bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/20"
+        >
+          <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <FiUser className="w-8 h-8 text-gray-600" />
+          </div>
+          <p className="text-gray-700 text-xl font-semibold">
+            Business not found
+          </p>
+          <Link
+            to="/"
+            className="inline-block mt-4 bg-indigo-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-indigo-700 transition-all duration-300 transform hover:scale-105"
+          >
+            Browse Other Businesses
+          </Link>
+        </motion.div>
+      </motion.div>
+    );
+
+  // -------------------------------------------------------------------
+  // --- 6. MAIN COMPONENT RENDER --------------------------------------
+  // -------------------------------------------------------------------
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-4 sm:py-8"
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        
         {/* Business Card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -120,7 +255,10 @@ const BusinessDetails = () => {
           className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden border border-white/20"
         >
           {/* Main Header Image */}
-          <div className="relative">
+          <div
+            className="relative cursor-pointer"
+            onClick={() => setIsLightboxOpen(true)}
+          >
             <AnimatePresence mode="wait">
               <motion.img
                 key={activeImage}
@@ -128,17 +266,20 @@ const BusinessDetails = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
-                src={business.images?.[activeImage]?.url || 'https://picsum.photos/1200/600?commerce'}
+                src={images[activeImage].url} // Use unified images array
                 alt={business.businessName}
                 className="w-full h-54 sm:h-64 md:h-80 lg:h-96 xl:h-[500px] object-cover"
-                onError={(e) => { e.target.onerror = null; e.target.src = 'https://picsum.photos/1200/600?commerce'; }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://picsum.photos/1200/600?commerce';
+                }}
               />
             </AnimatePresence>
-            
+
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex flex-col justify-end p-4 sm:p-6 md:p-10">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div className="flex-1">
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
@@ -148,19 +289,21 @@ const BusinessDetails = () => {
                       {business.businessName}
                     </h1>
                     {business.sellerInfo?.isUserVerified && (
-                      <motion.div 
+                      <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        transition={{ delay: 0.7, type: "spring" }}
+                        transition={{ delay: 0.7, type: 'spring' }}
                         className="flex items-center gap-1 bg-green-500/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full border border-green-400/30 w-fit"
                       >
-                        <FiCheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />
-                        <span className="text-green-300 text-xs sm:text-sm font-medium">Verified</span>
+                        <FiCheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-300" />
+                        <span className="text-green-300 text-xs sm:text-sm font-medium">
+                          Verified
+                        </span>
                       </motion.div>
                     )}
                   </motion.div>
-                  
-                  <motion.div 
+
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
@@ -168,9 +311,9 @@ const BusinessDetails = () => {
                   >
                     <span className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full w-fit">
                       <FiCalendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                      Since: {formatDate(business.sellerInfo?.formattedMemberSince)}
+                      Since:{' '}
+                      {formatDate(business.sellerInfo?.formattedMemberSince)}
                     </span>
-                    
                   </motion.div>
                 </div>
               </div>
@@ -178,8 +321,8 @@ const BusinessDetails = () => {
           </div>
 
           {/* Image Gallery */}
-          {business.images && business.images.length > 1 && (
-            <motion.div 
+          {images.length > 1 && (
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -190,25 +333,30 @@ const BusinessDetails = () => {
                   Gallery
                 </h2>
                 <span className="text-gray-500 text-sm sm:text-lg font-medium">
-                  {business.images.length} photos
+                  {images.length} photos
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                {business.images.map((img, index) => (
+                {images.map((img, index) => (
                   <motion.div
-                    key={index}
+                    key={img.id}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className={`relative group cursor-pointer rounded-xl sm:rounded-2xl overflow-hidden ${
-                      index === activeImage ? 'ring-2 sm:ring-4 ring-indigo-500 ring-opacity-50' : ''
+                      index === activeImage
+                        ? 'ring-2 sm:ring-4 ring-indigo-500 ring-opacity-50'
+                        : ''
                     }`}
-                    onClick={() => setActiveImage(index)}
+                    onClick={() => setActiveImage(index)} // Click to change header
                   >
                     <img
-                      src={img.url || 'https://picsum.photos/300/200'}
+                      src={img.url}
                       alt={`Business ${index + 1}`}
                       className="w-full h-24 sm:h-32 md:h-40 object-cover transition-all duration-300"
-                      onError={(e) => { e.target.onerror = null; e.target.src = 'https://picsum.photos/300/200'; }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://picsum.photos/300/200';
+                      }}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300"></div>
                   </motion.div>
@@ -220,7 +368,7 @@ const BusinessDetails = () => {
           {/* Business Info */}
           <div className="p-4 sm:p-6 md:p-12 space-y-8 sm:space-y-12">
             {/* About Section */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
@@ -234,15 +382,15 @@ const BusinessDetails = () => {
               </p>
             </motion.div>
 
-            {/* Details Section - Stacked on mobile, grid on larger screens */}
-            <motion.div 
+            {/* Details Section */}
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
               className="space-y-4 sm:space-y-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-4 md:gap-6"
             >
               {/* Email */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-indigo-100 hover:shadow-xl transition-all duration-300"
               >
@@ -251,7 +399,9 @@ const BusinessDetails = () => {
                     <FiMail className="text-indigo-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-gray-600 text-sm font-semibold mb-1">Email</p>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">
+                      Email
+                    </p>
                     <p className="text-gray-800 font-bold text-sm sm:text-base break-all">
                       {business.businessEmail || 'N/A'}
                     </p>
@@ -260,7 +410,7 @@ const BusinessDetails = () => {
               </motion.div>
 
               {/* Contact Method */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300"
               >
@@ -269,7 +419,9 @@ const BusinessDetails = () => {
                     <FiPhone className="text-green-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-gray-600 text-sm font-semibold mb-1">Contact Method</p>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">
+                      Contact Method
+                    </p>
                     <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
                       {business.contactMethod || 'N/A'}
                     </p>
@@ -278,7 +430,7 @@ const BusinessDetails = () => {
               </motion.div>
 
               {/* Working Hours */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-amber-100 hover:shadow-xl transition-all duration-300"
               >
@@ -287,7 +439,9 @@ const BusinessDetails = () => {
                     <FiClock className="text-amber-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-gray-600 text-sm font-semibold mb-1">Working Hours</p>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">
+                      Working Hours
+                    </p>
                     <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
                       {business.workingHours || 'N/A'}
                     </p>
@@ -296,7 +450,7 @@ const BusinessDetails = () => {
               </motion.div>
 
               {/* Business Address */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-purple-100 hover:shadow-xl transition-all duration-300"
               >
@@ -305,7 +459,9 @@ const BusinessDetails = () => {
                     <FiMapPin className="text-purple-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-gray-600 text-sm font-semibold mb-1">Business Address</p>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">
+                      Business Address
+                    </p>
                     <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
                       {business.address || 'N/A'}
                     </p>
@@ -314,7 +470,7 @@ const BusinessDetails = () => {
               </motion.div>
 
               {/* Business Owner */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300"
               >
@@ -323,7 +479,9 @@ const BusinessDetails = () => {
                     <FiUser className="text-blue-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-gray-600 text-sm font-semibold mb-1">Business Owner</p>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">
+                      Business Owner
+                    </p>
                     <div className="flex items-center gap-2">
                       <p className="text-gray-800 font-bold text-sm sm:text-base break-words">
                         {business.sellerInfo?.name || 'N/A'}
@@ -337,7 +495,7 @@ const BusinessDetails = () => {
               </motion.div>
 
               {/* Additional Info Card */}
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02, y: -2 }}
                 className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl sm:rounded-2xl p-4 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
               >
@@ -346,22 +504,30 @@ const BusinessDetails = () => {
                     <FiStar className="text-gray-600 w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-600 text-sm font-semibold mb-1">Business Status</p>
-                    <p className="text-gray-800 font-bold text-sm sm:text-base">Active & Operating</p>
+                    <p className="text-gray-600 text-sm font-semibold mb-1">
+                      Business Status
+                    </p>
+                    <p className="text-gray-800 font-bold text-sm sm:text-base">
+                      Active & Operating
+                    </p>
                   </div>
                 </div>
               </motion.div>
             </motion.div>
 
             {/* Contact Buttons */}
-            {business.id && (
-              <motion.div 
+            {business.id && ( // Note: This check was in your original code
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
                 className="flex flex-col sm:flex-row gap-4 pt-6 sm:pt-8 border-t border-gray-100"
               >
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="flex-1">
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="flex-1"
+                >
                   <Link
                     to="/contactseller"
                     state={{ service: business }}
@@ -376,9 +542,9 @@ const BusinessDetails = () => {
           </div>
         </motion.div>
 
-        {/* Trust Badges Section - Only show if verified */}
-        {business.sellerInfo?.isVerified && (
-          <motion.div 
+        {/* Trust Badges Section */}
+        {business.sellerInfo?.isUserVerified && (
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
@@ -388,32 +554,99 @@ const BusinessDetails = () => {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 1, type: "spring" }}
+                transition={{ delay: 1, type: 'spring' }}
                 className="w-16 h-16 sm:w-20 sm:h-20 bg-green-100 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6"
               >
                 <FiCheckCircle className="w-8 h-8 sm:w-10 sm:h-10 text-green-600" />
               </motion.div>
-              
+
               <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
                 Verified Business
               </h3>
-              
+
               <p className="text-gray-600 text-sm sm:text-base md:text-lg leading-relaxed mb-6 sm:mb-8">
-                This business has been thoroughly verified and authenticated by our team. 
-                You can trust that you're dealing with a legitimate and reliable service provider.
+                This business has been thoroughly verified and authenticated by
+                our team. You can trust that you're dealing with a legitimate
+                and reliable service provider.
               </p>
 
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.03 }}
                 className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl border border-green-200"
               >
                 <FiCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="font-semibold text-sm sm:text-base">Trusted & Verified Partner</span>
+                <span className="font-semibold text-sm sm:text-base">
+                  Trusted & Verified Partner
+                </span>
               </motion.div>
             </div>
           </motion.div>
         )}
       </div>
+
+      {/* --- Lightbox Modal --- */}
+      {isLightboxOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4"
+          onClick={() => setIsLightboxOpen(false)}
+          aria-modal="true"
+          role="dialog"
+        >
+          {/* Close Button (Top Right) */}
+          <button
+            className="absolute top-4 right-4 z-[60] text-white/70 hover:text-white transition-opacity"
+            onClick={() => setIsLightboxOpen(false)}
+            aria-label="Close image gallery"
+          >
+            <FiX className="w-8 h-8" />
+          </button>
+
+          {/* Main Image */}
+          <div
+            className="relative w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()} // Prevent click from closing modal
+          >
+            <img
+              src={images[activeImage].url}
+              alt={business.businessName}
+              className="max-w-3xl max-h-[80vh] object-contain rounded-lg"
+            />
+          </div>
+
+          {/* Prev/Next Buttons */}
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevImage();
+                }}
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-[60] bg-white/20 hover:bg-white/40 text-white p-3 sm:p-4 rounded-full transition-all backdrop-blur-sm"
+                aria-label="Previous image"
+              >
+                <FiChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextImage();
+                }}
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-[60] bg-white/20 hover:bg-white/40 text-white p-3 sm:p-4 rounded-full transition-all backdrop-blur-sm"
+                aria-label="Next image"
+              >
+                <FiChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+              </button>
+            </>
+          )}
+
+          {/* Counter (Bottom Center) */}
+          {images.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[60] bg-black/50 text-white px-4 py-2 rounded-full text-sm font-medium backdrop-blur-sm">
+              {activeImage + 1} / {images.length}
+            </div>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 };
