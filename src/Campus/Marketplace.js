@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSearch, FiFilter, FiClock, FiUser, FiDollarSign, FiGrid, FiList, FiX, FiChevronDown, FiArrowRight, FiStar, FiHeart, FiShoppingCart, FiMapPin, FiEye } from 'react-icons/fi';
-import { useState, useMemo, useEffect } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { FiSearch, FiFilter, FiClock, FiUser,  FiGrid,  FiX, FiChevronDown, FiArrowRight, FiStar, FiHeart,  FiEye } from 'react-icons/fi';
+import { useState,  useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { GiTwoCoins } from "react-icons/gi"
 import axios from 'axios';
 

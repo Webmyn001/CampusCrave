@@ -10,7 +10,6 @@ import {
   FiChevronLeft,
 } from 'react-icons/fi';
 import axios from 'axios';
-import LandingPageSection from './LandingPageSection';
 import Marketplace from './Marketplace';
 
 const HomePage = () => {

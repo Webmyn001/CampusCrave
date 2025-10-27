@@ -2,7 +2,6 @@ import {
   FiArrowLeft,
   FiMail,
   FiMessageSquare,
-  FiPhone,
   FiClock,
   FiUser,
   FiMapPin,

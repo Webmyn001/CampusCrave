@@ -1,6 +1,6 @@
 // ListingsLayout.jsx
 import { Link } from 'react-router-dom';
-import { FiClock, FiShoppingBag, FiHeart, FiSearch, FiCheckCircle } from 'react-icons/fi';
+import { FiClock, FiShoppingBag, FiSearch, FiCheckCircle } from 'react-icons/fi';
 import { useState } from 'react';
 
 const ListingsLayout = ({ children, category, accentColor, showSearch = false, onSearch }) => {

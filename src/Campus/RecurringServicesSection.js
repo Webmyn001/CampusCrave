@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Clock, User, DollarSign, X, Filter, ChevronDown, Eye, Heart, Briefcase, Coins } from 'lucide-react';
+import { Search, Clock, User,  X, Filter, ChevronDown, Eye, Heart, Coins } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';

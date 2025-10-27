@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
-import { FiFacebook, FiTwitter, FiInstagram, FiMail, 
-  FiMapPin, FiPhone, FiHeart } from 'react-icons/fi';
+import {  FiMail, FiMapPin, FiPhone, FiHeart } from 'react-icons/fi';
 
 const Footer = () => {
   return (

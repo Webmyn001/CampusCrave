@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
-import { FiSearch, FiLoader, FiAlertCircle, FiShoppingBag, FiStar, FiEye, FiCalendar, FiMapPin, FiArrowRight, FiCheck } from "react-icons/fi";
+import { FiSearch, FiLoader, FiAlertCircle, FiShoppingBag, FiStar, FiEye, FiCalendar, FiArrowRight, FiCheck } from "react-icons/fi";
 
 const VipServicesListings = () => {
   const [listings, setListings] = useState([]);

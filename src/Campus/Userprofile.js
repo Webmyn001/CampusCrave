@@ -13,7 +13,6 @@ import {
   Trash2,
   TrendingUp,
   Check,
-  User,
   Sparkles,
   Zap,
   Award,
@@ -24,7 +23,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
 // Tailwind utility for handling long strings without wrapping
-const TRUNCATE_CLASS = "truncate block max-w-full";
+
 
 const UserProfile = () => {
   const navigate = useNavigate();
